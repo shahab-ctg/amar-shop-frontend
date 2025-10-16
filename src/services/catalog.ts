@@ -1,5 +1,5 @@
 // src/services/catalog.ts
-import { apiGet } from "@/lib/api";
+import  apiGet  from "@/lib/api";
 import {
   ZCategoriesResponse,
   ZProductsResponse,
