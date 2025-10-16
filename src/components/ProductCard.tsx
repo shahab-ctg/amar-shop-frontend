@@ -1,45 +1,139 @@
 
 "use client";
-import type { Product } from "@/types";
-import { useCart } from "@/context/cart";
+
 import Link from "next/link";
 import Image from "next/image";
+import { motion } from "framer-motion";
+import { Eye, Star } from "lucide-react";
+import type { Product } from "@/types";
 
-export default function ProductCard({ p }: { p: Product }) {
-  const { add } = useCart();
-  const isOff = p.compareAtPrice && p.compareAtPrice > p.price;
+interface ProductCardProps {
+  product: Product; // <-- Product টাইপই নিলাম (image?, stock?)
+  showDiscount?: boolean;
+}
+
+export default function ProductCard({
+  product,
+  showDiscount = false,
+}: ProductCardProps) {
+  // Safe fallbacks
+  const img =
+    product.image ?? "https://via.placeholder.com/600x400?text=Product";
+  const stock = product.stock ?? 0;
+
+  // Calculate discount percentage
+  const discount =
+    product.compareAtPrice && product.compareAtPrice > product.price
+      ? Math.round(
+          ((product.compareAtPrice - product.price) / product.compareAtPrice) *
+            100
+        )
+      : 0;
+
+  const isOutOfStock = stock === 0;
+
   return (
-    <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
-      <Image
-        src={p.image || "https://via.placeholder.com/400x300?text=Product"}
-        alt={p.title}
-        className="w-full h-40 object-cover"
-      />
-      <div className="p-4">
-        <h3 className="font-medium line-clamp-1">{p.title}</h3>
-        <div className="mt-2 flex items-baseline gap-2">
-          <span className="text-lg font-semibold">৳{p.price}</span>
-          {isOff && (
-            <span className="text-sm line-through text-gray-500">
-              ৳{p.compareAtPrice}
+    <motion.div
+      whileHover={{ y: -5 }}
+      transition={{ duration: 0.3 }}
+      className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group relative"
+    >
+      {/* Product Image */}
+      <Link href={`/products/${product.slug}`}>
+        <div className="relative h-40 sm:h-48 bg-gradient-to-br from-emerald-100 to-green-100 overflow-hidden">
+          <Image
+            src={img}
+            alt={product.title}
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className="object-cover group-hover:scale-110 transition-transform duration-500"
+          />
+
+          {/* Discount Badge */}
+          {showDiscount && discount > 0 && (
+            <motion.div
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 200 }}
+              className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg"
+            >
+              -{discount}%
+            </motion.div>
+          )}
+
+          {/* Out of Stock Overlay */}
+          {isOutOfStock && (
+            <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+              <span className="bg-gray-800 text-white px-4 py-2 rounded-full font-semibold">
+                স্টক শেষ
+              </span>
+            </div>
+          )}
+
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300" />
+        </div>
+      </Link>
+
+      {/* Info */}
+      <div className="p-4 sm:p-5">
+        <Link href={`/products/${product.slug}`}>
+          <h3 className="font-bold text-base sm:text-lg text-gray-800 mb-2 line-clamp-2 group-hover:text-emerald-600 transition-colors min-h-[3rem]">
+            {product.title}
+          </h3>
+        </Link>
+
+        {/* Mock Rating */}
+        <div className="flex items-center gap-1 mb-3">
+          {[...Array(5)].map((_, i) => (
+            <Star
+              key={i}
+              size={14}
+              className={
+                i < 4 ? "text-yellow-400 fill-yellow-400" : "text-gray-300"
+              }
+            />
+          ))}
+          <span className="text-xs text-gray-500 ml-1">(4.0)</span>
+        </div>
+
+        {/* Price */}
+        <div className="flex items-baseline gap-2 mb-4">
+          <span className="text-xl sm:text-2xl font-bold text-emerald-600">
+            ৳{product.price}
+          </span>
+          {product.compareAtPrice && product.compareAtPrice > product.price && (
+            <span className="text-sm text-gray-400 line-through">
+              ৳{product.compareAtPrice}
             </span>
           )}
         </div>
-        <div className="mt-3 grid grid-cols-2 gap-2">
-          <button
-            onClick={() => add(p, 1)}
-            className="rounded-xl border px-3 py-2 hover:bg-gray-50"
+
+        {/* View Details */}
+        <Link href={`/products/${product.slug}`}>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white py-2.5 sm:py-3 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isOutOfStock}
           >
-            Add to cart
-          </button>
-          <Link
-            href={`/products/${p.slug}`}
-            className="rounded-xl border px-3 py-2 text-center hover:bg-gray-50"
-          >
-            View details
-          </Link>
-        </div>
+            <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="text-sm sm:text-base">বিস্তারিত দেখুন</span>
+          </motion.button>
+        </Link>
+
+        {/* Stock Info */}
+        <p className="text-xs text-gray-500 mt-2 text-center">
+          {isOutOfStock ? (
+            <span className="text-red-500 font-semibold">স্টকে নেই</span>
+          ) : stock < 10 ? (
+            <span className="text-orange-500 font-semibold">
+              মাত্র {stock}টি বাকি!
+            </span>
+          ) : (
+            <span className="text-green-600">স্টকে আছে</span>
+          )}
+        </p>
       </div>
-    </div>
+    </motion.div>
   );
 }

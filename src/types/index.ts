@@ -4,6 +4,7 @@ export type Category = {
   title: string;
   slug: string;
   image?: string;
+  description?: string;
   status: "ACTIVE" | "HIDDEN";
 };
 
@@ -11,7 +12,7 @@ export type Product = {
   _id: string;
   title: string;
   slug: string;
-  image?: string;
+  image?: string; 
   price: number;
   compareAtPrice?: number;
   isDiscounted?: boolean;
@@ -19,8 +20,8 @@ export type Product = {
   categorySlug?: string;
   tagSlugs?: string[];
   status: "ACTIVE" | "DRAFT" | "HIDDEN";
+  description?: string; 
 };
-
 export type Paginated<T> = {
   ok: boolean;
   data: T[];

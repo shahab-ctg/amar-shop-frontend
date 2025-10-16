@@ -1,33 +1,69 @@
+// src/services/catalog.ts
+import { apiGet } from "@/lib/api";
+import {
+  ZCategoriesResponse,
+  ZProductsResponse,
+  ZOkProduct,
+  ZOkCategory,
+  type CategoriesResponse,
+  type ProductsResponse,
+} from "@/lib/schemas";
 
-import { apiGet, ZCategoriesResponse, ZProductsResponse } from "@/lib/api";
-
-export async function fetchCategories() {
-  const json = await apiGet<any>("/api/v1/categories");
-  return ZCategoriesResponse.parse(json).data.filter(
-    (c) => c.status === "ACTIVE"
-  );
+export async function fetchCategories(): Promise<CategoriesResponse> {
+  const endpoints = ["/categories", "/admin/categories", "/api/v1/categories"];
+  for (const ep of endpoints) {
+    try {
+      const json = await apiGet(ep);
+      const parsed = ZCategoriesResponse.safeParse(json);
+      if (parsed.success) {
+        console.log("✅ Categories from", ep);
+        return parsed.data;
+      }
+    } catch (e) {
+      console.log("❌", ep, "failed");
+    }
+  }
+  return { ok: false, data: [] };
 }
 
 export async function fetchProducts(params?: {
+  category?: string;
   page?: number;
   limit?: number;
-  category?: string;
   q?: string;
   discounted?: "true" | "false";
-}) {
-  const usp = new URLSearchParams();
-  if (params?.page) usp.set("page", String(params.page));
-  if (params?.limit) usp.set("limit", String(params.limit));
-  if (params?.category) usp.set("category", params.category);
-  if (params?.q) usp.set("q", params.q);
-  if (params?.discounted) usp.set("discounted", params.discounted);
-  const json = await apiGet<any>(
-    `/api/v1/products${usp.size ? `?${usp}` : ""}`
-  );
-  return ZProductsResponse.parse(json);
+}): Promise<ProductsResponse> {
+  const sp = new URLSearchParams();
+  if (params?.category) sp.set("category", params.category);
+  if (params?.page) sp.set("page", String(params.page));
+  if (params?.limit) sp.set("limit", String(params.limit));
+  if (params?.q) sp.set("q", params.q);
+  if (params?.discounted) sp.set("discounted", params.discounted);
+
+  try {
+    const json = await apiGet(`/products${sp.size ? `?${sp}` : ""}`);
+    return ZProductsResponse.parse(json);
+  } catch {
+    return { ok: false, data: [], pageInfo: undefined };
+  }
 }
 
 export async function fetchProductBySlug(slug: string) {
-  const json = await apiGet<any>(`/api/v1/products/${slug}`);
-  return z.object({ ok: z.boolean(), data: ZProduct }).parse(json).data;
+  try {
+    const json = await apiGet(`/products/${slug}`);
+    const parsed = ZOkProduct.safeParse(json);
+    return parsed.success ? parsed.data.data : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchCategoryBySlug(slug: string) {
+  try {
+    const json = await apiGet(`/categories/${slug}`);
+    const parsed = ZOkCategory.safeParse(json);
+    return parsed.success ? parsed.data.data : null;
+  } catch {
+    return null;
+  }
 }

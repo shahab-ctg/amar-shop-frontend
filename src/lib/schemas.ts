@@ -1,0 +1,51 @@
+// src/lib/schemas.ts
+import { z } from "zod";
+
+export const ZCategory = z.object({
+  _id: z.string(),
+  title: z.string(),
+  slug: z.string(),
+  image: z.string().optional(),
+  status: z.enum(["ACTIVE", "HIDDEN"]), // ✅ FIX
+});
+
+export const ZProduct = z.object({
+  _id: z.string(),
+  title: z.string(),
+  slug: z.string(),
+  image: z.string().optional(),
+  price: z.number(),
+  compareAtPrice: z.number().optional(),
+  isDiscounted: z.boolean().optional(),
+  stock: z.number().optional(),
+  categorySlug: z.string().optional(),
+  tagSlugs: z.array(z.string()).optional(),
+  status: z.enum(["ACTIVE", "DRAFT", "HIDDEN"]), // ✅ FIX
+});
+
+export const ZCategoriesResponse = z.object({
+  ok: z.boolean(),
+  data: z.array(ZCategory),
+});
+
+export const ZProductsResponse = z.object({
+  ok: z.boolean(),
+  data: z.array(ZProduct),
+  pageInfo: z
+    .object({
+      page: z.number(),
+      limit: z.number(),
+      total: z.number().optional(),
+      hasNext: z.boolean().optional(),
+    })
+    .optional(),
+});
+
+// single resources (যদি backend { ok, data } দেয়)
+export const ZOkProduct = z.object({ ok: z.boolean(), data: ZProduct });
+export const ZOkCategory = z.object({ ok: z.boolean(), data: ZCategory });
+
+export type Category = z.infer<typeof ZCategory>;
+export type Product = z.infer<typeof ZProduct>;
+export type CategoriesResponse = z.infer<typeof ZCategoriesResponse>;
+export type ProductsResponse = z.infer<typeof ZProductsResponse>;
