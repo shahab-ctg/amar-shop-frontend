@@ -77,7 +77,7 @@ export default function ProductActions({
       });
 
       toast.success(`Added ${quantity} item(s) to cart successfully!`);
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to add product to cart");
     } finally {
       setIsAdding(false);

@@ -16,7 +16,7 @@ import {
 import Link from "next/link";
 
 // number-safe helpers
-const toNum = (v: any, f = 0) => (Number.isFinite(Number(v)) ? Number(v) : f);
+const toNum = (v: unknown, f = 0) => (Number.isFinite(Number(v)) ? Number(v) : f);
 const money = (n: number) => `৳${toNum(n).toFixed(2)}`;
 
 export default function CartPage() {
@@ -79,8 +79,8 @@ export default function CartPage() {
           <div className="lg:col-span-2 space-y-4">
             <AnimatePresence mode="popLayout">
               {items.map((item, idx) => {
-                const price = toNum((item as any).price);
-                const qty = toNum((item as any).quantity, 1);
+                const price = toNum(item.price);
+                const qty = toNum(item.quantity, 1);
                 const line = price * qty;
 
                 return (

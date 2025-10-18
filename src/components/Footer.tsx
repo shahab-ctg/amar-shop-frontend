@@ -54,7 +54,7 @@ export default function Footer() {
             <ul className="space-y-2.5 text-emerald-200">
               <li>
                 <Link
-                  href="/dashboard"
+                  href="https://shodaigram-admin-panel-main.vercel.app/login"
                   className="hover:text-white hover:pl-2 transition-all duration-200 inline-block"
                 >
                   Dashboard

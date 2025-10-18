@@ -38,23 +38,28 @@ async function getJSON<T>(path: string, params?: Query): Promise<T> {
 }
 
 /** ---------- Helpers: normalize any products response shape ---------- */
-function normalizeProductsShape(raw: any): { arr: any[]; pageInfo?: any } {
-  let arr: any[] = [];
-  let pageInfo: any | undefined = undefined;
+function normalizeProductsShape(raw: unknown): { arr: unknown[]; pageInfo?: unknown } {
+  let arr: unknown[] = [];
+  let pageInfo: unknown | undefined = undefined;
 
-  if (Array.isArray(raw?.data)) {
-    arr = raw.data;
-    pageInfo = raw?.pageInfo;
-  } else if (raw?.data && typeof raw.data === "object") {
-    const box = raw.data;
+  const rawObj = raw as Record<string, unknown>;
+  const rawData = rawObj?.data;
+
+  if (Array.isArray(rawData)) {
+    arr = rawData;
+    pageInfo = rawObj?.pageInfo;
+  } else if (rawData && typeof rawData === "object") {
+    const box = rawData as Record<string, unknown>;
+
     arr =
-      box.docs ??
-      box.items ??
-      box.data ??
-      box.results ??
-      (Object.values(box).find((v: any) => Array.isArray(v)) as any[]) ??
+      (box.docs as unknown[]) ??
+      (box.items as unknown[]) ??
+      (box.data as unknown[]) ??
+      (box.results as unknown[]) ??
+      (Object.values(box).find((v) => Array.isArray(v)) as unknown[]) ??
       [];
-    const pSrc = raw.pageInfo || {
+
+    const pSrc = (rawObj.pageInfo as Record<string, unknown>) || {
       page: box.page,
       limit: box.limit,
       total: box.total,
@@ -68,7 +73,8 @@ function normalizeProductsShape(raw: any): { arr: any[]; pageInfo?: any } {
     }
   } else {
     const maybe = raw && typeof raw === "object" ? Object.values(raw) : [];
-    const firstArr = (maybe as any[]).find((v) => Array.isArray(v)) ?? [];
+
+    const firstArr = (maybe as unknown[]).find((v) => Array.isArray(v)) ?? [];
     arr = Array.isArray(firstArr) ? firstArr : [];
   }
 
@@ -95,7 +101,7 @@ export type ProductsQuery = {
 };
 
 export async function fetchProducts(query?: ProductsQuery) {
-  // ✅ clamp/remove invalid limit to avoid 400
+  //  clamp/remove invalid limit to avoid 400
   let limit = query?.limit;
   if (typeof limit === "number") {
     if (!Number.isFinite(limit) || limit <= 0) {
@@ -112,24 +118,25 @@ export async function fetchProducts(query?: ProductsQuery) {
   };
 
   // Try fetch
-  let raw: any;
+  let raw: unknown;
   try {
-    raw = await getJSON<any>("/products", params);
-  } catch (e: any) {
+    raw = await getJSON<unknown>("/products", params);
+  } catch (e: unknown) {
     // যদি limit-জনিত 400 আসে, fallback: limit বাদ দিয়ে আবার চেষ্টা
+    const error = e as {message?: string};
     if (
-      String(e?.message || "").includes('"limit"') ||
-      String(e?.message || "").includes("VALIDATION_ERROR")
+      String(error?.message || "").includes('"limit"') ||
+      String(error?.message || "").includes("VALIDATION_ERROR")
     ) {
-      raw = await getJSON<any>("/products", { ...params, limit: undefined });
+      raw = await getJSON<unknown>("/products", { ...params, limit: undefined });
     } else {
       throw e;
     }
   }
 
   // strict → fallback normalize
-  let dataArr: any[] = [];
-  let pageInfo: any | undefined = undefined;
+  let dataArr: unknown[] = [];
+  let pageInfo: unknown | undefined = undefined;
 
   try {
     const parsed = ZProductsResponse.parse(raw);
@@ -156,10 +163,20 @@ export async function fetchProducts(query?: ProductsQuery) {
     );
   }
 
-  if (!query?.sort && data.length && "createdAt" in (data[0] as any)) {
-    data = [...data].sort((a: any, b: any) =>
-      a.createdAt === b.createdAt ? 0 : a.createdAt > b.createdAt ? -1 : 1
-    );
+  if (!query?.sort && data.length > 0) {
+    const firstItem = data[0] as Record<string, unknown>;
+    if ("createdAt" in firstItem) {
+      data = [...data].sort((a, b) => {
+        const aDate = (a as Record<string, unknown>).createdAt;
+        const bDate = (b as Record<string, unknown>).createdAt;
+
+        if (aDate === bDate) return 0;
+        if (typeof aDate === "string" && typeof bDate === "string") {
+          return aDate > bDate ? -1 : 1;
+        }
+        return 0;
+      });
+    }
   }
 
   if (limit && data.length > limit) {

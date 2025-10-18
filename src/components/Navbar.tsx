@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, ShoppingCart, Phone, Menu, X, Leaf } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
-import api from "@/lib/api";
+
 
 interface Category {
   _id: string;
@@ -38,14 +38,17 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const fetchCategories = async () => {
-    try {
-      const res = await api.get("/categories");
-      setCategories(res.data.data || []);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-    }
-  };
+ const fetchCategories = async () => {
+   try {
+    
+     const API = process.env.NEXT_PUBLIC_API_BASE_URL;
+     const response = await fetch(`${API}/categories`);
+     const data = await response.json();
+     setCategories(data.data?.data || []);
+   } catch (error) {
+     console.error("Error fetching categories:", error);
+   }
+ };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

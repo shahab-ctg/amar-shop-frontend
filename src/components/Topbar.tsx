@@ -20,7 +20,7 @@ export default function Topbar() {
   useEffect(() => {
     setQ(sp.get("q") ?? "");
     setCat(sp.get("category") ?? "");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [sp]);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -55,7 +55,9 @@ export default function Topbar() {
           throw new Error(`Failed to load categories (${res.status})`);
         const json = await res.json();
         setCategories((json?.data ?? []) as Category[]);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
+
         if (err?.name !== "AbortError") {
           setCategoriesError(err?.message || "Failed to fetch categories");
           setCategories([]);
@@ -88,7 +90,7 @@ export default function Topbar() {
     setMobileMenuOpen(false);
   };
 
-  const onClear = () => {
+  const _onClear = () => {
     setQ("");
     setCat("");
     router.push("/products");

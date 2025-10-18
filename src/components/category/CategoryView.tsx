@@ -11,7 +11,7 @@ import ProductCard from "@/components/ProductCard";
 import type { Category, Product } from "@/types";
 
 export default function CategoryView({ slug }: { slug: string }) {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [_categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [current, setCurrent] = useState<Category | null>(null);

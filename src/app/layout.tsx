@@ -5,6 +5,9 @@ import Footer from "@/components/Footer";
 import Topbar from "@/components/Topbar";
 import ToastProvider from "@/components/ToastProvider";
 
+
+export const dynamic = "force-dynamic";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
