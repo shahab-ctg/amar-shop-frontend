@@ -1,23 +1,14 @@
-// components/Topbar.tsx
 "use client";
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/store/cartStore";
 import clsx from "clsx";
-import {
-  Search,
-  ShoppingCart,
-  Phone,
-  Menu,
-  X,
-  Leaf,
-  Home,
-  Package,
-  ChevronDown,
-} from "lucide-react";
+import { Search, ShoppingCart, Phone, Menu, X, Leaf } from "lucide-react";
+
+type Category = { _id: string; slug: string; title: string };
 
 export default function Topbar() {
   const pathname = usePathname();
@@ -26,64 +17,72 @@ export default function Topbar() {
 
   const [q, setQ] = useState<string>(sp.get("q") ?? "");
   const [cat, setCat] = useState<string>(sp.get("category") ?? "");
+  useEffect(() => {
+    setQ(sp.get("q") ?? "");
+    setCat(sp.get("category") ?? "");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sp]);
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [categoriesError, setCategoriesError] = useState<string | null>(null);
 
-  // Cart items count from Zustand
   const cartItems = useCartStore((s) => s.items);
-  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const cartCount = useMemo(
+    () => cartItems.reduce((sum, item) => sum + item.quantity, 0),
+    [cartItems]
+  );
 
   const brand = process.env.NEXT_PUBLIC_BRAND || "ShodaiGram";
   const hotline = process.env.NEXT_PUBLIC_HOTLINE || "01700-000000";
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-  // Fetch categories (dynamic integration ready)
   useEffect(() => {
-    const fetchCategories = async () => {
+    const ac = new AbortController();
+    async function load() {
       try {
         setCategoriesLoading(true);
-        // Replace with your actual API call
-        // const response = await fetch("/api/categories");
-        // const data = await response.json();
-        // setCategories(data.data ?? []);
-
-        // Mock data for now
-        setCategories([
-          { _id: "1", slug: "vegetables", title: "Vegetables" },
-          { _id: "2", slug: "fruits", title: "Fruits" },
-          { _id: "3", slug: "rice", title: "Rice" },
-          { _id: "4", slug: "oil", title: "Oil" },
-          { _id: "5", slug: "spices", title: "Spices" },
-        ]);
-      } catch (error) {
-        console.error("Failed to fetch categories:", error);
+        setCategoriesError(null);
+        if (!API_BASE) throw new Error("NEXT_PUBLIC_API_BASE_URL is missing");
+        const res = await fetch(`${API_BASE}/categories`, {
+          signal: ac.signal,
+          headers: { "content-type": "application/json" },
+          cache: "no-store",
+        });
+        if (!res.ok)
+          throw new Error(`Failed to load categories (${res.status})`);
+        const json = await res.json();
+        setCategories((json?.data ?? []) as Category[]);
+      } catch (err: any) {
+        if (err?.name !== "AbortError") {
+          setCategoriesError(err?.message || "Failed to fetch categories");
+          setCategories([]);
+        }
       } finally {
         setCategoriesLoading(false);
       }
-    };
+    }
+    load();
+    return () => ac.abort();
+  }, [API_BASE]);
 
-    fetchCategories();
-  }, []);
-
-  // Handle scroll effect
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
+    const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close mobile menu on route change
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [pathname]);
 
   const onSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    const qTrim = q.trim();
     const params = new URLSearchParams();
-    if (q.trim()) params.set("q", q.trim());
+    if (qTrim) params.set("q", qTrim);
     if (cat) params.set("category", cat);
     router.push(`/products${params.toString() ? `?${params.toString()}` : ""}`);
     setMobileMenuOpen(false);
@@ -94,11 +93,6 @@ export default function Topbar() {
     setCat("");
     router.push("/products");
   };
-
-  const NAV_LINKS = [
-    { href: "/", label: "Home", icon: Home },
-    { href: "/products", label: "Products", icon: Package },
-  ];
 
   return (
     <>
@@ -111,7 +105,7 @@ export default function Topbar() {
         )}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Top Banner - Only on desktop */}
+          {/* Top Banner - Desktop only */}
           <div className="hidden md:block border-b border-green-100">
             <div className="flex items-center justify-between py-2 text-sm">
               <div className="flex items-center gap-2 text-gray-600">
@@ -121,6 +115,7 @@ export default function Topbar() {
               <a
                 href={`tel:${hotline}`}
                 className="flex items-center gap-2 text-green-600 hover:text-green-700 font-medium"
+                aria-label="Call hotline"
               >
                 <Phone className="w-4 h-4" />
                 <span>হটলাইন: {hotline}</span>
@@ -129,11 +124,12 @@ export default function Topbar() {
           </div>
 
           {/* Main Navigation */}
-          <div className="flex items-center gap-4 py-3 md:py-4">
-            {/* Logo & Brand */}
+          <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 md:gap-4 py-3 md:py-4">
+            {/* Left: Logo */}
             <Link
               href="/"
               className="flex items-center gap-2 md:gap-3 shrink-0 group"
+              aria-label="Go to homepage"
             >
               <motion.div
                 whileHover={{ scale: 1.05 }}
@@ -155,100 +151,73 @@ export default function Topbar() {
               </div>
             </Link>
 
-            {/* Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center gap-1 ml-6">
-              {NAV_LINKS.map((link) => {
-                const Icon = link.icon;
-                const isActive = pathname === link.href;
-
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={clsx(
-                      "flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold transition-all duration-200",
-                      isActive
-                        ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-md"
-                        : "text-gray-700 hover:bg-green-50 hover:text-green-700"
-                    )}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span>{link.label}</span>
-                  </Link>
-                );
-              })}
-
-              {/* Categories Dropdown - Desktop */}
-              <div className="relative group">
-                <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-gray-700 hover:bg-green-50 hover:text-green-700 transition-all">
-                  <span>Category</span>
-                  <ChevronDown className="w-4 h-4" />
-                </button>
-
-                {/* Dropdown Menu */}
-                <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-xl border-2 border-green-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2">
-                  <Link
-                    href="/products"
-                    className="block px-4 py-2.5 text-gray-700 hover:bg-green-50 hover:text-green-700 font-medium"
-                  >
-              All Products
-                  </Link>
-                  {categories.map((cat) => (
-                    <Link
-                      key={cat._id}
-                      href={`/products?category=${cat.slug}`}
-                      className="block px-4 py-2.5 text-gray-700 hover:bg-green-50 hover:text-green-700"
-                    >
-                      {cat.title}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </nav>
-
-            {/* Search Bar - Desktop */}
+            {/* Center: Search (Desktop only) */}
             <form
               onSubmit={onSearch}
-              className="hidden lg:flex items-center gap-2 ml-auto max-w-xl flex-1"
+              className="hidden lg:flex items-center justify-center"
             >
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500" />
-                <input
-                  placeholder="Search Products..."
-                  value={q}
-                  onChange={(e) => setQ(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border-2 border-green-200 rounded-xl focus:outline-none focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all bg-white"
-                />
-              </div>
-              <select
-                value={cat}
-                onChange={(e) => setCat(e.target.value)}
-                disabled={categoriesLoading}
-                className="px-4 py-2.5 border-2 border-green-200 rounded-xl focus:outline-none focus:border-green-500 transition-all bg-white text-green-500 min-w-[140px] cursor-pointer"
-              >
-                <option value="">
-                  {categoriesLoading ? "Loading..." : "All Category"}
-                </option>
-                {categories.map((c) => (
-                  <option key={c._id} value={c.slug}>
-                    {c.title}
+              <div className="flex w-full max-w-2xl items-stretch gap-2">
+                {/* Category select with relevant green bg */}
+                <select
+                  aria-label="Filter by category"
+                  value={cat}
+                  onChange={(e) => setCat(e.target.value)}
+                  disabled={categoriesLoading}
+                  className={clsx(
+                    "px-3 sm:px-4 py-2.5 rounded-xl border-2 min-w-[150px]",
+                    "bg-green-50 border-green-200 text-green-700",
+                    "focus:outline-none focus:border-green-500 transition-all"
+                  )}
+                >
+                  <option value="">
+                    {categoriesLoading
+                      ? "Loading..."
+                      : categoriesError
+                        ? "Retry: Categories"
+                        : "All Category"}
                   </option>
-                ))}
-              </select>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                type="submit"
-                className="px-5 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg"
-              >
-               Search
-              </motion.button>
+                  {categories.map((c) => (
+                    <option className="" key={c._id} value={c.slug}>
+                      {c.title}
+                    </option>
+                  ))}
+                </select>
+
+                {/* Search input */}
+                <div className="relative flex-1">
+                  <Search
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500"
+                    aria-hidden="true"
+                  />
+                  <input
+                    aria-label="Search products"
+                    placeholder="Search Products..."
+                    value={q}
+                    onChange={(e) => setQ(e.target.value)}
+                    className={clsx(
+                      "w-full pl-10 pr-4 py-2.5 rounded-xl border-2",
+                      "bg-white border-green-200 focus:border-green-500 focus:ring-4 focus:ring-green-100",
+                      "transition-all text-gray-900 placeholder:text-gray-400"
+                    )}
+                  />
+                </div>
+
+                {/* Search button */}
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  className="px-5 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg"
+                >
+                  Search
+                </motion.button>
+              </div>
             </form>
 
-            {/* Right Actions */}
-            <div className="flex items-center gap-2 ml-auto lg:ml-4">
+            {/* Right: Actions */}
+            <div className="flex items-center justify-end gap-2">
               {/* Cart Button */}
-              <Link href="/cart">
+              <Link href="/cart" aria-label="Open cart">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -271,6 +240,7 @@ export default function Topbar() {
               <a
                 href={`tel:${hotline}`}
                 className="md:hidden p-2.5 bg-green-50 hover:bg-green-100 text-green-700 rounded-xl transition-all"
+                aria-label="Call hotline"
               >
                 <Phone className="w-5 h-5" />
               </a>
@@ -280,6 +250,7 @@ export default function Topbar() {
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="lg:hidden p-2.5 text-green-600 hover:bg-green-50 rounded-xl transition-all"
+                aria-label="Toggle menu"
               >
                 {mobileMenuOpen ? (
                   <X className="w-6 h-6" />
@@ -290,52 +261,7 @@ export default function Topbar() {
             </div>
           </div>
 
-          {/* Mobile Search - Always Visible on Mobile */}
-          <div className="lg:hidden pb-3">
-            <form onSubmit={onSearch} className="space-y-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500" />
-                <input
-                  placeholder="Search Products..."
-                  value={q}
-                  onChange={(e) => setQ(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 border-2 border-green-200 rounded-xl focus:outline-none focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all bg-white"
-                />
-              </div>
-              <div className="flex gap-2">
-                <select
-                  value={cat}
-                  onChange={(e) => setCat(e.target.value)}
-                  disabled={categoriesLoading}
-                  className="flex-1 px-4 py-2.5 border-2 border-green-200 rounded-xl focus:outline-none focus:border-green-500 transition-all bg-white"
-                >
-                  <option value="">
-                    {categoriesLoading ? "Loading..." : "All Category"}
-                  </option>
-                  {categories.map((c) => (
-                    <option key={c._id} value={c.slug}>
-                      {c.title}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl shadow-md"
-                >
-             Search
-                </button>
-              </div>
-              {(q || cat) && (
-                <button
-                  type="button"
-                  onClick={onClear}
-                  className="w-full px-4 py-2.5 border-2 border-green-200 text-green-700 font-medium rounded-xl hover:bg-green-50 transition-all"
-                >
-                 Clear Filter
-                </button>
-              )}
-            </form>
-          </div>
+          {/*  Mobile search block removed as requested (small screens will NOT show search UI) */}
         </div>
 
         {/* Mobile Navigation Menu */}
@@ -349,46 +275,24 @@ export default function Topbar() {
               className="lg:hidden border-t border-green-100 bg-white overflow-hidden"
             >
               <div className="max-w-7xl mx-auto px-4 py-4 space-y-2">
-                {/* Navigation Links */}
-                {NAV_LINKS.map((link) => {
-                  const Icon = link.icon;
-                  const isActive = pathname === link.href;
-
-                  return (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className={clsx(
-                        "flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all",
-                        isActive
-                          ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-md"
-                          : "text-gray-700 hover:bg-green-50 hover:text-green-700"
-                      )}
-                    >
-                      <Icon className="w-5 h-5" />
-                      <span>{link.label}</span>
-                    </Link>
-                  );
-                })}
-
-                {/* Categories Section */}
-                <div className="pt-2 mt-2 border-t border-green-100">
-                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 mb-2">
-       Category
+                {/* Categories quick links (optional) */}
+                <div className="pt-2">
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-1 mb-2">
+                    Categories
                   </div>
                   <Link
                     href="/products"
                     className="block px-4 py-3 text-gray-700 hover:bg-green-50 hover:text-green-700 rounded-xl font-medium"
                   >
-                  All Products
+                    All Products
                   </Link>
-                  {categories.map((cat) => (
+                  {categories.map((c) => (
                     <Link
-                      key={cat._id}
-                      href={`/products?category=${cat.slug}`}
+                      key={c._id}
+                      href={`/products?category=${c.slug}`}
                       className="block px-4 py-3 text-gray-700 hover:bg-green-50 hover:text-green-700 rounded-xl"
                     >
-                      {cat.title}
+                      {c.title}
                     </Link>
                   ))}
                 </div>
@@ -427,18 +331,18 @@ export default function Topbar() {
             >
               All Products
             </Link>
-            {categories.map((cat) => (
+            {categories.map((c) => (
               <Link
-                key={cat._id}
-                href={`/products?category=${cat.slug}`}
+                key={c._id}
+                href={`/products?category=${c.slug}`}
                 className={clsx(
                   "px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-all",
-                  sp.get("category") === cat.slug
+                  sp.get("category") === c.slug
                     ? "bg-white text-green-700 shadow-md"
                     : "text-white hover:bg-white/20"
                 )}
               >
-                {cat.title}
+                {c.title}
               </Link>
             ))}
           </div>

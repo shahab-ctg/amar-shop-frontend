@@ -1,98 +1,96 @@
-// store/cartStore.ts
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { persist } from "zustand/middleware";
 
 export interface CartItem {
   _id: string;
   title: string;
   slug: string;
   price: number;
-  image: string;
+  image?: string;
   quantity: number;
-  stock: number;
 }
 
-interface CartState {
+interface CartStore {
   items: CartItem[];
-  addItem: (item: Omit<CartItem, "quantity">) => void;
-  removeItem: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  // ✅ Consistent method names
+  addItem: (item: CartItem) => void;
+  addToCart: (item: CartItem) => void; // Alternative name for compatibility
+  removeItem: (id: string) => void;
+  updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
   getTotalPrice: () => number;
   getTotalItems: () => number;
 }
 
-export const useCartStore = create<CartState>()(
+export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
 
-      // Add item to cart
-      addItem: (item) => {
-        const items = get().items;
-        const existingItem = items.find((i) => i._id === item._id);
+      // ✅ Main add item method
+      addItem: (newItem: CartItem) => {
+        set((state) => {
+          const existingItem = state.items.find(
+            (item) => item._id === newItem._id
+          );
 
-        if (existingItem) {
-          // Increment quantity if item exists
-          set({
-            items: items.map((i) =>
-              i._id === item._id
-                ? { ...i, quantity: Math.min(i.quantity + 1, i.stock) }
-                : i
-            ),
-          });
-        } else {
-          // Add new item
-          set({
-            items: [...items, { ...item, quantity: 1 }],
-          });
-        }
-      },
-
-      // Remove item from cart
-      removeItem: (productId) => {
-        set({
-          items: get().items.filter((item) => item._id !== productId),
+          if (existingItem) {
+            // Update quantity if item exists
+            const updatedItems = state.items.map((item) =>
+              item._id === newItem._id
+                ? { ...item, quantity: item.quantity + newItem.quantity }
+                : item
+            );
+            return { items: updatedItems };
+          } else {
+            // Add new item to cart
+            return { items: [...state.items, newItem] };
+          }
         });
       },
 
-      // Update item quantity
-      updateQuantity: (productId, quantity) => {
+      // ✅ Alternative method name for compatibility
+      addToCart: (item: CartItem) => {
+        get().addItem(item);
+      },
+
+      removeItem: (id: string) => {
+        set((state) => ({
+          items: state.items.filter((item) => item._id !== id),
+        }));
+      },
+
+      updateQuantity: (id: string, quantity: number) => {
         if (quantity <= 0) {
-          get().removeItem(productId);
+          get().removeItem(id);
           return;
         }
 
-        set({
-          items: get().items.map((item) =>
-            item._id === productId
-              ? { ...item, quantity: Math.min(quantity, item.stock) }
-              : item
+        set((state) => ({
+          items: state.items.map((item) =>
+            item._id === id ? { ...item, quantity } : item
           ),
-        });
+        }));
       },
 
-      // Clear entire cart
       clearCart: () => {
         set({ items: [] });
       },
 
-      // Calculate total price
       getTotalPrice: () => {
-        return get().items.reduce(
-          (total, item) => total + item.price * item.quantity,
-          0
-        );
+        const state = get();
+        return state.items.reduce((total, item) => {
+          return total + item.price * item.quantity;
+        }, 0);
       },
 
-      // Calculate total items count
       getTotalItems: () => {
-        return get().items.reduce((total, item) => total + item.quantity, 0);
+        const state = get();
+        return state.items.reduce((total, item) => total + item.quantity, 0);
       },
     }),
     {
-      name: "shodaigram-cart",
-      storage: createJSONStorage(() => localStorage),
+      name: "cart-storage",
     }
   )
 );

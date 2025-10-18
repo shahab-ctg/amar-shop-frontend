@@ -1,4 +1,3 @@
-
 export type Category = {
   _id: string;
   title: string;
@@ -12,7 +11,7 @@ export type Product = {
   _id: string;
   title: string;
   slug: string;
-  image?: string; 
+  image?: string;
   price: number;
   compareAtPrice?: number;
   isDiscounted?: boolean;
@@ -20,10 +19,19 @@ export type Product = {
   categorySlug?: string;
   tagSlugs?: string[];
   status: "ACTIVE" | "DRAFT" | "HIDDEN";
-  description?: string; 
+  description?: string;
+  //  Add any missing fields that might be needed
+  createdAt?: string;
+  updatedAt?: string;
 };
+
 export type Paginated<T> = {
   ok: boolean;
   data: T[];
-  pageInfo?: { page: number; limit: number; total?: number; hasNext?: boolean };
+  pageInfo?: {
+    page: number;
+    limit: number;
+    total?: number;
+    hasNext?: boolean;
+  };
 };
