@@ -1,4 +1,4 @@
-// src/app/category/[slug]/page.tsx
+
 import CategoryView from "@/components/category/CategoryView";
 
 export default function CategoryPage({ params }: { params: { slug: string } }) {

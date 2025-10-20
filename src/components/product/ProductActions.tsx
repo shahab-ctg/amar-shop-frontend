@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Minus, Plus, ShoppingCart, Zap, Phone } from "lucide-react";
+import { 
+  // Minus, Plus, 
+  ShoppingCart, Zap, Phone } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import type { Product } from "@/types";
 import { toast } from "react-hot-toast";
@@ -17,7 +19,7 @@ export default function ProductActions({
   hotline,
 }: ProductActionsProps) {
   const router = useRouter();
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, _setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
 
   // Cart store methods
@@ -30,22 +32,22 @@ export default function ProductActions({
   // Stock validation
   const isOutOfStock = (product.stock ?? 0) <= 0;
   const availableStock = product.stock ?? 0;
-  const canIncrease = quantity < availableStock;
+  const _canIncrease = quantity < availableStock;
 
   // Quantity handlers
-  const increaseQuantity = () => {
-    if (canIncrease) {
-      setQuantity((prev) => prev + 1);
-    } else {
-      toast.error(`Only ${availableStock} items available in stock`);
-    }
-  };
+  // const increaseQuantity = () => {
+  //   if (canIncrease) {
+  //     setQuantity((prev) => prev + 1);
+  //   } else {
+  //     toast.error(`Only ${availableStock} items available in stock`);
+  //   }
+  // };
 
-  const decreaseQuantity = () => {
-    if (quantity > 1) {
-      setQuantity((prev) => prev - 1);
-    }
-  };
+  // const decreaseQuantity = () => {
+  //   if (quantity > 1) {
+  //     setQuantity((prev) => prev - 1);
+  //   }
+  // };
 
   // Add to cart handler - User can add only once
   const handleAddToCart = async () => {
@@ -109,7 +111,7 @@ export default function ProductActions({
   return (
     <div className="space-y-4">
       {/* Quantity Selector */}
-      <div className="flex items-center gap-4">
+      {/* <div className="flex items-center gap-4">
         <span className="text-sm font-medium text-gray-700">Quantity:</span>
         <div className="flex items-center gap-3 bg-gray-100 rounded-xl px-3 py-2">
           <button
@@ -132,7 +134,7 @@ export default function ProductActions({
             <Plus className="w-4 h-4 text-green-700" />
           </button>
         </div>
-      </div>
+      </div> */}
 
       {/* Stock Info */}
       <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">

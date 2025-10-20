@@ -42,130 +42,171 @@ export default function CategoryView({ slug }: { slug: string }) {
     };
   }, [slug]);
 
-  // Loading
+  // Loading state with improved responsive skeleton
   if (loading) {
     return (
       <div className="min-h-[60vh] bg-gradient-to-b from-green-50 to-white">
-        <div className="mx-auto max-w-6xl px-4 py-12">
+        <div className="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 lg:px-8 py-8 sm:py-10 md:py-12">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-6 mx-auto animate-pulse">
-              <Leaf className="w-10 h-10 text-green-600" />
+            <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full mb-4 sm:mb-6 mx-auto animate-pulse">
+              <Leaf className="w-8 h-8 sm:w-10 sm:h-10 text-green-600" />
             </div>
-            <div className="h-8 bg-gray-200 rounded w-48 mx-auto mb-4 animate-pulse" />
-            <div className="h-4 bg-gray-200 rounded w-32 mx-auto mb-8 animate-pulse" />
+            <div className="h-6 sm:h-8 bg-gray-200 rounded w-36 sm:w-48 mx-auto mb-3 sm:mb-4 animate-pulse" />
+            <div className="h-3 sm:h-4 bg-gray-200 rounded w-24 sm:w-32 mx-auto mb-6 sm:mb-8 animate-pulse" />
+
+            {/* Skeleton Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 lg:gap-6 mt-8">
+              {[...Array(8)].map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-gray-200 rounded-2xl aspect-[3/4] animate-pulse"
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
-  // Empty
+  // Empty state with responsive design
   if (products.length === 0) {
     return (
       <div className="min-h-[60vh] bg-gradient-to-b from-green-50 to-white">
-        <div className="mx-auto max-w-6xl px-4 py-12">
-          <div className="text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-6">
-              <ShoppingBag className="w-10 h-10 text-green-600" />
+        <div className="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 lg:px-8 py-8 sm:py-10 md:py-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center"
+          >
+            <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full mb-4 sm:mb-6">
+              <ShoppingBag className="w-8 h-8 sm:w-10 sm:h-10 text-green-600" />
             </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-3">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-2 sm:mb-3 px-4">
               এই ক্যাটাগরিতে কোনো পণ্য নেই
             </h2>
-            <p className="text-gray-600 mb-8">
+            <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8 px-4">
               শীঘ্রই নতুন জৈব পণ্য যোগ করা হবে
             </p>
             <Link
               href="/products"
-              className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-full hover:bg-green-700 transition-colors"
+              className="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 sm:px-6 sm:py-3 rounded-full hover:bg-green-700 transition-colors text-sm sm:text-base font-medium shadow-md hover:shadow-lg"
             >
               সব পণ্য দেখুন
               <ArrowRight className="w-4 h-4" />
             </Link>
-          </div>
+          </motion.div>
         </div>
       </div>
     );
   }
 
-  // UI
+  // Main UI with full responsive design
   return (
     <div className="bg-gradient-to-b from-green-50 via-white to-green-50 min-h-screen">
-      <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
-        {/* Header */}
-        <div className="mb-8 md:mb-12">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2.5 bg-green-100 rounded-xl">
-              <Leaf className="w-6 h-6 text-green-600" />
+      <div className="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8 md:py-10 lg:py-12">
+        {/* Category Header - Fully Responsive */}
+        <div className="mb-6 sm:mb-8 md:mb-10 lg:mb-12">
+          <div className="flex items-start sm:items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+            <div className="p-2 sm:p-2.5 bg-green-100 rounded-lg sm:rounded-xl shrink-0">
+              <Leaf className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
             </div>
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 leading-tight break-words">
                 {current?.title || "ক্যাটাগরি"}
               </h1>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-xs sm:text-sm text-gray-600 mt-0.5 sm:mt-1">
                 {products.length} টি তাজা জৈব পণ্য
               </p>
             </div>
           </div>
 
+          {/* Category Description - Responsive */}
           {current?.description && (
-            <div className="bg-white rounded-xl p-4 border border-green-100 mt-4">
-              <p className="text-gray-700 text-sm md:text-base">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 border border-green-100 mt-3 sm:mt-4"
+            >
+              <p className="text-gray-700 text-xs sm:text-sm md:text-base leading-relaxed">
                 {current.description}
               </p>
-            </div>
+            </motion.div>
           )}
         </div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
+        {/* Products Grid - Fully Responsive */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-6">
           {products.map((product, idx) => (
             <motion.div
               key={product._id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.05 }}
+              className="w-full"
             >
               <ProductCard product={product} />
             </motion.div>
           ))}
         </div>
 
-        {/* See all */}
-        <div className="mt-8 md:mt-12 flex justify-center">
+        {/* See All Button - Responsive */}
+        <div className="mt-6 sm:mt-8 md:mt-10 lg:mt-12 flex justify-center px-3 sm:px-0">
           <Link
             href={`/products?category=${encodeURIComponent(slug)}`}
-            className="group inline-flex items-center gap-2 bg-white border-2 border-green-600 text-green-600 px-8 py-4 rounded-full hover:bg-green-600 hover:text-white transition-all shadow-md hover:shadow-lg font-semibold"
+            className="group inline-flex items-center justify-center gap-2 bg-white border-2 border-green-600 text-green-600 px-5 py-2.5 sm:px-6 sm:py-3 md:px-8 md:py-4 rounded-full hover:bg-green-600 hover:text-white transition-all shadow-md hover:shadow-lg font-semibold text-sm sm:text-base w-full sm:w-auto max-w-xs sm:max-w-none"
           >
             সব পণ্য দেখুন
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 
-        {/* Badges */}
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white rounded-xl p-6 border border-green-100 text-center">
-            <div className="text-3xl mb-3">🌱</div>
-            <h3 className="font-semibold text-gray-800 mb-2">১০০% জৈব</h3>
-            <p className="text-sm text-gray-600">
+        {/* Trust Badges - Fully Responsive */}
+        <div className="mt-8 sm:mt-10 md:mt-12 lg:mt-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-white rounded-xl p-4 sm:p-5 md:p-6 border border-green-100 text-center hover:shadow-md transition-shadow"
+          >
+            <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">🌱</div>
+            <h3 className="font-semibold text-gray-800 mb-1 sm:mb-2 text-sm sm:text-base">
+              ১০০% জৈব
+            </h3>
+            <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
               রাসায়নিক মুক্ত প্রাকৃতিক পণ্য
             </p>
-          </div>
-          <div className="bg-white rounded-xl p-6 border border-green-100 text-center">
-            <div className="text-3xl mb-3">🚜</div>
-            <h3 className="font-semibold text-gray-800 mb-2">
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white rounded-xl p-4 sm:p-5 md:p-6 border border-green-100 text-center hover:shadow-md transition-shadow"
+          >
+            <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">🚜</div>
+            <h3 className="font-semibold text-gray-800 mb-1 sm:mb-2 text-sm sm:text-base">
               সরাসরি খামার থেকে
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
               তাজা ও মানসম্পন্ন পণ্যের নিশ্চয়তা
             </p>
-          </div>
-          <div className="bg-white rounded-xl p-6 border border-green-100 text-center">
-            <div className="text-3xl mb-3">🏡</div>
-            <h3 className="font-semibold text-gray-800 mb-2">হোম ডেলিভারি</h3>
-            <p className="text-sm text-gray-600">
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white rounded-xl p-4 sm:p-5 md:p-6 border border-green-100 text-center hover:shadow-md transition-shadow sm:col-span-2 md:col-span-1"
+          >
+            <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">🏡</div>
+            <h3 className="font-semibold text-gray-800 mb-1 sm:mb-2 text-sm sm:text-base">
+              হোম ডেলিভারি
+            </h3>
+            <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
               দ্রুত ও নিরাপদ ডেলিভারি সেবা
             </p>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

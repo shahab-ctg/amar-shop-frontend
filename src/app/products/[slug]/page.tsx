@@ -11,9 +11,12 @@ import ProductActions from "@/components/product/ProductActions";
 export const revalidate = 0; // live; services already no-store
 export const dynamic = "force-dynamic";
 
-// type Props = { params: { slug: string } };
-
-export default async function ProductDetailsPage({ params }: { params: Promise<{ slug: string }> }) {
+// NOTE: আপনার টাইপ 그대로 রাখলাম (Promise). চাইলে নিচে type-only fix।
+export default async function ProductDetailsPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const hotline = process.env.NEXT_PUBLIC_HOTLINE || "01700-000000";
   const { slug } = await params;
 
@@ -38,21 +41,20 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-green-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
+      <div className="max-w-7xl mx-auto px-4 xs:px-5 sm:px-6 lg:px-8 py-6 md:py-10">
         {/* Top layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 md:gap-8 lg:gap-10">
           {/* Image */}
           <div className="bg-white rounded-2xl shadow-sm p-3 sm:p-4 md:p-5">
             <div className="relative aspect-square rounded-xl overflow-hidden bg-gradient-to-br from-emerald-100 to-green-100">
               {product.image ? (
                 <Image
-                  src={product?.image}
+                  src={product.image}
                   alt={product.title}
                   fill
                   sizes="(max-width: 1024px) 100vw, 50vw"
                   className="object-cover"
                   priority
-                  // fallback="/images/placeholder.jpg"
                 />
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center text-6xl">
@@ -64,12 +66,12 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
 
           {/* Info + actions */}
           <div className="bg-white rounded-2xl shadow-sm p-5 md:p-6">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 break-words">
               {product.title}
             </h1>
 
             {/* Price block */}
-            <div className="mt-3 flex items-end gap-3">
+            <div className="mt-3 flex flex-wrap items-end gap-2.5 sm:gap-3">
               <div className="text-2xl sm:text-3xl font-extrabold text-emerald-700">
                 ৳{product.price.toFixed(2)}
               </div>
@@ -88,15 +90,24 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
             {/* Small details */}
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
               <div className="flex items-center gap-2 text-gray-700">
-                <Check className="w-4 h-4 text-emerald-600" />
+                <Check
+                  className="w-4 h-4 text-emerald-600"
+                  aria-hidden="true"
+                />
                 {product.stock && product.stock > 0 ? "স্টকে আছে" : "স্টক শেষ"}
               </div>
               <div className="flex items-center gap-2 text-gray-700">
-                <Truck className="w-4 h-4 text-emerald-600" />
+                <Truck
+                  className="w-4 h-4 text-emerald-600"
+                  aria-hidden="true"
+                />
                 ফ্রি ডেলিভারি
               </div>
               <div className="flex items-center gap-2 text-gray-700">
-                <Shield className="w-4 h-4 text-emerald-600" />
+                <Shield
+                  className="w-4 h-4 text-emerald-600"
+                  aria-hidden="true"
+                />
                 ১০০% জৈব পণ্য
               </div>
             </div>
@@ -112,11 +123,11 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
                 আমাদের পণ্যগুলো সরাসরি খামার থেকে সংগ্রহ করা হয়। সর্বোচ্চ মানের
                 নিশ্চয়তা ও সতেজতা বজায় রেখে ডেলিভারি করা হয়।
               </p>
-              <div className="mt-3 text-sm text-gray-600">
+              <div className="mt-3 text-sm text-gray-600 break-words">
                 ক্যাটাগরি:{" "}
                 {product.categorySlug ? (
                   <Link
-                    className="text-emerald-700 hover:underline"
+                    className="text-emerald-700 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded"
                     href={`/products?category=${product.categorySlug}`}
                   >
                     {product.categorySlug}
@@ -131,9 +142,9 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
             <div className="mt-6">
               <a
                 href={`tel:${hotline}`}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 border-2 border-green-200 text-green-700 font-semibold rounded-xl hover:bg-green-100 transition-all"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 border-2 border-green-200 text-green-700 font-semibold rounded-xl hover:bg-green-100 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
               >
-                <Phone className="w-5 h-5" />
+                <Phone className="w-5 h-5" aria-hidden="true" />
                 হটলাইন: {hotline}
               </a>
             </div>
@@ -142,8 +153,8 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
 
         {/* Related */}
         {related.length > 0 && (
-          <div className="mt-12">
-            <div className="flex items-center justify-between mb-6">
+          <div className="mt-10 md:mt-12">
+            <div className="flex items-center justify-between mb-4 md:mb-6">
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
                 আরও মিলযুক্ত পণ্য
               </h2>
@@ -153,14 +164,20 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
                     ? `/products?category=${product.categorySlug}`
                     : "/products"
                 }
-                className="text-emerald-700 font-semibold hover:underline"
+                className="text-emerald-700 font-semibold hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded"
+                aria-label="See all related products"
               >
                 সব দেখুন →
               </Link>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+            <div
+              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6"
+              aria-label="Related products"
+            >
               {related.map((p) => (
-                <ProductCard key={p._id} product={p} />
+                <div key={p._id} className="min-w-0">
+                  <ProductCard product={p} />
+                </div>
               ))}
             </div>
           </div>
@@ -169,3 +186,10 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
     </div>
   );
 }
+
+/* -------- Optional type-only fix (চাইলে নিন) --------
+export default async function ProductDetailsPage({ params }: { params: { slug: string } }) {
+  const { slug } = params;
+  ...
+}
+------------------------------------------------------ */

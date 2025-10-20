@@ -12,6 +12,7 @@ export type Product = {
   title: string;
   slug: string;
   image?: string;
+  imageId?: string;
   price: number;
   compareAtPrice?: number;
   isDiscounted?: boolean;
