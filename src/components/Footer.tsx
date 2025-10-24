@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import {
-  Leaf,
+  Sparkles,
   Mail,
   Phone,
   MapPin,
@@ -16,13 +16,13 @@ import {
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
-  const brand = process.env.NEXT_PUBLIC_BRAND || "ShodaiGram";
+  const brand = process.env.NEXT_PUBLIC_BRAND || "AmarShop";
   const hotline = process.env.NEXT_PUBLIC_HOTLINE || "01700000000";
 
   return (
     <footer
       role="contentinfo"
-      className="bg-gradient-to-br from-emerald-900 via-green-800 to-emerald-900 text-white mt-auto"
+      className="bg-gradient-to-br from-pink-900 via-rose-800 to-pink-900 text-white mt-auto"
     >
       <div className="max-w-7xl mx-auto px-4 xs:px-5 sm:px-6 lg:px-8">
         {/* Main Footer Content */}
@@ -30,8 +30,8 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="min-w-0">
             <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-400 to-green-500 rounded-xl flex items-center justify-center shadow-lg shrink-0">
-                <Leaf
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-pink-400 to-rose-500 rounded-xl flex items-center justify-center shadow-lg shrink-0">
+                <Sparkles
                   className="w-6 h-6 sm:w-7 sm:h-7 text-white"
                   strokeWidth={2.5}
                 />
@@ -40,34 +40,36 @@ export default function Footer() {
                 <h3 className="text-lg sm:text-xl font-bold truncate">
                   {brand}
                 </h3>
-                <p className="text-[11px] sm:text-xs text-emerald-300">
-                  Admin Panel
+                <p className="text-[11px] sm:text-xs text-pink-300">
+                  Beauty & Cosmetics
                 </p>
               </div>
             </div>
-            <p className="text-emerald-200 text-sm leading-relaxed mb-4 text-pretty">
-              Managing fresh & authentic organic products from farm to your
-              doorstep. Building trust through quality.
+            <p className="text-pink-200 text-sm leading-relaxed mb-4 text-pretty">
+              Your trusted destination for authentic beauty and cosmetics
+              products. Bringing premium quality and radiant beauty to your
+              doorstep.
             </p>
-            <div className="flex items-center gap-2 text-sm text-emerald-300">
-              <Heart className="w-4 h-4 fill-emerald-300" aria-hidden="true" />
-              <span className="text-pretty">Growing organic, naturally</span>
+            <div className="flex items-center gap-2 text-sm text-pink-300">
+              <Heart className="w-4 h-4 fill-pink-300" aria-hidden="true" />
+              <span className="text-pretty">
+                Beauty that inspires confidence
+              </span>
             </div>
           </div>
 
           {/* Quick Links */}
           <div className="min-w-0">
             <h4 className="text-base sm:text-lg font-bold mb-3 sm:mb-4 flex items-center gap-2">
-              <span className="w-1 h-5 sm:h-6 bg-emerald-400 rounded-full"></span>
+              <span className="w-1 h-5 sm:h-6 bg-pink-400 rounded-full"></span>
               <span>Quick Links</span>
             </h4>
-            <ul className="space-y-2.5 text-emerald-200">
+            <ul className="space-y-2.5 text-pink-200">
               <li>
                 <Link
-                  href="https://shodaigram-admin-panel-main.vercel.app/login"
-                  className="hover:text-white hover:pl-2 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded"
-                  aria-label="Go to Dashboard"
-                  title="Dashboard"
+                  href="/dashboard"
+                  className="hover:text-white hover:pl-2 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded"
+                  title="Products"
                 >
                   Dashboard
                 </Link>
@@ -75,7 +77,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/products"
-                  className="hover:text-white hover:pl-2 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded"
+                  className="hover:text-white hover:pl-2 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded"
                   title="Products"
                 >
                   Products
@@ -84,7 +86,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/categories"
-                  className="hover:text-white hover:pl-2 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded"
+                  className="hover:text-white hover:pl-2 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded"
                   title="Categories"
                 >
                   Categories
@@ -92,11 +94,20 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/orders"
-                  className="hover:text-white hover:pl-2 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded"
-                  title="Orders"
+                  href="/cart"
+                  className="hover:text-white hover:pl-2 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded"
+                  title="Shopping Cart"
                 >
-                  Orders
+                  Shopping Cart
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/about"
+                  className="hover:text-white hover:pl-2 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded"
+                  title="About Us"
+                >
+                  About Us
                 </Link>
               </li>
             </ul>
@@ -105,25 +116,25 @@ export default function Footer() {
           {/* Contact Info */}
           <div className="min-w-0">
             <h4 className="text-base sm:text-lg font-bold mb-3 sm:mb-4 flex items-center gap-2">
-              <span className="w-1 h-5 sm:h-6 bg-emerald-400 rounded-full"></span>
+              <span className="w-1 h-5 sm:h-6 bg-pink-400 rounded-full"></span>
               <span>Contact Us</span>
             </h4>
-            <ul className="space-y-3 text-emerald-200 text-sm">
+            <ul className="space-y-3 text-pink-200 text-sm">
               <li className="flex items-start gap-3">
                 <MapPin
-                  className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5"
+                  className="w-5 h-5 text-pink-400 flex-shrink-0 mt-0.5"
                   aria-hidden="true"
                 />
-                <span className="break-words">Chittagong, Bangladesh</span>
+                <span className="break-words">Dhaka, Bangladesh</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone
-                  className="w-5 h-5 text-emerald-400 flex-shrink-0"
+                  className="w-5 h-5 text-pink-400 flex-shrink-0"
                   aria-hidden="true"
                 />
                 <a
                   href={`tel:${hotline}`}
-                  className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded"
+                  className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded"
                   title="Call hotline"
                 >
                   +880 {hotline}
@@ -131,15 +142,15 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Mail
-                  className="w-5 h-5 text-emerald-400 flex-shrink-0"
+                  className="w-5 h-5 text-pink-400 flex-shrink-0"
                   aria-hidden="true"
                 />
                 <a
-                  href="mailto:admin@shodaigram.com"
-                  className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded break-words"
+                  href="mailto:support@amarshop.com"
+                  className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded break-words"
                   title="Email support"
                 >
-                  admin@shodaigram.com
+                  support@amarshop.com
                 </a>
               </li>
             </ul>
@@ -148,7 +159,7 @@ export default function Footer() {
           {/* Social & Info */}
           <div className="min-w-0">
             <h4 className="text-base sm:text-lg font-bold mb-3 sm:mb-4 flex items-center gap-2">
-              <span className="w-1 h-5 sm:h-6 bg-emerald-400 rounded-full"></span>
+              <span className="w-1 h-5 sm:h-6 bg-pink-400 rounded-full"></span>
               <span>Connect With Us</span>
             </h4>
             <div className="flex flex-wrap gap-2.5 sm:gap-3 mb-5 sm:mb-6">
@@ -156,7 +167,7 @@ export default function Footer() {
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 sm:w-10 sm:h-10 bg-emerald-800 hover:bg-emerald-700 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                className="w-9 h-9 sm:w-10 sm:h-10 bg-pink-800 hover:bg-pink-700 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
                 aria-label="Facebook"
                 title="Facebook"
               >
@@ -166,7 +177,7 @@ export default function Footer() {
                 href="https://instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 sm:w-10 sm:h-10 bg-emerald-800 hover:bg-emerald-700 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                className="w-9 h-9 sm:w-10 sm:h-10 bg-pink-800 hover:bg-pink-700 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
                 aria-label="Instagram"
                 title="Instagram"
               >
@@ -176,7 +187,7 @@ export default function Footer() {
                 href="https://twitter.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 sm:w-10 sm:h-10 bg-emerald-800 hover:bg-emerald-700 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                className="w-9 h-9 sm:w-10 sm:h-10 bg-pink-800 hover:bg-pink-700 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
                 aria-label="Twitter"
                 title="Twitter"
               >
@@ -186,7 +197,7 @@ export default function Footer() {
                 href="https://youtube.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 sm:w-10 sm:h-10 bg-emerald-800 hover:bg-emerald-700 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                className="w-9 h-9 sm:w-10 sm:h-10 bg-pink-800 hover:bg-pink-700 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
                 aria-label="YouTube"
                 title="YouTube"
               >
@@ -194,21 +205,21 @@ export default function Footer() {
               </a>
             </div>
 
-            <div className="bg-emerald-800/50 border border-emerald-700 rounded-xl p-3.5 sm:p-4">
-              <p className="text-[11px] sm:text-xs text-emerald-300 mb-1.5 font-semibold">
-                Admin Panel Hours
+            <div className="bg-pink-800/50 border border-pink-700 rounded-xl p-3.5 sm:p-4">
+              <p className="text-[11px] sm:text-xs text-pink-300 mb-1.5 font-semibold">
+                Customer Service
               </p>
-              <p className="text-sm text-emerald-200">24/7 System Access</p>
-              <p className="text-[11px] sm:text-xs text-emerald-300 mt-1">
-                Support: 8 AM - 10 PM
+              <p className="text-sm text-pink-200">9 AM - 9 PM Daily</p>
+              <p className="text-[11px] sm:text-xs text-pink-300 mt-1">
+                Saturday - Thursday
               </p>
             </div>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-emerald-800 py-5 sm:py-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 text-xs sm:text-sm text-emerald-300">
+        <div className="border-t border-pink-800 py-5 sm:py-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 text-xs sm:text-sm text-pink-300">
             <p className="text-center sm:text-left">
               © {currentYear}{" "}
               <span className="font-semibold text-white">{brand}</span>. All
@@ -217,17 +228,17 @@ export default function Footer() {
             <div className="flex items-center gap-3 sm:gap-4 flex-wrap justify-center">
               <Link
                 href="/privacy"
-                className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded"
+                className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded"
                 title="Privacy Policy"
               >
                 Privacy Policy
               </Link>
-              <span aria-hidden="true" className="text-emerald-700">
+              <span aria-hidden="true" className="text-pink-700">
                 |
               </span>
               <Link
                 href="/terms"
-                className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded"
+                className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded"
                 title="Terms of Service"
               >
                 Terms of Service

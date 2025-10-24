@@ -1,57 +1,35 @@
-// tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
+  content: [
+    "./src/app/**/*.{js,ts,jsx,tsx}",
+    "./src/components/**/*.{js,ts,jsx,tsx}",
+  ],
   theme: {
     extend: {
-      container: {
-        center: true,
-        padding: "1rem",
-        screens: {
-          "2xl": "1400px",
+      colors: {
+        background: "var(--background)",
+        foreground: "var(--foreground)",
+        brand: {
+          pink: "var(--brand-pink)",
+          rose: "var(--brand-rose)",
+          purple: "var(--brand-purple)",
+          lavender: "var(--brand-lavender)",
         },
       },
-      colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
-        },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
-        },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
-        },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
-        popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
-        },
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
-        },
+      boxShadow: {
+        beautySm: "var(--shadow-sm)",
+        beautyMd: "var(--shadow-md)",
+        beautyLg: "var(--shadow-lg)",
+        beautyXl: "var(--shadow-xl)",
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        beautySm: "var(--radius-sm)",
+        beautyMd: "var(--radius-md)",
+        beautyLg: "var(--radius-lg)",
+        beautyXl: "var(--radius-xl)",
       },
     },
   },
+  darkMode: "media", // চাইলে 'class'
   plugins: [],
 };

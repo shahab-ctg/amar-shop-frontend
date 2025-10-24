@@ -1,11 +1,10 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, ShoppingCart, Phone, Menu, X, Leaf } from "lucide-react";
+import { Search, ShoppingCart, Phone, Menu, X, Sparkles } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 
 interface Category {
@@ -73,26 +72,26 @@ export default function Navbar() {
             {/* Logo */}
             <Link
               href="/"
-              className="flex items-center gap-2 sm:gap-3 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded"
+              className="flex items-center gap-2 sm:gap-3 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 rounded"
               aria-label="Home"
             >
               <motion.div
                 whileHover={{ rotate: 360 }}
                 transition={{ duration: 0.6 }}
-                className="w-9 h-9 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-md"
+                className="w-9 h-9 sm:w-12 sm:h-12 bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl flex items-center justify-center shadow-md"
               >
-                <Leaf
+                <Sparkles
                   className="w-6 h-6 sm:w-7 sm:h-7 text-white"
                   strokeWidth={2.5}
                   aria-hidden="true"
                 />
               </motion.div>
               <div className="hidden sm:block min-w-0">
-                <h1 className="text-lg sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-green-600 truncate">
-                  সোদাইগ্রাম
+                <h1 className="text-lg sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-700 to-rose-600 truncate">
+                  GlowBeauty
                 </h1>
-                <p className="text-[11px] sm:text-xs text-emerald-600 font-medium -mt-1">
-                  Organic Products
+                <p className="text-[11px] sm:text-xs text-pink-600 font-medium -mt-1">
+                  Beauty & Cosmetics
                 </p>
               </div>
             </Link>
@@ -106,24 +105,24 @@ export default function Navbar() {
             >
               <div className="relative w-full">
                 <Search
-                  className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-500"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-pink-500"
                   aria-hidden="true"
                 />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="পণ্য খুঁজুন..."
+                  placeholder="Search for beauty products..."
                   autoComplete="off"
-                  className="w-full pl-12 pr-32 py-2.5 lg:py-3 border-2 border-emerald-200 rounded-full focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all text-sm lg:text-base"
+                  className="w-full pl-12 pr-32 py-2.5 lg:py-3 border-2 border-pink-200 rounded-full focus:outline-none focus:border-pink-500 focus:ring-4 focus:ring-pink-100 transition-all text-sm lg:text-base"
                 />
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
                   aria-label="Filter by category"
-                  className="absolute right-14 top-1/2 -translate-y-1/2 px-2.5 lg:px-3 py-1.5 text-xs lg:text-sm border-l-2 border-emerald-200 bg-transparent focus:outline-none"
+                  className="absolute right-14 top-1/2 -translate-y-1/2 px-2.5 lg:px-3 py-1.5 text-xs lg:text-sm border-l-2 border-pink-200 bg-transparent focus:outline-none"
                 >
-                  <option value="">সব</option>
+                  <option value="">All</option>
                   {categories.map((cat) => (
                     <option key={cat._id} value={cat.slug}>
                       {cat.title}
@@ -132,7 +131,7 @@ export default function Navbar() {
                 </select>
                 <button
                   type="submit"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-emerald-500 text-white p-2 rounded-full hover:bg-emerald-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-pink-500 text-white p-2 rounded-full hover:bg-pink-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
                   title="Search"
                 >
                   <Search size={16} aria-hidden="true" />
@@ -145,23 +144,19 @@ export default function Navbar() {
               {/* Call Button - Desktop */}
               <a
                 href="tel:01700000000"
-                className="hidden lg:flex items-center gap-2 bg-emerald-100 px-3.5 py-2 rounded-full hover:bg-emerald-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
-                title="কল করুন"
+                className="hidden lg:flex items-center gap-2 bg-pink-100 px-3.5 py-2 rounded-full hover:bg-pink-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
+                title="Call Us"
               >
-                <Phone
-                  size={18}
-                  className="text-emerald-600"
-                  aria-hidden="true"
-                />
-                <span className="text-sm font-medium text-emerald-700">
-                  কল করুন
+                <Phone size={18} className="text-pink-600" aria-hidden="true" />
+                <span className="text-sm font-medium text-pink-700">
+                  Call Us
                 </span>
               </a>
 
               {/* Cart Button */}
               <Link
                 href="/cart"
-                className="relative p-2 sm:p-2.5 text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                className="relative p-2 sm:p-2.5 text-pink-600 hover:bg-pink-50 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
                 aria-label="Cart"
                 title="Cart"
               >
@@ -185,7 +180,7 @@ export default function Navbar() {
               {/* Mobile Menu Toggle */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                className="md:hidden p-2 text-pink-600 hover:bg-pink-50 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
                 aria-expanded={mobileMenuOpen}
                 aria-controls="mobile-menu"
                 aria-label="Toggle menu"
@@ -205,20 +200,20 @@ export default function Navbar() {
               aria-label="Product search mobile"
             >
               <Search
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-500"
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-pink-500"
                 aria-hidden="true"
               />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="পণ্য খুঁজুন..."
+                placeholder="Search for products..."
                 autoComplete="off"
-                className="w-full pl-12 pr-10 py-2.5 border-2 border-emerald-200 rounded-full focus:outline-none focus:border-emerald-500 transition-all text-sm"
+                className="w-full pl-12 pr-10 py-2.5 border-2 border-pink-200 rounded-full focus:outline-none focus:border-pink-500 transition-all text-sm"
               />
               <button
                 type="submit"
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-emerald-500 text-white p-2 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-pink-500 text-white p-2 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
                 title="Search"
               >
                 <Search size={16} aria-hidden="true" />
@@ -228,9 +223,8 @@ export default function Navbar() {
         </div>
 
         {/* Secondary Navigation - Categories */}
-        <div className="hidden md:block bg-emerald-600 text-white">
+        <div className="hidden md:block bg-pink-600 text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* overflow-x utilities + scrollbar hide via arbitrary selectors */}
             <div
               className="flex items-center justify-center gap-4 lg:gap-6 py-2.5 lg:py-3 overflow-x-auto whitespace-nowrap [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
               role="menubar"
@@ -241,7 +235,7 @@ export default function Navbar() {
                 className="whitespace-nowrap hover:text-yellow-300 transition-colors font-medium px-1.5"
                 role="menuitem"
               >
-                সব পণ্য
+                All Products
               </Link>
               {categories.slice(0, 8).map((category) => (
                 <Link
@@ -266,7 +260,7 @@ export default function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white border-t border-emerald-100 overflow-hidden"
+            className="md:hidden bg-white border-t border-pink-100 overflow-hidden"
             role="menu"
             aria-label="Mobile categories"
           >
@@ -274,17 +268,17 @@ export default function Navbar() {
               <Link
                 href="/products"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block px-4 py-3 hover:bg-emerald-50 rounded-xl transition-colors font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                className="block px-4 py-3 hover:bg-pink-50 rounded-xl transition-colors font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
                 role="menuitem"
               >
-                সব পণ্য
+                All Products
               </Link>
               {categories.map((category) => (
                 <Link
                   key={category._id}
                   href={`/categories/${category.slug}`}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block px-4 py-3 hover:bg-emerald-50 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                  className="block px-4 py-3 hover:bg-pink-50 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
                   role="menuitem"
                 >
                   {category.title}
@@ -292,12 +286,12 @@ export default function Navbar() {
               ))}
               <a
                 href="tel:01700000000"
-                className="flex items-center gap-2 px-4 py-3 bg-emerald-50 rounded-xl font-medium text-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                className="flex items-center gap-2 px-4 py-3 bg-pink-50 rounded-xl font-medium text-pink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
                 role="menuitem"
-                title="কল করুন"
+                title="Call Us"
               >
                 <Phone size={18} aria-hidden="true" />
-                <span>কল করুন: ০১৭০০০০০০০০</span>
+                <span>Call Us: 01700000000</span>
               </a>
             </div>
           </motion.div>

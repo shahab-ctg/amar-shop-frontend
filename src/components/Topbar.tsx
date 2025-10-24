@@ -1,4 +1,4 @@
-// components/Topbar.tsx
+
 "use client";
 
 import Link from "next/link";
@@ -7,7 +7,7 @@ import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/store/cartStore";
 import clsx from "clsx";
-import { Search, ShoppingCart, Phone, Menu, X, Leaf } from "lucide-react";
+import { Search, ShoppingCart, Phone, Menu, X, Sparkles } from "lucide-react";
 
 type Category = { _id: string; slug: string; title: string };
 
@@ -36,9 +36,8 @@ export default function Topbar() {
     [cartItems]
   );
 
-  const brand = process.env.NEXT_PUBLIC_BRAND || "শোধাইগ্রাম";
+  const brand = process.env.NEXT_PUBLIC_BRAND || "AmarShop";
   const hotline = process.env.NEXT_PUBLIC_HOTLINE || "01700-000000";
-  // ✅ more robust fallback, no behavior change
   const API_BASE =
     process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE;
 
@@ -58,9 +57,21 @@ export default function Topbar() {
           throw new Error(`Failed to load categories (${res.status})`);
         const json = await res.json();
         setCategories((json?.data ?? []) as Category[]);
-      } catch (err: any) {
-        if (err?.name !== "AbortError") {
-          setCategoriesError(err?.message || "Failed to fetch categories");
+      } catch (err: unknown) {
+        if (
+          err &&
+          typeof err === "object" &&
+          "name" in err &&
+          err.name !== "AbortError"
+        ) {
+          const errorMessage =
+            err &&
+            typeof err === "object" &&
+            "message" in err &&
+            typeof err.message === "string"
+              ? err.message
+              : "Failed to fetch categories";
+          setCategoriesError(errorMessage);
           setCategories([]);
         }
       } finally {
@@ -98,26 +109,26 @@ export default function Topbar() {
           "sticky top-0 z-50 transition-all duration-300",
           scrolled
             ? "bg-white/95 backdrop-blur-lg shadow-lg"
-            : "bg-white border-b border-green-100"
+            : "bg-white border-b border-pink-100"
         )}
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           {/* Top Banner - Desktop only */}
-          <div className="hidden md:block border-b border-green-100">
+          <div className="hidden md:block border-b border-pink-100">
             <div className="flex items-center justify-between py-2 text-xs sm:text-sm">
               <div className="flex items-center gap-2 text-gray-600">
-                <Leaf className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
+                <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-pink-600" />
                 <span className="text-xs sm:text-sm">
-                  ১০০% জৈব পণ্য • সরাসরি খামার থেকে
+                  100% Authentic Products • Free Shipping Over $50
                 </span>
               </div>
               <a
                 href={`tel:${hotline}`}
-                className="flex items-center gap-2 text-green-600 hover:text-green-700 font-medium"
+                className="flex items-center gap-2 text-pink-600 hover:text-pink-700 font-medium"
                 aria-label="Call hotline"
               >
                 <Phone className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="text-xs sm:text-sm">হটলাইন: {hotline}</span>
+                <span className="text-xs sm:text-sm">Hotline: {hotline}</span>
               </a>
             </div>
           </div>
@@ -133,19 +144,19 @@ export default function Topbar() {
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow"
+                className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gradient-to-br from-pink-500 to-rose-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow"
               >
-                <Leaf
+                <Sparkles
                   className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-white"
                   strokeWidth={2.5}
                 />
               </motion.div>
               <div className="hidden sm:block">
-                <div className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-700 to-emerald-600 leading-tight">
+                <div className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-700 to-rose-600 leading-tight">
                   {brand}
                 </div>
-                <div className="text-[10px] sm:text-xs text-green-600 font-medium -mt-0.5 sm:-mt-1">
-                  জৈব পণ্যের বিশ্বস্ত ঠিকানা
+                <div className="text-[10px] sm:text-xs text-pink-600 font-medium -mt-0.5 sm:-mt-1">
+                  Your Beauty Destination
                 </div>
               </div>
             </Link>
@@ -163,15 +174,15 @@ export default function Topbar() {
                   disabled={categoriesLoading}
                   className={clsx(
                     "px-3 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border-2 min-w-[132px] sm:min-w-[150px] text-sm",
-                    "bg-green-50 border-green-200 text-green-700",
-                    "focus:outline-none focus:border-green-500 transition-all"
+                    "bg-pink-50 border-pink-200 text-pink-700",
+                    "focus:outline-none focus:border-pink-500 transition-all"
                   )}
                 >
                   <option value="">
                     {categoriesLoading
                       ? "Loading..."
                       : categoriesError
-                        ? "Catetgory"
+                        ? "Category"
                         : "All Categories"}
                   </option>
                   {categories.map((c) => (
@@ -183,17 +194,17 @@ export default function Topbar() {
 
                 <div className="relative flex-1">
                   <Search
-                    className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-green-500"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-pink-500"
                     aria-hidden="true"
                   />
                   <input
                     aria-label="Search products"
-                    placeholder="Search Products..."
+                    placeholder="Search for beauty products..."
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
                     className={clsx(
                       "w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border-2 text-sm",
-                      "bg-white border-green-200 focus:border-green-500 focus:ring-4 focus:ring-green-100",
+                      "bg-white border-pink-200 focus:border-pink-500 focus:ring-4 focus:ring-pink-100",
                       "transition-all text-gray-900 placeholder:text-gray-400"
                     )}
                   />
@@ -203,9 +214,9 @@ export default function Topbar() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   type="submit"
-                  className="px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg sm:rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg text-sm"
+                  className="px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-pink-500 to-rose-600 text-white font-semibold rounded-lg sm:rounded-xl hover:from-pink-600 hover:to-rose-700 transition-all shadow-md hover:shadow-lg text-sm"
                 >
-                Search...
+                  Search
                 </motion.button>
               </div>
             </form>
@@ -217,7 +228,7 @@ export default function Topbar() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="relative p-2 sm:p-2.5 md:p-3 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg sm:rounded-xl transition-all"
+                  className="relative p-2 sm:p-2.5 md:p-3 bg-pink-50 hover:bg-pink-100 text-pink-700 rounded-lg sm:rounded-xl transition-all"
                 >
                   <ShoppingCart className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6" />
                   {cartCount > 0 && (
@@ -235,7 +246,7 @@ export default function Topbar() {
               {/* Call Button - Mobile Only */}
               <a
                 href={`tel:${hotline}`}
-                className="md:hidden p-2 sm:p-2.5 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg sm:rounded-xl transition-all"
+                className="md:hidden p-2 sm:p-2.5 bg-pink-50 hover:bg-pink-100 text-pink-700 rounded-lg sm:rounded-xl transition-all"
                 aria-label="Call hotline"
               >
                 <Phone className="w-5 h-5" />
@@ -245,7 +256,7 @@ export default function Topbar() {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-2 sm:p-2.5 text-green-600 hover:bg-green-50 rounded-lg sm:rounded-xl transition-all"
+                className="lg:hidden p-2 sm:p-2.5 text-pink-600 hover:bg-pink-50 rounded-lg sm:rounded-xl transition-all"
                 aria-label="Toggle menu"
                 aria-expanded={mobileMenuOpen}
               >
@@ -267,16 +278,16 @@ export default function Topbar() {
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="lg:hidden border-t border-green-100 bg-white overflow-hidden"
+              className="lg:hidden border-t border-pink-100 bg-white overflow-hidden"
             >
               <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4 space-y-2">
                 <div className="pt-2">
                   <div className="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider px-1 mb-2">
-           Category
+                    Categories
                   </div>
                   <Link
                     href="/products"
-                    className="block px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 rounded-lg sm:rounded-xl font-medium"
+                    className="block px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-700 rounded-lg sm:rounded-xl font-medium"
                   >
                     All Products
                   </Link>
@@ -284,22 +295,22 @@ export default function Topbar() {
                     <Link
                       key={c._id}
                       href={`/products?category=${c.slug}`}
-                      className="block px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 rounded-lg sm:rounded-xl"
+                      className="block px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-700 rounded-lg sm:rounded-xl"
                     >
                       {c.title}
                     </Link>
                   ))}
                 </div>
 
-                <div className="pt-2 mt-2 border-t border-green-100 pb-[calc(env(safe-area-inset-bottom,0)+4px)]">
+                <div className="pt-2 mt-2 border-t border-pink-100 pb-[calc(env(safe-area-inset-bottom,0)+4px)]">
                   <a
                     href={`tel:${hotline}`}
-                    className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 bg-green-50 border-2 border-green-200 text-green-700 font-semibold rounded-lg sm:rounded-xl hover:bg-green-100 transition-all text-sm"
+                    className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 bg-pink-50 border-2 border-pink-200 text-pink-700 font-semibold rounded-lg sm:rounded-xl hover:bg-pink-100 transition-all text-sm"
                   >
                     <Phone className="w-4 h-4 sm:w-5 sm:h-5" />
                     <div>
                       <div className="text-[10px] sm:text-xs text-gray-600">
-                       Hotline
+                        Hotline
                       </div>
                       <div className="text-sm">{hotline}</div>
                     </div>
@@ -312,20 +323,19 @@ export default function Topbar() {
       </header>
 
       {/* Secondary Category Bar - Desktop Only */}
-      <div className="hidden lg:block bg-gradient-to-r from-green-600 to-emerald-600 shadow-md">
+      <div className="hidden lg:block bg-gradient-to-r from-pink-600 to-rose-600 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* ✅ guaranteed horizontal scroll without layout shift */}
           <div className="flex items-center gap-1 overflow-x-auto py-2 scrollbar-thin scrollbar-thumb-white/40 scrollbar-track-transparent">
             <Link
               href="/products"
               className={clsx(
                 "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-medium whitespace-nowrap transition-all text-sm",
                 !sp.get("category")
-                  ? "bg-white text-green-700 shadow-md"
+                  ? "bg-white text-pink-700 shadow-md"
                   : "text-white hover:bg-white/20"
               )}
             >
-            All Products
+              All Products
             </Link>
             {categories.map((c) => (
               <Link
@@ -334,7 +344,7 @@ export default function Topbar() {
                 className={clsx(
                   "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-medium whitespace-nowrap transition-all text-sm",
                   sp.get("category") === c.slug
-                    ? "bg-white text-green-700 shadow-md"
+                    ? "bg-white text-pink-700 shadow-md"
                     : "text-white hover:bg-white/20"
                 )}
               >

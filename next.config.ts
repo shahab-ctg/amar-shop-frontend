@@ -1,6 +1,20 @@
 // next.config.js - DEVELOPMENT MODE (Allows all domains)
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [
+      {
+        source: "/c/:slug",
+        destination: "/products?category=:slug",
+        permanent: false,
+      },
+      {
+        source: "/category/:slug",
+        destination: "/products?category=:slug",
+        permanent: false,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {

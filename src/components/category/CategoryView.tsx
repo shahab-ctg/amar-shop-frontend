@@ -1,10 +1,10 @@
-// src/components/category/CategoryView.tsx
+
 "use client";
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Leaf, ArrowRight, ShoppingBag } from "lucide-react";
+import { Leaf, ArrowRight, ShoppingBag, Sparkles } from "lucide-react";
 
 import { fetchCategories, fetchProducts } from "@/services/catalog";
 import ProductCard from "@/components/ProductCard";
@@ -49,7 +49,7 @@ export default function CategoryView({ slug }: { slug: string }) {
         <div className="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 lg:px-8 py-8 sm:py-10 md:py-12">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full mb-4 sm:mb-6 mx-auto animate-pulse">
-              <Leaf className="w-8 h-8 sm:w-10 sm:h-10 text-green-600" />
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-pink-600" />
             </div>
             <div className="h-6 sm:h-8 bg-gray-200 rounded w-36 sm:w-48 mx-auto mb-3 sm:mb-4 animate-pulse" />
             <div className="h-3 sm:h-4 bg-gray-200 rounded w-24 sm:w-32 mx-auto mb-6 sm:mb-8 animate-pulse" />
@@ -83,16 +83,16 @@ export default function CategoryView({ slug }: { slug: string }) {
               <ShoppingBag className="w-8 h-8 sm:w-10 sm:h-10 text-green-600" />
             </div>
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-2 sm:mb-3 px-4">
-              এই ক্যাটাগরিতে কোনো পণ্য নেই
+              There is no products in this Category
             </h2>
             <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8 px-4">
-              শীঘ্রই নতুন জৈব পণ্য যোগ করা হবে
+              Soon add new products 
             </p>
             <Link
               href="/products"
               className="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 sm:px-6 sm:py-3 rounded-full hover:bg-green-700 transition-colors text-sm sm:text-base font-medium shadow-md hover:shadow-lg"
             >
-              সব পণ্য দেখুন
+            Sell All Products
               <ArrowRight className="w-4 h-4" />
             </Link>
           </motion.div>
@@ -109,14 +109,14 @@ export default function CategoryView({ slug }: { slug: string }) {
         <div className="mb-6 sm:mb-8 md:mb-10 lg:mb-12">
           <div className="flex items-start sm:items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
             <div className="p-2 sm:p-2.5 bg-green-100 rounded-lg sm:rounded-xl shrink-0">
-              <Leaf className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-pink-600" />
             </div>
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 leading-tight break-words">
-                {current?.title || "ক্যাটাগরি"}
+                {current?.title || "Category"}
               </h1>
               <p className="text-xs sm:text-sm text-gray-600 mt-0.5 sm:mt-1">
-                {products.length} টি তাজা জৈব পণ্য
+                {products.length} more products
               </p>
             </div>
           </div>

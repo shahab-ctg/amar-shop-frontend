@@ -6,21 +6,24 @@ export const ZCategory = z.object({
   title: z.string(),
   slug: z.string(),
   image: z.string().optional(),
-  status: z.enum(["ACTIVE", "HIDDEN"]), // ✅ FIX
+  status: z.enum(["ACTIVE", "HIDDEN"]),
 });
 
 export const ZProduct = z.object({
   _id: z.string(),
   title: z.string(),
   slug: z.string(),
-  image: z.string().optional(),
+  image: z.string().optional(), // legacy single
+  images: z.array(z.string()).optional(), // ⭐ multi
   price: z.number(),
   compareAtPrice: z.number().optional(),
   isDiscounted: z.boolean().optional(),
+  featured: z.boolean().optional(), // ⭐
   stock: z.number().optional(),
   categorySlug: z.string().optional(),
   tagSlugs: z.array(z.string()).optional(),
-  status: z.enum(["ACTIVE", "DRAFT", "HIDDEN"]), // ✅ FIX
+  status: z.enum(["ACTIVE", "DRAFT", "HIDDEN"]),
+  createdAt: z.string().optional(),
 });
 
 export const ZCategoriesResponse = z.object({
@@ -41,7 +44,6 @@ export const ZProductsResponse = z.object({
     .optional(),
 });
 
-// single resources (যদি backend { ok, data } দেয়)
 export const ZOkProduct = z.object({ ok: z.boolean(), data: ZProduct });
 export const ZOkCategory = z.object({ ok: z.boolean(), data: ZCategory });
 

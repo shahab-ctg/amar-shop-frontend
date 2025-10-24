@@ -9,18 +9,17 @@ import Link from "next/link";
 export const revalidate = 30;
 
 interface ProductsPageProps {
-  // NOTE: আপনার টাইপ 그대로 রাখলাম (Promise)। চাইলে type-only fix নীচে কমেন্টে দেওয়া আছে।
+  
   searchParams: Promise<{ category?: string; q?: string }>;
 }
 
 export default async function ProductsPage({
   searchParams,
 }: ProductsPageProps) {
-  // Await searchParams for dynamic API (আপনার লজিক অপরিবর্তিত)
+
   const params = await searchParams;
   const { category, q } = params;
 
-  // যদি ?category=... থাকে (এবং q না থাকে) → একই Category UI
   if (category && !q) {
     return <CategoryView slug={decodeURIComponent(category)} />;
   }

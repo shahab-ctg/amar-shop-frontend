@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -8,7 +7,7 @@ import { Eye, Star } from "lucide-react";
 import type { Product } from "@/types";
 
 interface ProductCardProps {
-  product: Product; // <-- Product টাইপই নিলাম (image?, stock?)
+  product: Product;
   showDiscount?: boolean;
 }
 
@@ -16,12 +15,10 @@ export default function ProductCard({
   product,
   showDiscount = false,
 }: ProductCardProps) {
-  // Safe fallbacks
   const img =
     product.image ?? "https://via.placeholder.com/600x400?text=Product";
   const stock = product.stock ?? 0;
 
-  // Calculate discount percentage
   const discount =
     product.compareAtPrice && product.compareAtPrice > product.price
       ? Math.round(
@@ -36,11 +33,11 @@ export default function ProductCard({
     <motion.div
       whileHover={{ y: -5 }}
       transition={{ duration: 0.3 }}
-      className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group relative"
+      className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group relative border border-gray-100"
     >
       {/* Product Image */}
       <Link href={`/products/${product.slug}`}>
-        <div className="relative h-40 sm:h-48 bg-gradient-to-br from-emerald-100 to-green-100 overflow-hidden">
+        <div className="relative h-40 sm:h-48 bg-gradient-to-br from-pink-50 to-purple-50 overflow-hidden">
           <Image
             src={img}
             alt={product.title}
@@ -55,7 +52,7 @@ export default function ProductCard({
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ type: "spring", stiffness: 200 }}
-              className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg"
+              className="absolute top-3 left-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg"
             >
               -{discount}%
             </motion.div>
@@ -63,21 +60,21 @@ export default function ProductCard({
 
           {/* Out of Stock Overlay */}
           {isOutOfStock && (
-            <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-              <span className="bg-gray-800 text-white px-4 py-2 rounded-full font-semibold">
-                স্টক শেষ
+            <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
+              <span className="bg-gray-900 text-white px-4 py-2 rounded-full font-semibold text-sm">
+       Out of Stock
               </span>
             </div>
           )}
 
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300" />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300" />
         </div>
       </Link>
 
       {/* Info */}
       <div className="p-4 sm:p-5">
         <Link href={`/products/${product.slug}`}>
-          <h3 className="font-bold text-base sm:text-lg text-gray-800 mb-2 line-clamp-2 group-hover:text-emerald-600 transition-colors min-h-[3rem]">
+          <h3 className="font-bold text-base sm:text-lg text-gray-800 mb-2 line-clamp-2 group-hover:text-pink-600 transition-colors min-h-[3rem]">
             {product.title}
           </h3>
         </Link>
@@ -89,7 +86,7 @@ export default function ProductCard({
               key={i}
               size={14}
               className={
-                i < 4 ? "text-yellow-400 fill-yellow-400" : "text-gray-300"
+                i < 4 ? "text-pink-400 fill-pink-400" : "text-gray-300"
               }
             />
           ))}
@@ -98,7 +95,7 @@ export default function ProductCard({
 
         {/* Price */}
         <div className="flex items-baseline gap-2 mb-4">
-          <span className="text-xl sm:text-2xl font-bold text-emerald-600">
+          <span className="text-xl sm:text-2xl font-bold text-gray-900">
             ৳{product.price}
           </span>
           {product.compareAtPrice && product.compareAtPrice > product.price && (
@@ -113,24 +110,24 @@ export default function ProductCard({
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="w-full bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white py-2.5 sm:py-3 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white py-2.5 sm:py-3 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale"
             disabled={isOutOfStock}
           >
             <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
-            <span className="text-sm sm:text-base">বিস্তারিত দেখুন</span>
+            <span className="text-sm sm:text-base">See Details</span>
           </motion.button>
         </Link>
 
         {/* Stock Info */}
         <p className="text-xs text-gray-500 mt-2 text-center">
           {isOutOfStock ? (
-            <span className="text-red-500 font-semibold">স্টকে নেই</span>
+            <span className="text-red-500 font-semibold">Out of Stock</span>
           ) : stock < 10 ? (
             <span className="text-orange-500 font-semibold">
-              মাত্র {stock}টি বাকি!
+              Only {stock}more left!
             </span>
           ) : (
-            <span className="text-green-600">স্টকে আছে</span>
+            <span className="text-pink-600">In Stock</span>
           )}
         </p>
       </div>
