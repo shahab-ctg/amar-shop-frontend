@@ -27,14 +27,13 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-     
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ToastProvider />
-       
+
         <div className="min-h-screen relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50" />
+          <div className="absolute inset-0 bg-[#F5FDF8]" />
           {/* subtle blobs */}
           <div className="pointer-events-none absolute inset-0">
             <div className="absolute -top-10 -left-10 w-72 h-72 bg-pink-200/50 rounded-full blur-3xl animate-float" />
@@ -45,7 +44,7 @@ export default function RootLayout({
           {/* App chrome */}
           <div className="relative z-10">
             <Topbar />
-            <main className="container mx-auto px-3 sm:px-4 lg:px-6 pb-4">
+            <main className="container mx-auto px-3 sm:px-4 lg:px-6 pb-4 bg-[#F5FDF8]">
               {children}
             </main>
             <Footer />

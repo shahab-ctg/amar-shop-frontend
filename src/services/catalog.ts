@@ -1,4 +1,4 @@
-// src/services/catalog.ts
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   ZCategoriesResponse,
   ZProductsResponse,
@@ -7,9 +7,21 @@ import {
   ZCategory,
 } from "@/lib/schemas";
 
-const API = process.env.NEXT_PUBLIC_API_BASE_URL!;
-if (!API) throw new Error("NEXT_PUBLIC_API_BASE_URL is missing");
+/* ----------------------------- API Base Setup ---------------------------- */
+const API =
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:5000/api/v1";
 
+const API_BASE =
+  API ||
+  "https://amar-shop-backend-3tkvvjwfb-shahabs-projects-5a60f0e3.vercel.app";
+
+if (!API) {
+  console.warn("⚠️ API URL missing — using fallback");
+}
+
+/* -------------------------- URL builder util ----------------------------- */
 type Query =
   | Record<string, string | number | boolean | undefined | null>
   | null
@@ -18,31 +30,72 @@ type Query =
 function buildURL(path: string, params?: Query) {
   const usp = new URLSearchParams();
   if (params) {
-    Object.entries(params).forEach(([k, v]) => {
+    for (const [k, v] of Object.entries(params)) {
       if (v !== undefined && v !== null && String(v).length > 0) {
         usp.set(k, String(v));
       }
-    });
+    }
   }
-  return `${API}${path}${usp.toString() ? `?${usp.toString()}` : ""}`;
+  return `${API_BASE}${path}${usp.toString() ? `?${usp.toString()}` : ""}`;
 }
+
+/* -------------------------------------------------------------------------- */
+/* ⚙️ OPTIMIZED FETCH: global in-memory cache + request deduplication + retry */
+/* -------------------------------------------------------------------------- */
+
+const requestCache = new Map<string, Promise<any>>();
+const cacheTTL = 5000; // 5 sec short-term memory to prevent bursts
 
 async function getJSON<T>(path: string, params?: Query): Promise<T> {
-  const res = await fetch(buildURL(path, params), {
-    method: "GET",
-    headers: { "content-type": "application/json" },
-    cache: "no-store",
-    next: { revalidate: 0 },
-  });
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`${path} failed: ${res.status} ${text}`);
+  const url = buildURL(path, params);
+
+  // Avoid duplicate calls instantly
+  if (requestCache.has(url)) {
+    return requestCache.get(url)!;
   }
-  return res.json() as Promise<T>;
+
+  // Actual network request
+  const fetchPromise = (async () => {
+    let attempt = 0;
+    while (attempt < 2) {
+      try {
+        const res = await fetch(url, {
+          method: "GET",
+          headers: { "content-type": "application/json" },
+          cache: "no-store",
+          next: { revalidate: 0 },
+        });
+
+        if (!res.ok) {
+          const text = await res.text().catch(() => "");
+          console.error(`❌ API Error [${res.status}] ${url} - ${text}`);
+          throw new Error(`${path} failed: ${res.status}`);
+        }
+
+        const data = (await res.json()) as T;
+        return data;
+      } catch (err) {
+        attempt++;
+        if (attempt >= 2) {
+          console.error(`Network Error: ${url}`, err);
+          throw err;
+        }
+        // small retry delay
+        await new Promise((r) => setTimeout(r, 300));
+      }
+    }
+    throw new Error("Unreachable");
+  })();
+
+  requestCache.set(url, fetchPromise);
+
+  // Auto-expire cache after TTL
+  setTimeout(() => requestCache.delete(url), cacheTTL);
+
+  return fetchPromise;
 }
 
-/* ------------------------------ Normalizers ------------------------------ */
-
+/* --------------------------- Normalizers (untouched) --------------------------- */
 function normalizeProductsShape(raw: unknown): {
   arr: unknown[];
   pageInfo?: unknown;
@@ -74,7 +127,6 @@ function normalizeProductsShape(raw: unknown): {
     };
     pageInfo = pSrc;
   } else if (Array.isArray(raw)) {
-    // sometimes API returns array directly at top-level
     arr = raw as unknown[];
   } else if (raw && typeof raw === "object") {
     const maybe = Object.values(raw);
@@ -87,7 +139,6 @@ function normalizeProductsShape(raw: unknown): {
 }
 
 function normalizeCategoriesShape(raw: unknown): unknown[] {
-  // Accept: { ok, data: [] } | { data: [] } | { items: [] } | [] | { ...any array field... }
   if (raw && typeof raw === "object") {
     const obj = raw as Record<string, unknown>;
     if (Array.isArray((obj as { data?: unknown[] }).data))
@@ -101,27 +152,29 @@ function normalizeCategoriesShape(raw: unknown): unknown[] {
   return [];
 }
 
-/* --------------------------------- APIs ---------------------------------- */
+/* ------------------------------ API functions ----------------------------- */
 
 export async function fetchCategories() {
-  const raw = await getJSON<unknown>("/categories");
-
-  // Try strict schema first
   try {
-    const parsed = ZCategoriesResponse.parse(raw);
-    const data = parsed.data.filter((c) => c.status === "ACTIVE");
-    return { ok: true as const, data };
-  } catch {
-    // Fallback: normalize loose shapes
-    const arr = normalizeCategoriesShape(raw);
-    // Validate each item with ZCategory; drop invalids
-    const validated: Array<ReturnType<typeof ZCategory.parse>> = [];
-    for (const item of arr) {
-      const res = ZCategory.safeParse(item);
-      if (res.success) validated.push(res.data);
+    const raw = await getJSON<unknown>("/categories");
+
+    try {
+      const parsed = ZCategoriesResponse.parse(raw);
+      const data = parsed.data.filter((c) => c.status === "ACTIVE");
+      return { ok: true as const, data };
+    } catch {
+      const arr = normalizeCategoriesShape(raw);
+      const validated: Array<ReturnType<typeof ZCategory.parse>> = [];
+      for (const item of arr) {
+        const res = ZCategory.safeParse(item);
+        if (res.success) validated.push(res.data);
+      }
+      const data = validated.filter((c) => c.status === "ACTIVE");
+      return { ok: true as const, data };
     }
-    const data = validated.filter((c) => c.status === "ACTIVE");
-    return { ok: true as const, data };
+  } catch (error) {
+    console.error("Failed to fetch categories:", error);
+    return { ok: true as const, data: [] };
   }
 }
 
@@ -133,137 +186,137 @@ export type ProductsQuery = {
   limit?: number;
   page?: number;
   status?: "ACTIVE" | "DRAFT" | "HIDDEN";
-  sort?: string; // e.g., "createdAt:desc", "price:asc"
+  sort?: string;
 };
 
 export async function fetchProducts(query?: ProductsQuery) {
-  // sanitize limit
-  let limit = query?.limit;
-  if (typeof limit === "number") {
-    if (!Number.isFinite(limit) || limit <= 0) limit = undefined;
-    else if (limit > 60) limit = 60;
-  }
-
-  const params: Query = {
-    ...query,
-    limit,
-    status: query?.status ?? "ACTIVE",
-  };
-
-  let raw: unknown;
   try {
-    raw = await getJSON<unknown>("/products", params);
-  } catch (e: unknown) {
-    const message = (e as { message?: string }).message ?? "";
-    if (message.includes('"limit"') || message.includes("VALIDATION_ERROR")) {
-      raw = await getJSON<unknown>("/products", {
-        ...params,
-        limit: undefined,
-      });
-    } else {
-      throw e;
+    let limit = query?.limit;
+    if (typeof limit === "number") {
+      if (!Number.isFinite(limit) || limit <= 0) limit = undefined;
+      else if (limit > 60) limit = 60;
     }
-  }
 
-  // Prefer strict schema; fallback to normalizer
-  let arr: unknown[] = [];
-  let pageInfo: unknown | undefined;
-  try {
-    const parsed = ZProductsResponse.parse(raw);
-    arr = parsed.data;
-    pageInfo = parsed.pageInfo;
-  } catch {
-    const norm = normalizeProductsShape(raw);
-    arr = norm.arr;
-    pageInfo = norm.pageInfo;
-  }
+    const params: Query = {
+      ...query,
+      limit,
+      status: query?.status ?? "ACTIVE",
+    };
 
-  // Validate each item
-  const validated: Array<ReturnType<typeof ZProduct.parse>> = [];
-  for (const item of arr) {
-    const res = ZProduct.safeParse(item);
-    if (res.success) validated.push(res.data);
-  }
+    let raw: unknown;
+    try {
+      raw = await getJSON<unknown>("/products", params);
+    } catch (e: unknown) {
+      const message = (e as { message?: string }).message ?? "";
+      if (message.includes('"limit"') || message.includes("VALIDATION_ERROR")) {
+        raw = await getJSON<unknown>("/products", {
+          ...params,
+          limit: undefined,
+        });
+      } else {
+        throw e;
+      }
+    }
 
-  // Keep only ACTIVE
-  let data = validated.filter((p) => p.status === "ACTIVE");
+    let arr: unknown[] = [];
+    let pageInfo: unknown | undefined;
+    try {
+      const parsed = ZProductsResponse.parse(raw);
+      arr = parsed.data;
+      pageInfo = parsed.pageInfo;
+    } catch {
+      const norm = normalizeProductsShape(raw);
+      arr = norm.arr;
+      pageInfo = norm.pageInfo;
+    }
 
-  // discounted filter (defensive on BE shape)
-  const wantsDiscounted = query?.discounted === "true";
-  if (wantsDiscounted) {
-    data = data.filter(
-      (p) =>
-        p.isDiscounted === true ||
-        (typeof p.compareAtPrice === "number" && p.compareAtPrice > p.price)
-    );
-  }
+    const validated: Array<ReturnType<typeof ZProduct.parse>> = [];
+    for (const item of arr) {
+      const res = ZProduct.safeParse(item);
+      if (res.success) validated.push(res.data);
+    }
 
-  // default sort by createdAt desc if not provided and createdAt exists
-  if (!query?.sort && data.length > 0 && "createdAt" in data[0]) {
-    data = [...data].sort((a, b) => {
-      const aDate = (a as { createdAt?: string }).createdAt ?? "";
-      const bDate = (b as { createdAt?: string }).createdAt ?? "";
-      return aDate > bDate ? -1 : 1;
+    let data = validated.filter((p) => p.status === "ACTIVE");
+
+    if (query?.discounted === "true") {
+      data = data.filter(
+        (p) =>
+          p.isDiscounted === true ||
+          (typeof p.compareAtPrice === "number" && p.compareAtPrice > p.price)
+      );
+    }
+
+    if (!query?.sort && data.length > 0 && "createdAt" in data[0]) {
+      data = [...data].sort((a, b) => {
+        const aDate = (a as { createdAt?: string }).createdAt ?? "";
+        const bDate = (b as { createdAt?: string }).createdAt ?? "";
+        return aDate > bDate ? -1 : 1;
+      });
+    }
+
+    if (limit && data.length > limit) data = data.slice(0, limit);
+
+    data = data.map((p) => {
+      const cover =
+        p.image ?? (Array.isArray(p.images) ? p.images[0] : undefined);
+      return cover ? { ...p, image: cover } : p;
     });
+
+    return { ok: true as const, data, pageInfo };
+  } catch (error) {
+    console.error("Failed to fetch products:", error);
+    return { ok: true as const, data: [], pageInfo: undefined };
   }
-
-  // client-side clamp
-  if (limit && data.length > limit) data = data.slice(0, limit);
-
-  // cover image fallback (image || images[0])
-  data = data.map((p) => {
-    const cover =
-      p.image ?? (Array.isArray(p.images) ? p.images[0] : undefined);
-    return cover ? { ...p, image: cover } : p;
-  });
-
-  return { ok: true as const, data, pageInfo };
 }
 
 export async function fetchProduct(slug: string) {
-  const raw = await getJSON<unknown>(`/products/${slug}`);
-  const parsed = ZOkProduct.parse(raw);
-  // ensure cover
-  const p = parsed.data;
-  const cover = p.image ?? (Array.isArray(p.images) ? p.images[0] : undefined);
-  return { ok: true as const, data: cover ? { ...p, image: cover } : p };
-}
-
-export async function fetchBanners(position?: "hero" | "side") {
-  const params: Query = position ? { position } : {};
-  const raw = await getJSON<unknown>("/banners", params);
- 
-
-  // Accept both { ok, data } and raw arrays
-  let dataUnknown: unknown[] = [];
-  if (
-    raw &&
-    typeof raw === "object" &&
-    "data" in (raw as Record<string, unknown>)
-  ) {
-    const obj = raw as { data?: unknown };
-    dataUnknown = Array.isArray(obj.data) ? obj.data : [];
-  } else if (Array.isArray(raw)) {
-    dataUnknown = raw as unknown[];
-  } else {
-    const arrLike =
-      raw && typeof raw === "object"
-        ? Object.values(raw as Record<string, unknown>).find((v) =>
-            Array.isArray(v)
-          )
-        : undefined;
-    dataUnknown = Array.isArray(arrLike) ? (arrLike as unknown[]) : [];
+  try {
+    const raw = await getJSON<unknown>(`/products/${slug}`);
+    const parsed = ZOkProduct.parse(raw);
+    const p = parsed.data;
+    const cover =
+      p.image ?? (Array.isArray(p.images) ? p.images[0] : undefined);
+    return { ok: true as const, data: cover ? { ...p, image: cover } : p };
+  } catch (error) {
+    console.error(`Failed to fetch product ${slug}:`, error);
+    return { ok: false as const, data: null };
   }
-
-  // We don't have a strict Zod for banners here; pass through and filter ACTIVE if field exists
-  type BannerLoose = {
-    status?: string;
-  };
-
-  const banners = dataUnknown.filter((b) => {
-    const status = (b as BannerLoose)?.status;
-    return !status || status.toUpperCase() === "ACTIVE";
-  });
-
-  return { ok: true as const, data: banners };
 }
+
+// export async function fetchBanners(position?: "hero" | "side") {
+//   try {
+//     const params: Query = position ? { position } : {};
+//     const raw = await getJSON<unknown>("/banners", params);
+
+//     let dataUnknown: unknown[] = [];
+//     if (
+//       raw &&
+//       typeof raw === "object" &&
+//       "data" in (raw as Record<string, unknown>)
+//     ) {
+//       const obj = raw as { data?: unknown };
+//       dataUnknown = Array.isArray(obj.data) ? obj.data : [];
+//     } else if (Array.isArray(raw)) {
+//       dataUnknown = raw as unknown[];
+//     } else {
+//       const arrLike =
+//         raw && typeof raw === "object"
+//           ? Object.values(raw as Record<string, unknown>).find((v) =>
+//               Array.isArray(v)
+//             )
+//           : undefined;
+//       dataUnknown = Array.isArray(arrLike) ? (arrLike as unknown[]) : [];
+//     }
+
+//     type BannerLoose = { status?: string };
+//     const banners = dataUnknown.filter((b) => {
+//       const status = (b as BannerLoose)?.status;
+//       return !status || status.toUpperCase() === "ACTIVE";
+//     });
+
+//     return { ok: true as const, data: banners };
+//   } catch (error) {
+//     console.error("Failed to fetch banners:", error);
+//     return { ok: true as const, data: [] };
+//   }
+// }

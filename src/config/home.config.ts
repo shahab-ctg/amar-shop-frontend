@@ -1,4 +1,4 @@
-// src/config/home.config.ts
+
 export const homeLayout = {
   hero: {
     showLeftCategory: true,

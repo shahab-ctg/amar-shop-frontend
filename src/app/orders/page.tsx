@@ -103,7 +103,7 @@ function OrderCard({ order }: { order: Order }) {
           <div className="flex-1 min-w-0">
             <div className="flex flex-col xs:flex-row xs:items-center gap-3 mb-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-r from-pink-500 to-rose-500 rounded-lg">
+                <div className="p-2 bg-gradient-to-r from-[#167389] to-[#167389]rounded-lg">
                   <Package className="w-5 h-5 text-white" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 truncate">
@@ -115,7 +115,7 @@ function OrderCard({ order }: { order: Order }) {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 text-sm">
               <div className="flex items-center gap-2 text-gray-700 bg-gray-50 px-3 py-2 rounded-lg">
-                <Calendar className="w-4 h-4 text-pink-500 flex-shrink-0" />
+                <Calendar className="w-4 h-4 text-black flex-shrink-0" />
                 <span className="font-medium truncate">
                   {formatDate(order.createdAt)}
                 </span>
@@ -141,14 +141,14 @@ function OrderCard({ order }: { order: Order }) {
 
           <div className="flex flex-col sm:flex-row lg:flex-col items-end gap-3 lg:gap-2">
             <div className="text-right">
-              <div className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent">
+              <div className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-[#167389] to-[#167389] bg-clip-text text-transparent">
                 ${order.totals.grandTotal}
               </div>
               <p className="text-sm text-gray-600 mt-1">Total Amount</p>
             </div>
             <button
               onClick={() => setExpanded(!expanded)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-xl font-semibold hover:from-pink-600 hover:to-rose-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+              className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#167389] to-[#167389] text-white rounded-xl font-semibold hover:from-pink-600 hover:to-rose-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
               {expanded ? (
                 <>
@@ -206,7 +206,7 @@ function OrderCard({ order }: { order: Order }) {
           {/* Order Items */}
           <div>
             <h4 className="font-bold text-gray-900 mb-4 flex items-center gap-2 text-lg">
-              <ShoppingBag className="w-5 h-5 text-pink-500" />
+              <ShoppingBag className="w-5 h-5 text-[#167389]" />
               Order Items
             </h4>
             <div className="space-y-4">
@@ -224,7 +224,7 @@ function OrderCard({ order }: { order: Order }) {
                         height={80}
                         className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg border border-pink-200"
                       />
-                      <div className="absolute -top-1 -right-1 w-6 h-6 bg-pink-500 rounded-full flex items-center justify-center">
+                      <div className="absolute -top-1 -right-1 w-6 h-6 bg-[#167389] rounded-full flex items-center justify-center">
                         <span className="text-white text-xs font-bold">
                           {item.qty}
                         </span>
@@ -289,7 +289,7 @@ export default function MyOrdersPage() {
       <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 py-8">
         <div className="max-w-6xl mx-auto px-3 sm:px-4 lg:px-6">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-pink-500 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#167389]mx-auto mb-4"></div>
             <p className="text-lg text-gray-700 font-medium">
               Loading your orders...
             </p>
@@ -305,10 +305,10 @@ export default function MyOrdersPage() {
         <div className="max-w-6xl mx-auto px-3 sm:px-4 lg:px-6">
           <div className="bg-white rounded-2xl border border-rose-200 shadow-lg p-6 sm:p-8 text-center">
             <AlertCircle className="w-16 h-16 text-rose-400 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-rose-800 mb-3">
+            <h3 className="text-xl font-bold text-[#167389] mb-3">
               Failed to Load Orders
             </h3>
-            <p className="text-rose-600 text-lg mb-6">
+            <p className="text-[#167389] text-lg mb-6">
               We could not retrieve your orders. Please try again later.
             </p>
             <button
@@ -332,8 +332,8 @@ export default function MyOrdersPage() {
             <div className="p-3 bg-gradient-to-r from-pink-500 to-rose-500 rounded-2xl shadow-lg">
               <Sparkles className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent">
-              My Beauty Orders
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-#167389 to-[#167389] bg-clip-text text-transparent">
+              My Orders
             </h1>
           </div>
           <p className="text-lg sm:text-xl text-gray-700 max-w-2xl mx-auto">
@@ -359,7 +359,7 @@ export default function MyOrdersPage() {
               onChange={(e) =>
                 setStatusFilter(e.target.value as OrderStatus | "")
               }
-              className="px-4 py-3.5 text-lg border border-pink-200 rounded-xl focus:ring-2 focus:ring-pink-300 focus:border-pink-400 bg-white/50 backdrop-blur-sm text-pink-700"
+              className="px-4 py-3.5 text-lg border border-pink-200 rounded-xl focus:ring-2 focus:ring-pink-300 focus:border-pink-400 bg-white/50 backdrop-blur-sm text-[#167389]"
             >
               <option value="">All Status</option>
               <option value="PENDING">Pending</option>

@@ -62,7 +62,7 @@ export default function ProductCard({
           {isOutOfStock && (
             <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
               <span className="bg-gray-900 text-white px-4 py-2 rounded-full font-semibold text-sm">
-       Out of Stock
+                Out of Stock
               </span>
             </div>
           )}
@@ -110,7 +110,7 @@ export default function ProductCard({
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white py-2.5 sm:py-3 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale"
+            className="w-full bg-gradient-to-r from-[#167389] to-[#167389] hover:from-pink-600 hover:to-rose-600 text-white py-2.5 sm:py-3 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale"
             disabled={isOutOfStock}
           >
             <Eye className="w-4 h-4 sm:w-5 sm:h-5" />

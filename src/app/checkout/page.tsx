@@ -86,7 +86,7 @@ const ItemRow = React.memo<RowProps>(function ItemRow({ item }) {
     <motion.div
       key={item._id}
       initial={false}
-      className="flex items-center gap-3 p-3 bg-gradient-to-r from-pink-50 to-purple-50 rounded-xl border border-pink-100"
+      className="flex items-center gap-3 p-3 bg-gradient-to-r from-[#F5FDF8] to-[#F5FDF8] rounded-xl border border-pink-100"
     >
       {/* Image */}
       <div className="w-14 h-14 sm:w-16 sm:h-16 bg-pink-100 rounded-lg flex-shrink-0 overflow-hidden relative">
@@ -211,6 +211,7 @@ const OrderSummaryCard = React.memo<SummaryProps>(function OrderSummaryCard({
 
 export default function CheckoutPage() {
   const router = useRouter();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const searchParams = useSearchParams();
 
   // cart store
@@ -396,7 +397,7 @@ export default function CheckoutPage() {
           </p>
           <Link
             href="/products"
-            className="inline-block bg-gradient-to-r from-pink-500 to-rose-600 text-white px-6 py-3 rounded-xl hover:from-pink-600 hover:to-rose-700 transition-all shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
+            className="inline-block bg-gradient-to-r from-[#167389] to-[#167389] text-white px-6 py-3 rounded-xl hover:from-pink-600 hover:to-rose-700 transition-all shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
           >
             Browse products
           </Link>
@@ -414,7 +415,7 @@ export default function CheckoutPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6 sm:mb-8"
         >
-          <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 mb-2">
+          <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#167389] via-[#167389] to-purple-600 mb-2">
             Checkout
           </h1>
           <p className="text-gray-600 text-sm sm:text-base">
@@ -582,7 +583,7 @@ export default function CheckoutPage() {
                   className={`w-full py-3.5 sm:py-4 rounded-2xl font-semibold text-white transition-all flex items-center justify-center gap-2 focus-visible:outline-none shadow-lg ${
                     isSubmitting || orderSuccess
                       ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 focus-visible:ring-2 focus-visible:ring-pink-500"
+                      : "bg-gradient-to-r from-[#167389] to-[#167389] hover:from-pink-600 hover:to-rose-700 focus-visible:ring-2 focus-visible:ring-pink-500"
                   }`}
                 >
                   {isSubmitting ? (
@@ -605,7 +606,7 @@ export default function CheckoutPage() {
                   <p className="text-gray-600 mb-3 text-sm">Or</p>
                   <a
                     href={`tel:${HOTLINE}`}
-                    className="inline-flex items-center gap-2 text-pink-600 hover:text-pink-700 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 rounded text-sm sm:text-base"
+                    className="inline-flex items-center gap-2 text-cyan-400 hover:text-pink-700 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 rounded text-sm sm:text-base"
                   >
                     <Phone className="w-5 h-5" />
                     Call to order: {HOTLINE}
@@ -644,7 +645,7 @@ export default function CheckoutPage() {
           </div>
           <button
             onClick={() => setShowMobileSummary(true)}
-            className="px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-rose-600 text-white font-semibold hover:from-pink-600 hover:to-rose-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 shadow-lg text-sm"
+            className="px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-[#167389] to-[#167389] text-white font-semibold hover:from-pink-600 hover:to-rose-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 shadow-lg text-sm"
           >
             View Order Summary
           </button>

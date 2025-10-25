@@ -22,7 +22,7 @@ export default function Footer() {
   return (
     <footer
       role="contentinfo"
-      className="bg-gradient-to-br from-pink-900 via-rose-800 to-pink-900 text-white mt-auto"
+      className="bg-gradient-to-b bg-[#FFFCFD] text-black mt-auto"
     >
       <div className="max-w-7xl mx-auto px-4 xs:px-5 sm:px-6 lg:px-8">
         {/* Main Footer Content */}
@@ -30,7 +30,7 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="min-w-0">
             <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-pink-400 to-rose-500 rounded-xl flex items-center justify-center shadow-lg shrink-0">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[#167389] to-[#167389] rounded-xl flex items-center justify-center shadow-lg shrink-0">
                 <Sparkles
                   className="w-6 h-6 sm:w-7 sm:h-7 text-white"
                   strokeWidth={2.5}
@@ -40,17 +40,17 @@ export default function Footer() {
                 <h3 className="text-lg sm:text-xl font-bold truncate">
                   {brand}
                 </h3>
-                <p className="text-[11px] sm:text-xs text-pink-300">
+                <p className="text-[11px] sm:text-xs text-[#167389]">
                   Beauty & Cosmetics
                 </p>
               </div>
             </div>
-            <p className="text-pink-200 text-sm leading-relaxed mb-4 text-pretty">
+            <p className="text-black text-sm leading-relaxed mb-4 text-pretty">
               Your trusted destination for authentic beauty and cosmetics
               products. Bringing premium quality and radiant beauty to your
               doorstep.
             </p>
-            <div className="flex items-center gap-2 text-sm text-pink-300">
+            <div className="flex items-center gap-2 text-sm text-[#167389]">
               <Heart className="w-4 h-4 fill-pink-300" aria-hidden="true" />
               <span className="text-pretty">
                 Beauty that inspires confidence
@@ -61,13 +61,13 @@ export default function Footer() {
           {/* Quick Links */}
           <div className="min-w-0">
             <h4 className="text-base sm:text-lg font-bold mb-3 sm:mb-4 flex items-center gap-2">
-              <span className="w-1 h-5 sm:h-6 bg-pink-400 rounded-full"></span>
+              <span className="w-1 h-5 sm:h-6 bg-[#167389] rounded-full"></span>
               <span>Quick Links</span>
             </h4>
-            <ul className="space-y-2.5 text-pink-200">
+            <ul className="space-y-2.5 text-black">
               <li>
                 <Link
-                  href="/dashboard"
+                  href="https://amar-shop-admin.vercel.app/login"
                   className="hover:text-white hover:pl-2 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded"
                   title="Products"
                 >
@@ -81,6 +81,15 @@ export default function Footer() {
                   title="Products"
                 >
                   Products
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/orders"
+                  className="hover:text-white hover:pl-2 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#167389] rounded"
+                  title="Products"
+                >
+                  My Orders
                 </Link>
               </li>
               <li>
@@ -116,20 +125,20 @@ export default function Footer() {
           {/* Contact Info */}
           <div className="min-w-0">
             <h4 className="text-base sm:text-lg font-bold mb-3 sm:mb-4 flex items-center gap-2">
-              <span className="w-1 h-5 sm:h-6 bg-pink-400 rounded-full"></span>
+              <span className="w-1 h-5 sm:h-6  rounded-full"></span>
               <span>Contact Us</span>
             </h4>
-            <ul className="space-y-3 text-pink-200 text-sm">
+            <ul className="space-y-3 text-black text-sm">
               <li className="flex items-start gap-3">
                 <MapPin
-                  className="w-5 h-5 text-pink-400 flex-shrink-0 mt-0.5"
+                  className="w-5 h-5 text-black flex-shrink-0 mt-0.5"
                   aria-hidden="true"
                 />
                 <span className="break-words">Dhaka, Bangladesh</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone
-                  className="w-5 h-5 text-pink-400 flex-shrink-0"
+                  className="w-5 h-5 text-black flex-shrink-0"
                   aria-hidden="true"
                 />
                 <a
@@ -142,7 +151,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Mail
-                  className="w-5 h-5 text-pink-400 flex-shrink-0"
+                  className="w-5 h-5 text-black flex-shrink-0"
                   aria-hidden="true"
                 />
                 <a
@@ -167,7 +176,7 @@ export default function Footer() {
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 sm:w-10 sm:h-10 bg-pink-800 hover:bg-pink-700 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
+                className="w-9 h-9 sm:w-10 sm:h-10  rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
                 aria-label="Facebook"
                 title="Facebook"
               >
@@ -177,7 +186,7 @@ export default function Footer() {
                 href="https://instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 sm:w-10 sm:h-10 bg-pink-800 hover:bg-pink-700 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
+                className="w-9 h-9 sm:w-10 sm:h-10  rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
                 aria-label="Instagram"
                 title="Instagram"
               >
@@ -187,7 +196,7 @@ export default function Footer() {
                 href="https://twitter.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 sm:w-10 sm:h-10 bg-pink-800 hover:bg-pink-700 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
+                className="w-9 h-9 sm:w-10 sm:h-10  rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
                 aria-label="Twitter"
                 title="Twitter"
               >
@@ -197,7 +206,7 @@ export default function Footer() {
                 href="https://youtube.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 sm:w-10 sm:h-10 bg-pink-800 hover:bg-pink-700 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
                 aria-label="YouTube"
                 title="YouTube"
               >
@@ -205,12 +214,12 @@ export default function Footer() {
               </a>
             </div>
 
-            <div className="bg-pink-800/50 border border-pink-700 rounded-xl p-3.5 sm:p-4">
-              <p className="text-[11px] sm:text-xs text-pink-300 mb-1.5 font-semibold">
+            <div className="bg-[#167389] border border-[#167389] rounded-xl p-3.5 sm:p-4">
+              <p className="text-[11px] sm:text-xs text-white mb-1.5 font-semibold">
                 Customer Service
               </p>
-              <p className="text-sm text-pink-200">9 AM - 9 PM Daily</p>
-              <p className="text-[11px] sm:text-xs text-pink-300 mt-1">
+              <p className="text-sm text-white">9 AM - 9 PM Daily</p>
+              <p className="text-[11px] sm:text-xs text-white mt-1">
                 Saturday - Thursday
               </p>
             </div>
@@ -218,11 +227,11 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-pink-800 py-5 sm:py-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 text-xs sm:text-sm text-pink-300">
+        <div className="border-t py-5 sm:py-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 text-xs sm:text-sm text-black">
             <p className="text-center sm:text-left">
               © {currentYear}{" "}
-              <span className="font-semibold text-white">{brand}</span>. All
+              <span className="font-semibold text-[#167389]">{brand}</span>. All
               rights reserved.
             </p>
             <div className="flex items-center gap-3 sm:gap-4 flex-wrap justify-center">

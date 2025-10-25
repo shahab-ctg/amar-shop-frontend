@@ -48,7 +48,7 @@ export default function CartPage() {
       <div className="min-h-[70vh] bg-gradient-to-b from-green-50 to-white">
         <div className="mx-auto max-w-6xl px-4 py-12 text-center">
           <div className="inline-flex items-center justify-center w-24 h-24 bg-green-100 rounded-full mb-6">
-            <ShoppingCart className="w-12 h-12 text-pink-600" />
+            <ShoppingCart className="w-12 h-12 text-[#167389]" />
           </div>
           <h2 className="text-3xl font-bold text-gray-800 mb-3">
             Your cart is empty
@@ -59,7 +59,7 @@ export default function CartPage() {
           </p>
           <Link
             href="/products"
-            className="inline-flex items-center gap-2 bg-pink-600 text-white px-8 py-4 rounded-full hover:bg-pink-700 transition-all shadow-lg hover:shadow-xl font-medium focus-visible:ring-2 focus-visible:ring-pink-500"
+            className="inline-flex items-center gap-2 bg-[#167389] text-white px-8 py-4 rounded-full hover:bg-pink-700 transition-all shadow-lg hover:shadow-xl font-medium focus-visible:ring-2 focus-visible:ring-pink-500"
           >
             <ShoppingBag className="w-5 h-5" />
             Shop products

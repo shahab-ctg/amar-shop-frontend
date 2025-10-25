@@ -6,7 +6,7 @@ import type { Product } from "@/types";
 import ProductCard from "@/components/ProductCard";
 import { Check, Phone, Truck, Shield, Sparkles } from "lucide-react";
 import ProductActions from "@/components/product/ProductActions";
-import ProductGallery from "@/components/product/ProductGallery";
+
 import ProductThumbs from "@/components/product/ProductThumbs";
 
 export const revalidate = 0;
@@ -42,7 +42,7 @@ export default async function ProductDetailsPage({
       (product.image ? [product.image] : []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pink-50 via-white to-rose-50">
+    <div className="min-h-screen bg-[#F5FDF8]">
       <div className="max-w-7xl mx-auto px-4 xs:px-5 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-10 lg:py-12">
         {/* Top layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12">
@@ -67,10 +67,9 @@ export default async function ProductDetailsPage({
           </div> */}
 
           <div className="bg-white rounded-2xl sm:rounded-3xl shadow-md hover:shadow-xl transition-shadow duration-300 border border-pink-100 p-3 sm:p-4 md:p-6 lg:p-8">
-            {/* 👇 এই id-টা যোগ করুন */}
             <div
               id={`main-img-box-${product._id}`}
-              className="relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-pink-100 via-rose-50 to-purple-100 shadow-inner"
+              className="relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-[#F5FDF8] via-[#F5FDF8] to-[#F5FDF8] shadow-inner"
             >
               {product.image ? (
                 <Image
@@ -88,11 +87,11 @@ export default async function ProductDetailsPage({
               )}
             </div>
 
-            {/* ✅ থাম্বনেইল বার (main image-এর ঠিক নিচে) */}
             <ProductThumbs
               title={product.title}
               mainBoxId={`main-img-box-${product._id}`}
               images={galleryImages}
+              description={product.description}
             />
           </div>
 
@@ -126,6 +125,7 @@ export default async function ProductDetailsPage({
                   className="w-5 h-5 sm:w-5 sm:h-5 text-pink-600 flex-shrink-0"
                   aria-hidden="true"
                 />
+
                 <span className="font-semibold text-sm sm:text-base">
                   {product.stock && product.stock > 0
                     ? "In Stock"
@@ -160,7 +160,7 @@ export default async function ProductDetailsPage({
             {/* Extra info */}
             <div className="mt-6 sm:mt-7 p-4 sm:p-5 bg-gradient-to-r from-pink-50 via-rose-50 to-purple-50 rounded-xl sm:rounded-2xl border-2 border-pink-200 shadow-sm">
               <div className="flex items-start gap-2 sm:gap-3 mb-3">
-                <Sparkles className="w-5 h-5 text-pink-600 flex-shrink-0 mt-0.5" />
+                <Sparkles className="w-5 h-5 text-[#167389] flex-shrink-0 mt-0.5" />
                 <p className="text-gray-700 leading-relaxed text-sm sm:text-base font-medium">
                   All our products are 100% authentic and of premium quality.
                   Specially curated collection for your beauty and care needs.
@@ -170,7 +170,7 @@ export default async function ProductDetailsPage({
                 <span className="font-semibold text-gray-800">Category:</span>{" "}
                 {product.categorySlug ? (
                   <Link
-                    className="text-pink-600 hover:text-pink-700 font-bold hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 rounded inline-block"
+                    className="text-[#167389] hover:text-pink-700 font-bold hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 rounded inline-block"
                     href={`/products?category=${product.categorySlug}`}
                   >
                     {product.categorySlug}
@@ -212,7 +212,7 @@ export default async function ProductDetailsPage({
                     ? `/products?category=${product.categorySlug}`
                     : "/products"
                 }
-                className="text-pink-600 font-bold hover:text-pink-700 transition-colors flex items-center gap-1.5 sm:gap-2 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 rounded text-sm sm:text-base"
+                className="text-[#167389] font-bold hover:text-pink-700 transition-colors flex items-center gap-1.5 sm:gap-2 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 rounded text-sm sm:text-base"
                 aria-label="See all related products"
               >
                 <span>See All</span>

@@ -41,11 +41,11 @@ export default async function ProductsPage({
   // Empty state
   if (products.length === 0) {
     return (
-      <div className="min-h-[60vh] bg-gradient-to-b from-pink-200 to-pink-100">
+      <div className="min-h-[60vh] bg-gradient-to-b from[#F5FDF8] to-[#F5FDF8]">
         <div className="mx-auto max-w-7xl px-4 xs:px-5 sm:px-6 lg:px-8 py-10 sm:py-12">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-pink-200 rounded-full mb-5 sm:mb-6">
-              <Search className="w-10 h-10 text-pink-600" aria-hidden="true" />
+              <Search className="w-10 h-10 text-[#167389]" aria-hidden="true" />
             </div>
             <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2.5 sm:mb-3">
               No products found
@@ -57,7 +57,7 @@ export default async function ProductsPage({
             </p>
             <Link
               href="/products"
-              className="inline-flex items-center gap-2 bg-pink-600 text-white px-6 sm:px-7 py-3 rounded-full hover:bg-green-700 transition-colors shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+              className="inline-flex items-center gap-2 bg-[#167389] text-white px-6 sm:px-7 py-3 rounded-full hover:bg-green-700 transition-colors shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
               aria-label="View all products"
             >
               View all products

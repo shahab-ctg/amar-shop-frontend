@@ -7,11 +7,12 @@ export default function ProductThumbs({
   images,
   title,
   mainBoxId,
+  description,
 }: {
   images?: string[] | null;
   title: string;
-  /** main image wrapper div-এর id */
   mainBoxId: string;
+  description?: string; // ✅ added optional prop
 }) {
   const list = useMemo(
     () => Array.from(new Set((images ?? []).filter(Boolean))),
@@ -23,24 +24,21 @@ export default function ProductThumbs({
   if (!list.length) return null;
 
   const swapMain = (src: string, idx: number) => {
-    // Next/Image এর ভিতরের <img> টাকে ধরুন
     const img =
       document.querySelector<HTMLImageElement>(`#${mainBoxId} img`) || null;
 
     if (!img) return;
 
-    // Next/Image অপ্টিমাইজড url ব্যবহার করে; srcset/sizes ক্লিয়ার করে raw src সেট করি
     try {
       img.srcset = "";
       img.sizes = "";
       img.src = src;
-      // কিছু ব্রাউজারে immediate repaint এর জন্য
       img.decoding = "sync";
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (img as any).fetchPriority = "high";
       setActive(idx);
     } catch {
-      // fallback: কিছু না
+      //
     }
   };
 
@@ -63,7 +61,7 @@ export default function ProductThumbs({
             aria-selected={active === i}
             onClick={() => swapMain(src, i)}
             className={`relative aspect-square rounded-lg overflow-hidden border-2 transition
-              ${active === i ? "border-pink-500" : "border-pink-200 hover:border-pink-300"}
+              ${active === i ? "border-[#167389]" : "border-[#167389] hover:border-pink-300"}
               focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-500
             `}
             title={`View image ${i + 1}`}
@@ -78,6 +76,13 @@ export default function ProductThumbs({
           </button>
         ))}
       </div>
+
+      {/* ✅ dynamic product description added below thumbnails */}
+      {description && (
+        <p className="mt-3 text-gray-700 text-sm sm:text-base leading-relaxed text-center px-2 sm:px-4">
+          {description}
+        </p>
+      )}
     </div>
   );
 }

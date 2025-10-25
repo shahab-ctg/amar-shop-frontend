@@ -45,7 +45,7 @@ export default function CategoryView({ slug }: { slug: string }) {
   // Loading state with improved responsive skeleton
   if (loading) {
     return (
-      <div className="min-h-[60vh] bg-gradient-to-b from-green-50 to-white">
+      <div className="min-h-[60vh] bg-[#F5FDF8]">
         <div className="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 lg:px-8 py-8 sm:py-10 md:py-12">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full mb-4 sm:mb-6 mx-auto animate-pulse">
@@ -90,7 +90,7 @@ export default function CategoryView({ slug }: { slug: string }) {
             </p>
             <Link
               href="/products"
-              className="inline-flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 rounded-full transition-colors  sm:text-base   hover:shadow-lg   bg-gradient-to-r from-pink-500 to-rose-600 text-white font-semibold hover:from-pink-600 hover:to-rose-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 shadow-lg text-sm"
+              className="inline-flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 rounded-full transition-colors  sm:text-base   hover:shadow-lg   bg-gradient-to-r from-[#167389] to-[#167389] text-white font-semibold hover:from-pink-600 hover:to-rose-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 shadow-lg text-sm"
             >
               Sell All Products
               <ArrowRight className="w-4 h-4" />

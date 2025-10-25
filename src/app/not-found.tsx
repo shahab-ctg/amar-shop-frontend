@@ -60,7 +60,7 @@ export default function NotFound() {
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 px-4">
           <Link
             href="/"
-            className="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-pink-600 to-purple-600 text-white px-6 sm:px-8 py-3 sm:py-3.5 rounded-full font-semibold hover:from-pink-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 text-sm sm:text-base"
+            className="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#167389] to-[#167389] text-white px-6 sm:px-8 py-3 sm:py-3.5 rounded-full font-semibold hover:from-pink-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 text-sm sm:text-base"
           >
             <Home className="w-4 h-4 sm:w-5 sm:h-5" />
             Back to Homepage
@@ -68,7 +68,7 @@ export default function NotFound() {
 
           <Link
             href="/products"
-            className="flex-1 inline-flex items-center justify-center gap-2 bg-white text-pink-600 px-6 sm:px-8 py-3 sm:py-3.5 rounded-full font-semibold hover:bg-pink-50 transition-all duration-300 shadow-md hover:shadow-lg border-2 border-pink-200 transform hover:scale-105 active:scale-95 text-sm sm:text-base"
+            className="flex-1 inline-flex items-center justify-center gap-2 bg-white text-[#167389] px-6 sm:px-8 py-3 sm:py-3.5 rounded-full font-semibold hover:bg-pink-50 transition-all duration-300 shadow-md hover:shadow-lg border-2 border-pink-200 transform hover:scale-105 active:scale-95 text-sm sm:text-base"
           >
             <Search className="w-4 h-4 sm:w-5 sm:h-5" />
             Browse Products

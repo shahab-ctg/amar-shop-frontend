@@ -10,10 +10,10 @@ export default function ProductGallery({
 }: {
   images?: string[] | null;
   title: string;
-  /** যখন image না থাকে, fallback দেখাতে চাইলে */
+  
   fallback?: string;
 }) {
-  // final list: falsy বাদ দিয়ে unique
+
   const list = useMemo(() => {
     const arr = Array.from(new Set((images ?? []).filter(Boolean)));
     if (arr.length === 0 && fallback) return [fallback];
@@ -70,7 +70,7 @@ export default function ProductGallery({
                 aria-selected={active === i}
                 onClick={() => setActive(i)}
                 className={`relative aspect-square rounded-lg overflow-hidden border-2 transition
-                  ${active === i ? "border-pink-500" : "border-pink-200 hover:border-pink-300"}
+                  ${active === i ? "border-[#167389]" : "border-[#167389] hover:border-pink-300"}
                   focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-500
                 `}
                 title={`View image ${i + 1}`}
@@ -87,6 +87,7 @@ export default function ProductGallery({
           </div>
         </div>
       )}
+      
     </div>
   );
 }

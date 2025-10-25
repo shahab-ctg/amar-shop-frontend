@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -7,7 +6,17 @@ import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/store/cartStore";
 import clsx from "clsx";
-import { Search, ShoppingCart, Phone, Menu, X, Sparkles } from "lucide-react";
+import {
+  Search,
+  ShoppingCart,
+  Phone,
+  Menu,
+  X,
+  Sparkles,
+  User,
+  Image,
+  Link2,
+} from "lucide-react";
 
 type Category = { _id: string; slug: string; title: string };
 
@@ -29,6 +38,7 @@ export default function Topbar() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [categoriesError, setCategoriesError] = useState<string | null>(null);
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
 
   const cartItems = useCartStore((s) => s.items);
   const cartCount = useMemo(
@@ -40,6 +50,19 @@ export default function Topbar() {
   const hotline = process.env.NEXT_PUBLIC_HOTLINE || "01700-000000";
   const API_BASE =
     process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE;
+
+  const placeholders = [
+    { icon: Image, text: "Search by image..." },
+    { icon: Link2, text: "Search by link..." },
+    { icon: Search, text: "Search by keyword..." },
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPlaceholderIndex((prev) => (prev + 1) % placeholders.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const ac = new AbortController();
@@ -102,36 +125,38 @@ export default function Topbar() {
     setMobileMenuOpen(false);
   };
 
+  const CurrentIcon = placeholders[placeholderIndex].icon;
+
   return (
     <>
       <header
         className={clsx(
           "sticky top-0 z-50 transition-all duration-300",
           scrolled
-            ? "bg-white/95 backdrop-blur-lg shadow-lg"
-            : "bg-white border-b border-pink-100"
+            ? "bg-[#167389]/95 backdrop-blur-lg shadow-lg"
+            : "bg-[#167389] border-b border-[#1a8ba5]"
         )}
       >
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+        <div className="max-w-8xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10">
           {/* Top Banner - Desktop only */}
-          <div className="hidden md:block border-b border-pink-100">
+          {/* <div className="hidden md:block border-b border-white/20">
             <div className="flex items-center justify-between py-2 text-xs sm:text-sm">
-              <div className="flex items-center gap-2 text-gray-600">
-                <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-pink-600" />
+              <div className="flex items-center gap-2 text-white/90">
+                <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-cyan-300" />
                 <span className="text-xs sm:text-sm">
                   100% Authentic Products • Free Shipping Over $50
                 </span>
               </div>
               <a
                 href={`tel:${hotline}`}
-                className="flex items-center gap-2 text-pink-600 hover:text-pink-700 font-medium"
+                className="flex items-center gap-2 text-white hover:text-cyan-300 font-medium transition-colors"
                 aria-label="Call hotline"
               >
                 <Phone className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span className="text-xs sm:text-sm">Hotline: {hotline}</span>
               </a>
             </div>
-          </div>
+          </div> */}
 
           {/* Main Navigation */}
           <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 sm:gap-3 md:gap-4 py-2.5 sm:py-3 md:py-4">
@@ -144,7 +169,7 @@ export default function Topbar() {
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gradient-to-br from-pink-500 to-rose-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow"
+                className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-lg sm:rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow"
               >
                 <Sparkles
                   className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-white"
@@ -152,10 +177,10 @@ export default function Topbar() {
                 />
               </motion.div>
               <div className="hidden sm:block">
-                <div className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-700 to-rose-600 leading-tight">
+                <div className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-white leading-tight">
                   {brand}
                 </div>
-                <div className="text-[10px] sm:text-xs text-pink-600 font-medium -mt-0.5 sm:-mt-1">
+                <div className="text-[10px] sm:text-xs text-cyan-300 font-medium -mt-0.5 sm:-mt-1">
                   Your Beauty Destination
                 </div>
               </div>
@@ -174,11 +199,11 @@ export default function Topbar() {
                   disabled={categoriesLoading}
                   className={clsx(
                     "px-3 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border-2 min-w-[132px] sm:min-w-[150px] text-sm",
-                    "bg-pink-50 border-pink-200 text-pink-700",
-                    "focus:outline-none focus:border-pink-500 transition-all"
+                    "bg-white/10 border-white/30 text-white",
+                    "focus:outline-none focus:border-cyan-300 focus:bg-white/20 transition-all"
                   )}
                 >
-                  <option value="">
+                  <option value="" className="text-[#167389] bg-white">
                     {categoriesLoading
                       ? "Loading..."
                       : categoriesError
@@ -186,26 +211,39 @@ export default function Topbar() {
                         : "All Categories"}
                   </option>
                   {categories.map((c) => (
-                    <option key={c._id} value={c.slug}>
+                    <option
+                      key={c._id}
+                      value={c.slug}
+                      className="bg-[#167389] text-white"
+                    >
                       {c.title}
                     </option>
                   ))}
                 </select>
 
                 <div className="relative flex-1">
-                  <Search
-                    className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-pink-500"
-                    aria-hidden="true"
-                  />
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={placeholderIndex}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 10 }}
+                      transition={{ duration: 0.3 }}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none"
+                    >
+                      <CurrentIcon className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-300" />
+                    </motion.div>
+                  </AnimatePresence>
                   <input
                     aria-label="Search products"
-                    placeholder="Search for beauty products..."
+                    placeholder={placeholders[placeholderIndex].text}
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
                     className={clsx(
-                      "w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border-2 text-sm",
-                      "bg-white border-pink-200 focus:border-pink-500 focus:ring-4 focus:ring-pink-100",
-                      "transition-all text-gray-900 placeholder:text-gray-400"
+                      "w-full pl-9 sm:pl-11 pr-3 sm:pr-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border-2 text-sm",
+                      "bg-white border-white/30 text-white placeholder:text-white/60",
+                      "focus:border-cyan-300 focus:bg-white/20 focus:ring-4 focus:ring-cyan-300/20",
+                      "transition-all"
                     )}
                   />
                 </div>
@@ -214,7 +252,7 @@ export default function Topbar() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   type="submit"
-                  className="px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-pink-500 to-rose-600 text-white font-semibold rounded-lg sm:rounded-xl hover:from-pink-600 hover:to-rose-700 transition-all shadow-md hover:shadow-lg text-sm"
+                  className="px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-cyan-400 to-blue-500 text-white font-semibold rounded-lg sm:rounded-xl hover:from-cyan-500 hover:to-blue-600 transition-all shadow-md hover:shadow-lg text-sm"
                 >
                   Search
                 </motion.button>
@@ -223,12 +261,23 @@ export default function Topbar() {
 
             {/* Right: Actions */}
             <div className="flex items-center justify-end gap-1.5 sm:gap-2">
+              {/* Profile Button */}
+              <Link href="/profile" aria-label="View profile">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="p-2 sm:p-2.5 md:p-3 bg-white/10 hover:bg-white/20 text-white rounded-lg sm:rounded-xl transition-all"
+                >
+                  <User className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6" />
+                </motion.button>
+              </Link>
+
               {/* Cart Button */}
               <Link href="/cart" aria-label="Open cart">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="relative p-2 sm:p-2.5 md:p-3 bg-pink-50 hover:bg-pink-100 text-pink-700 rounded-lg sm:rounded-xl transition-all"
+                  className="relative p-2 sm:p-2.5 md:p-3 bg-white/10 hover:bg-white/20 text-white rounded-lg sm:rounded-xl transition-all"
                 >
                   <ShoppingCart className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6" />
                   {cartCount > 0 && (
@@ -246,7 +295,7 @@ export default function Topbar() {
               {/* Call Button - Mobile Only */}
               <a
                 href={`tel:${hotline}`}
-                className="md:hidden p-2 sm:p-2.5 bg-pink-50 hover:bg-pink-100 text-pink-700 rounded-lg sm:rounded-xl transition-all"
+                className="md:hidden p-2 sm:p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-lg sm:rounded-xl transition-all"
                 aria-label="Call hotline"
               >
                 <Phone className="w-5 h-5" />
@@ -256,7 +305,7 @@ export default function Topbar() {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-2 sm:p-2.5 text-pink-600 hover:bg-pink-50 rounded-lg sm:rounded-xl transition-all"
+                className="lg:hidden p-2 sm:p-2.5 text-white hover:bg-white/10 rounded-lg sm:rounded-xl transition-all"
                 aria-label="Toggle menu"
                 aria-expanded={mobileMenuOpen}
               >
@@ -278,16 +327,16 @@ export default function Topbar() {
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="lg:hidden border-t border-pink-100 bg-white overflow-hidden"
+              className="lg:hidden border-t border-white/20 bg-[#167389] overflow-hidden"
             >
               <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4 space-y-2">
                 <div className="pt-2">
-                  <div className="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider px-1 mb-2">
+                  <div className="text-[10px] sm:text-xs font-semibold text-white/70 uppercase tracking-wider px-1 mb-2">
                     Categories
                   </div>
                   <Link
                     href="/products"
-                    className="block px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-700 rounded-lg sm:rounded-xl font-medium"
+                    className="block px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-white hover:bg-white/10 rounded-lg sm:rounded-xl font-medium"
                   >
                     All Products
                   </Link>
@@ -295,21 +344,21 @@ export default function Topbar() {
                     <Link
                       key={c._id}
                       href={`/products?category=${c.slug}`}
-                      className="block px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-700 rounded-lg sm:rounded-xl"
+                      className="block px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-white hover:bg-white/10 rounded-lg sm:rounded-xl"
                     >
                       {c.title}
                     </Link>
                   ))}
                 </div>
 
-                <div className="pt-2 mt-2 border-t border-pink-100 pb-[calc(env(safe-area-inset-bottom,0)+4px)]">
+                <div className="pt-2 mt-2 border-t border-white/20 pb-[calc(env(safe-area-inset-bottom,0)+4px)]">
                   <a
                     href={`tel:${hotline}`}
-                    className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 bg-pink-50 border-2 border-pink-200 text-pink-700 font-semibold rounded-lg sm:rounded-xl hover:bg-pink-100 transition-all text-sm"
+                    className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 border-2 border-white/30 text-white font-semibold rounded-lg sm:rounded-xl hover:bg-white/20 transition-all text-sm"
                   >
                     <Phone className="w-4 h-4 sm:w-5 sm:h-5" />
                     <div>
-                      <div className="text-[10px] sm:text-xs text-gray-600">
+                      <div className="text-[10px] sm:text-xs text-white/70">
                         Hotline
                       </div>
                       <div className="text-sm">{hotline}</div>
@@ -321,39 +370,6 @@ export default function Topbar() {
           )}
         </AnimatePresence>
       </header>
-
-      {/* Secondary Category Bar - Desktop Only */}
-      {/* <div className="hidden lg:block bg-gradient-to-r from-pink-600 to-rose-600 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-1 overflow-x-auto py-2 scrollbar-thin scrollbar-thumb-white/40 scrollbar-track-transparent">
-            <Link
-              href="/products"
-              className={clsx(
-                "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-medium whitespace-nowrap transition-all text-sm",
-                !sp.get("category")
-                  ? "bg-white text-pink-700 shadow-md"
-                  : "text-white hover:bg-white/20"
-              )}
-            >
-              All Products
-            </Link>
-            {categories.map((c) => (
-              <Link
-                key={c._id}
-                href={`/products?category=${c.slug}`}
-                className={clsx(
-                  "px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-medium whitespace-nowrap transition-all text-sm",
-                  sp.get("category") === c.slug
-                    ? "bg-white text-pink-700 shadow-md"
-                    : "text-white hover:bg-white/20"
-                )}
-              >
-                {c.title}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div> */}
     </>
   );
 }
