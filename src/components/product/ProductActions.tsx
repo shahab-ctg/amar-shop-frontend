@@ -96,7 +96,7 @@ export default function ProductActions({
       {/* Stock Info with Beauty Theme */}
       <div className="p-3 sm:p-4 bg-gradient-to-r from-[#F5FDF8] to-[#F5FDF8] rounded-xl border-2 border-pink-200 shadow-sm">
         <div className="flex items-center justify-center gap-2">
-          <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-pink-600" />
+          <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
           <p className="text-sm sm:text-base font-medium text-center">
             {isOutOfStock ? (
               <span className="text-red-600 font-semibold">Out of Stock</span>
@@ -118,7 +118,7 @@ export default function ProductActions({
         <button
           onClick={handleAddToCart}
           disabled={isOutOfStock || isInCart || isAdding}
-          className="flex-1 inline-flex items-center justify-center gap-2 sm:gap-2.5 px-5 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-r from-[#167389] to-[#167389] text-white font-semibold rounded-xl hover:from-pink-600 hover:to-rose-700 transition-all shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed min-h-[52px] text-sm sm:text-base"
+          className="flex-1 inline-flex items-center justify-center gap-2 sm:gap-2.5 px-5 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-r from-[#167389] to-[#167389] text-white font-semibold rounded-xl  hover:from-cyan-200 hover:to-cyan-600 transition-all shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed min-h-[52px] text-sm sm:text-base"
         >
           {isAdding ? (
             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />

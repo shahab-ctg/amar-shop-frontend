@@ -45,7 +45,7 @@ function pickImage(p: Partial<Product> & { images?: string[] }): string {
 }
 
 /* ---------------------------------------------------------
-   ✅ BannerCarousel – fast, one-by-one image fade animation
+    BannerCarousel – fast, one-by-one image fade animation
 ---------------------------------------------------------- */
 function BannerCarousel() {
   const [index, setIndex] = useState(0);
@@ -114,7 +114,7 @@ function BannerCarousel() {
 }
 
 /* ---------------------------------------------------------
-   ✅ Main HomePage (optimized data fetching, no infinite call)
+    Main HomePage (optimized data fetching, no infinite call)
 ---------------------------------------------------------- */
 export default function HomePage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -123,11 +123,12 @@ export default function HomePage() {
   const [editorsPicks, setEditorsPicks] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ fetch only once, not infinite
+  //  fetch only once, not infinite
  useEffect(() => {
    let active = true;
 
-   // 🧠 small in-memory cache to avoid re-fetch same endpoint instantly
+  
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
    const cache: Record<string, any> = {};
 
    async function safeFetch<T>(key: string, fn: () => Promise<T>) {
@@ -199,7 +200,7 @@ export default function HomePage() {
 
   /* --- Same layout preserved --- */
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br bg-white">
       <div className="max-w-8xl mx-auto px-3 sm:px-4 lg:px-6 py-4">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
           {/* ---------- LEFT SIDEBAR ---------- */}
@@ -268,21 +269,21 @@ export default function HomePage() {
 
             {/* Product Sections */}
             <ProductSection
-              title="🔥 Hot Deals"
+              title=" Hot Deals"
               subtitle="Limited time beauty steals"
               products={hotDeals}
               loading={loading}
               href="/search?discounted=true"
             />
             <ProductSection
-              title="🆕 New Arrivals"
+              title=" New Arrivals"
               subtitle="Fresh drops in makeup & skincare"
               products={newArrivals}
               loading={loading}
               href="/search?sort=new"
             />
             <ProductSection
-              title="⭐ Editor's Picks"
+              title=" Editor's Picks"
               subtitle="Curated by our beauty editors"
               products={editorsPicks}
               loading={loading}

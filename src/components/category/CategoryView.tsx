@@ -103,13 +103,13 @@ export default function CategoryView({ slug }: { slug: string }) {
 
   // Main UI with full responsive design
   return (
-    <div className=" bg-gradient-to-r from-pink-100 to-rose-100 min-h-screen">
+    <div className=" bg-gradient-to-r bg-white min-h-screen">
       <div className="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8 md:py-10 lg:py-12">
         {/* Category Header - Fully Responsive */}
         <div className="mb-6 sm:mb-8 md:mb-10 lg:mb-12">
           <div className="flex items-start sm:items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-            <div className="p-2 sm:p-2.5 bg-green-100 rounded-lg sm:rounded-xl shrink-0">
-              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-pink-600" />
+            <div className="p-2 sm:p-2.5 bg-cyan-600 rounded-lg sm:rounded-xl shrink-0">
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             </div>
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 leading-tight break-words">
@@ -136,7 +136,7 @@ export default function CategoryView({ slug }: { slug: string }) {
         </div>
 
         {/* Products Grid - Fully Responsive */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-6">
           {products.map((product, idx) => (
             <motion.div
               key={product._id}
@@ -154,7 +154,7 @@ export default function CategoryView({ slug }: { slug: string }) {
         <div className="mt-6 sm:mt-8 md:mt-10 lg:mt-12 flex justify-center px-3 sm:px-0">
           <Link
             href={`/products?category=${encodeURIComponent(slug)}`}
-            className="group inline-flex items-center justify-center gap-2 bg-white border-2 border-pink-600  px-5 py-2.5 sm:px-6 sm:py-3 md:px-8 md:py-4 rounded-full hover:bg-green-600 hover:text-white transition-all  hover:shadow-lg  sm:text-base w-full sm:w-auto max-w-xs sm:max-w-none  bg-gradient-to-r from-pink-500 to-rose-600 text-white font-semibold hover:from-pink-600 hover:to-rose-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 shadow-lg text-sm"
+            className="group inline-flex items-center justify-center gap-2 bg-white border-2 border-pink-600  px-5 py-2.5 sm:px-6 sm:py-3 md:px-8 md:py-4 rounded-full hover:bg-green-600 hover:text-white transition-all  hover:shadow-lg  sm:text-base w-full sm:w-auto max-w-xs sm:max-w-none  bg-gradient-to-r from-[#167389] to-[#167389] text-white font-semibold  hover:from-cyan-200 hover:to-cyan-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 shadow-lg text-sm"
           >
             See All Products
             <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />

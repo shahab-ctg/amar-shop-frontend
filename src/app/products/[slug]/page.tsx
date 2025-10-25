@@ -66,7 +66,7 @@ export default async function ProductDetailsPage({
             </div>
           </div> */}
 
-          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-md hover:shadow-xl transition-shadow duration-300 border border-pink-100 p-3 sm:p-4 md:p-6 lg:p-8">
+          <div className="bg-white rounded-2xl text-black sm:rounded-3xl shadow-md hover:shadow-xl transition-shadow duration-300 border border-pink-100 p-3 sm:p-4 md:p-6 lg:p-8">
             <div
               id={`main-img-box-${product._id}`}
               className="relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-[#F5FDF8] via-[#F5FDF8] to-[#F5FDF8] shadow-inner"
@@ -82,7 +82,7 @@ export default async function ProductDetailsPage({
                 />
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <Sparkles className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 text-pink-300" />
+                  <Sparkles className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 text-white" />
                 </div>
               )}
             </div>
@@ -185,7 +185,7 @@ export default async function ProductDetailsPage({
             <div className="mt-6 sm:mt-7">
               <a
                 href={`tel:${hotline}`}
-                className="inline-flex items-center justify-center gap-2 sm:gap-2.5 w-full sm:w-auto px-5 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-r from-pink-500 to-rose-600 text-white font-bold rounded-xl sm:rounded-2xl hover:from-pink-600 hover:to-rose-700 transition-all shadow-md hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 text-sm sm:text-base"
+                className="inline-flex items-center justify-center gap-2 sm:gap-2.5 w-full sm:w-auto px-5 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-r from-[#167389] to-[#167389] text-white font-bold rounded-xl sm:rounded-2xl  hover:from-cyan-200 hover:to-cyan-600 transition-all shadow-md hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 text-sm sm:text-base"
               >
                 <Phone className="w-5 h-5 sm:w-5 sm:h-5" aria-hidden="true" />
                 <span>Hotline: {hotline}</span>
@@ -233,7 +233,7 @@ export default async function ProductDetailsPage({
               </Link>
             </div>
             <div
-              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-5 lg:gap-6"
+              className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-5 lg:gap-6"
               aria-label="Related products"
             >
               {related.map((p) => (

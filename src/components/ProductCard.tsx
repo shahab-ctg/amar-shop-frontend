@@ -110,7 +110,7 @@ export default function ProductCard({
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="w-full bg-gradient-to-r from-[#167389] to-[#167389] hover:from-pink-600 hover:to-rose-600 text-white py-2.5 sm:py-3 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale"
+            className="w-full bg-gradient-to-r from-[#167389] to-[#167389]  hover:from-cyan-200 hover:to-cyan-600 text-white py-2.5 sm:py-3 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale"
             disabled={isOutOfStock}
           >
             <Eye className="w-4 h-4 sm:w-5 sm:h-5" />

@@ -16,6 +16,7 @@ import {
   User,
   Image,
   Link2,
+  Home,
 } from "lucide-react";
 
 type Category = { _id: string; slug: string; title: string };
@@ -27,12 +28,6 @@ export default function Topbar() {
 
   const [q, setQ] = useState<string>(sp.get("q") ?? "");
   const [cat, setCat] = useState<string>(sp.get("category") ?? "");
-
-  useEffect(() => {
-    setQ(sp.get("q") ?? "");
-    setCat(sp.get("category") ?? "");
-  }, [sp]);
-
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -80,21 +75,10 @@ export default function Topbar() {
           throw new Error(`Failed to load categories (${res.status})`);
         const json = await res.json();
         setCategories((json?.data ?? []) as Category[]);
-      } catch (err: unknown) {
-        if (
-          err &&
-          typeof err === "object" &&
-          "name" in err &&
-          err.name !== "AbortError"
-        ) {
-          const errorMessage =
-            err &&
-            typeof err === "object" &&
-            "message" in err &&
-            typeof err.message === "string"
-              ? err.message
-              : "Failed to fetch categories";
-          setCategoriesError(errorMessage);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (err: any) {
+        if (err.name !== "AbortError") {
+          setCategoriesError(err.message || "Failed to fetch categories");
           setCategories([]);
         }
       } finally {
@@ -111,10 +95,6 @@ export default function Topbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [pathname]);
-
   const onSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const qTrim = q.trim();
@@ -125,85 +105,48 @@ export default function Topbar() {
     setMobileMenuOpen(false);
   };
 
-  const CurrentIcon = placeholders[placeholderIndex].icon;
+  const CurrentIcon = placeholders[0].icon; // fixed icon on left
 
   return (
     <>
+      {/* ======= FIXED TOP NAVBAR ======= */}
       <header
         className={clsx(
-          "sticky top-0 z-50 transition-all duration-300",
+          "fixed top-0 w-full z-50 transition-all duration-300",
           scrolled
             ? "bg-[#167389]/95 backdrop-blur-lg shadow-lg"
             : "bg-[#167389] border-b border-[#1a8ba5]"
         )}
       >
         <div className="max-w-8xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10">
-          {/* Top Banner - Desktop only */}
-          {/* <div className="hidden md:block border-b border-white/20">
-            <div className="flex items-center justify-between py-2 text-xs sm:text-sm">
-              <div className="flex items-center gap-2 text-white/90">
-                <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-cyan-300" />
-                <span className="text-xs sm:text-sm">
-                  100% Authentic Products • Free Shipping Over $50
-                </span>
-              </div>
-              <a
-                href={`tel:${hotline}`}
-                className="flex items-center gap-2 text-white hover:text-cyan-300 font-medium transition-colors"
-                aria-label="Call hotline"
-              >
-                <Phone className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="text-xs sm:text-sm">Hotline: {hotline}</span>
-              </a>
-            </div>
-          </div> */}
-
-          {/* Main Navigation */}
           <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 sm:gap-3 md:gap-4 py-2.5 sm:py-3 md:py-4">
             {/* Left: Logo */}
             <Link
               href="/"
-              className="flex items-center gap-1.5 sm:gap-2 md:gap-3 shrink-0 group"
+              className="flex items-center gap-2 shrink-0 group"
               aria-label="Go to homepage"
             >
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-lg sm:rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow"
-              >
-                <Sparkles
-                  className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-white"
-                  strokeWidth={2.5}
-                />
-              </motion.div>
-              <div className="hidden sm:block">
-                <div className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-white leading-tight">
-                  {brand}
-                </div>
-                <div className="text-[10px] sm:text-xs text-cyan-300 font-medium -mt-0.5 sm:-mt-1">
-                  Your Beauty Destination
-                </div>
+              <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-xl flex items-center justify-center shadow-md">
+                <Sparkles className="w-6 h-6 text-white" strokeWidth={2.5} />
+              </div>
+              <div className="hidden sm:block text-lg font-bold text-white">
+                {brand}
               </div>
             </Link>
 
-            {/* Center: Search (Desktop only) */}
+            {/* Center: Search */}
             <form
               onSubmit={onSearch}
               className="hidden lg:flex items-center justify-center"
             >
               <div className="flex w-full max-w-2xl items-stretch gap-2">
                 <select
-                  aria-label="Filter by category"
                   value={cat}
                   onChange={(e) => setCat(e.target.value)}
                   disabled={categoriesLoading}
-                  className={clsx(
-                    "px-3 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border-2 min-w-[132px] sm:min-w-[150px] text-sm",
-                    "bg-white/10 border-white/30 text-white",
-                    "focus:outline-none focus:border-cyan-300 focus:bg-white/20 transition-all"
-                  )}
+                  className="px-3 py-2 rounded-xl border-2 min-w-[150px] bg-white text-[#167389] border-cyan-200 focus:border-cyan-500 text-sm"
                 >
-                  <option value="" className="text-[#167389] bg-white">
+                  <option value="">
                     {categoriesLoading
                       ? "Loading..."
                       : categoriesError
@@ -211,165 +154,153 @@ export default function Topbar() {
                         : "All Categories"}
                   </option>
                   {categories.map((c) => (
-                    <option
-                      key={c._id}
-                      value={c.slug}
-                      className="bg-[#167389] text-white"
-                    >
+                    <option key={c._id} value={c.slug}>
                       {c.title}
                     </option>
                   ))}
                 </select>
 
                 <div className="relative flex-1">
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={placeholderIndex}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 10 }}
-                      transition={{ duration: 0.3 }}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none"
-                    >
-                      <CurrentIcon className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-300" />
-                    </motion.div>
-                  </AnimatePresence>
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
+                    <CurrentIcon className="w-5 h-5 text-cyan-600" />
+                  </div>
                   <input
-                    aria-label="Search products"
                     placeholder={placeholders[placeholderIndex].text}
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
-                    className={clsx(
-                      "w-full pl-9 sm:pl-11 pr-3 sm:pr-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl border-2 text-sm",
-                      "bg-white border-white/30 text-white placeholder:text-white/60",
-                      "focus:border-cyan-300 focus:bg-white/20 focus:ring-4 focus:ring-cyan-300/20",
-                      "transition-all"
-                    )}
+                    className="w-full pl-10 pr-10 py-2 rounded-xl border-2 border-cyan-200 bg-white text-[#167389] placeholder:text-cyan-500 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-200/40 text-sm"
                   />
+                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-cyan-600 pointer-events-none" />
                 </div>
-
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  type="submit"
-                  className="px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-cyan-400 to-blue-500 text-white font-semibold rounded-lg sm:rounded-xl hover:from-cyan-500 hover:to-blue-600 transition-all shadow-md hover:shadow-lg text-sm"
-                >
-                  Search
-                </motion.button>
               </div>
             </form>
 
             {/* Right: Actions */}
-            <div className="flex items-center justify-end gap-1.5 sm:gap-2">
-              {/* Profile Button */}
-              <Link href="/profile" aria-label="View profile">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="p-2 sm:p-2.5 md:p-3 bg-white/10 hover:bg-white/20 text-white rounded-lg sm:rounded-xl transition-all"
-                >
-                  <User className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-                </motion.button>
+            <div className="flex items-center justify-end gap-2">
+              <Link href="/profile" aria-label="Profile">
+                <button className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition">
+                  <User className="w-5 h-5" />
+                </button>
               </Link>
-
-              {/* Cart Button */}
-              <Link href="/cart" aria-label="Open cart">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="relative p-2 sm:p-2.5 md:p-3 bg-white/10 hover:bg-white/20 text-white rounded-lg sm:rounded-xl transition-all"
-                >
-                  <ShoppingCart className="w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-                  {cartCount > 0 && (
-                    <motion.span
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="absolute -top-1 -right-1 min-w-4 min-h-4 sm:min-w-5 sm:min-h-5 md:min-w-6 md:min-h-6 px-0.5 bg-red-500 text-white text-[10px] sm:text-xs font-bold rounded-full flex items-center justify-center"
-                    >
-                      {cartCount > 9 ? "9+" : cartCount}
-                    </motion.span>
-                  )}
-                </motion.button>
+              <Link href="/cart" aria-label="Cart" className="relative">
+                <button className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-xl transition">
+                  <ShoppingCart className="w-5 h-5" />
+                </button>
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5">
+                    {cartCount > 9 ? "9+" : cartCount}
+                  </span>
+                )}
               </Link>
-
-              {/* Call Button - Mobile Only */}
               <a
                 href={`tel:${hotline}`}
-                className="md:hidden p-2 sm:p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-lg sm:rounded-xl transition-all"
-                aria-label="Call hotline"
+                className="md:hidden p-2 bg-white/10 hover:bg-white/20 text-white rounded-xl"
               >
                 <Phone className="w-5 h-5" />
               </a>
-
-              {/* Mobile Menu Toggle */}
-              <motion.button
-                whileTap={{ scale: 0.95 }}
+              <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-2 sm:p-2.5 text-white hover:bg-white/10 rounded-lg sm:rounded-xl transition-all"
-                aria-label="Toggle menu"
-                aria-expanded={mobileMenuOpen}
+                className="lg:hidden p-2 text-white hover:bg-white/10 rounded-xl"
               >
                 {mobileMenuOpen ? (
-                  <X className="w-5 h-5 sm:w-6 sm:h-6" />
+                  <X className="w-5 h-5" />
                 ) : (
-                  <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
+                  <Menu className="w-5 h-5" />
                 )}
-              </motion.button>
+              </button>
             </div>
           </div>
         </div>
-
-        {/* Mobile Navigation Menu */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="lg:hidden border-t border-white/20 bg-[#167389] overflow-hidden"
-            >
-              <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4 space-y-2">
-                <div className="pt-2">
-                  <div className="text-[10px] sm:text-xs font-semibold text-white/70 uppercase tracking-wider px-1 mb-2">
-                    Categories
-                  </div>
-                  <Link
-                    href="/products"
-                    className="block px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-white hover:bg-white/10 rounded-lg sm:rounded-xl font-medium"
-                  >
-                    All Products
-                  </Link>
-                  {categories.map((c) => (
-                    <Link
-                      key={c._id}
-                      href={`/products?category=${c.slug}`}
-                      className="block px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-white hover:bg-white/10 rounded-lg sm:rounded-xl"
-                    >
-                      {c.title}
-                    </Link>
-                  ))}
-                </div>
-
-                <div className="pt-2 mt-2 border-t border-white/20 pb-[calc(env(safe-area-inset-bottom,0)+4px)]">
-                  <a
-                    href={`tel:${hotline}`}
-                    className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 border-2 border-white/30 text-white font-semibold rounded-lg sm:rounded-xl hover:bg-white/20 transition-all text-sm"
-                  >
-                    <Phone className="w-4 h-4 sm:w-5 sm:h-5" />
-                    <div>
-                      <div className="text-[10px] sm:text-xs text-white/70">
-                        Hotline
-                      </div>
-                      <div className="text-sm">{hotline}</div>
-                    </div>
-                  </a>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </header>
+      {/* ===== MOBILE MENU OVERLAY (works with fixed navbar) ===== */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="lg:hidden fixed top-[64px] sm:top-[72px] md:top-[80px] left-0 w-full bg-[#167389] border-t border-white/20 z-40 overflow-hidden shadow-xl"
+          >
+            <div className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4 space-y-2">
+              <div className="pt-2">
+                <div className="text-[10px] sm:text-xs font-semibold text-white/70 uppercase tracking-wider px-1 mb-2">
+                  Categories
+                </div>
+                <Link
+                  href="/products"
+                  className="block px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-white hover:bg-white/10 rounded-lg sm:rounded-xl font-medium"
+                >
+                  All Products
+                </Link>
+                {categories.map((c) => (
+                  <Link
+                    key={c._id}
+                    href={`/products?category=${c.slug}`}
+                    className="block px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-white hover:bg-white/10 rounded-lg sm:rounded-xl"
+                  >
+                    {c.title}
+                  </Link>
+                ))}
+              </div>
+
+              <div className="pt-2 mt-2 border-t border-white/20 pb-[calc(env(safe-area-inset-bottom,0)+4px)]">
+                <a
+                  href={`tel:${hotline}`}
+                  className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 border-2 border-white/30 text-white font-semibold rounded-lg sm:rounded-xl hover:bg-white/20 transition-all text-sm"
+                >
+                  <Phone className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <div>
+                    <div className="text-[10px] sm:text-xs text-white/70">
+                      Hotline
+                    </div>
+                    <div className="text-sm">{hotline}</div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ======= MOBILE BOTTOM NAVBAR ======= */}
+      <nav className="lg:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow-lg z-50">
+        <div className="flex justify-around items-center py-2 text-[#167389]">
+          <Link href="/" className="flex flex-col items-center text-xs">
+            <Home className="w-5 h-5" />
+            Home
+          </Link>
+          <Link
+            href="/cart"
+            className="flex flex-col items-center text-xs relative"
+          >
+            <ShoppingCart className="w-5 h-5" />
+            Cart
+            {cartCount > 0 && (
+              <span className="absolute top-0 right-2 bg-red-500 text-white text-[10px] font-bold rounded-full px-1">
+                {cartCount > 9 ? "9+" : cartCount}
+              </span>
+            )}
+          </Link>
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="flex flex-col items-center text-xs"
+          >
+            <Menu className="w-5 h-5" />
+            Menu
+          </button>
+          <a
+            href={`tel:${hotline}`}
+            className="flex flex-col items-center text-xs"
+          >
+            <Phone className="w-5 h-5" />
+            Contact
+          </a>
+        </div>
+      </nav>
+
+      {/* Spacer to avoid overlap */}
+      <div className="pt-20 lg:pt-24 pb-14 lg:pb-0"></div>
     </>
   );
 }

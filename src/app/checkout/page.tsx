@@ -382,7 +382,7 @@ export default function CheckoutPage() {
   // Empty cart UI
   if (items.length === 0) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center px-4 bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50">
+      <div className="min-h-[60vh] flex items-center justify-center px-4 bg-gradient-to-br  bg-white">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
