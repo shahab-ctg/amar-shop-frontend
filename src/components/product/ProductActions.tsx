@@ -17,7 +17,7 @@ export default function ProductActions({
   hotline,
 }: ProductActionsProps) {
   const router = useRouter();
-  const [quantity, _setQuantity] = useState(1);
+  const [quantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
 
   // Cart store methods

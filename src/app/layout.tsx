@@ -27,12 +27,12 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      {/* ⚠️ এখানে class="dark" দেবেন না */}
+     
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ToastProvider />
-        {/* ---------- Light Beauty Gradient Background (global) ---------- */}
+       
         <div className="min-h-screen relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50" />
           {/* subtle blobs */}
@@ -45,7 +45,7 @@ export default function RootLayout({
           {/* App chrome */}
           <div className="relative z-10">
             <Topbar />
-            <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4">
+            <main className="container mx-auto px-3 sm:px-4 lg:px-6 pb-4">
               {children}
             </main>
             <Footer />

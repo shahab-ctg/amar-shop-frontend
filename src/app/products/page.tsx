@@ -1,4 +1,4 @@
-// src/app/products/page.tsx
+
 import CategoryView from "@/components/category/CategoryView";
 import { fetchProducts, fetchCategories } from "@/services/catalog";
 import ProductCard from "@/components/ProductCard";
@@ -41,11 +41,11 @@ export default async function ProductsPage({
   // Empty state
   if (products.length === 0) {
     return (
-      <div className="min-h-[60vh] bg-gradient-to-b from-green-50 to-white">
+      <div className="min-h-[60vh] bg-gradient-to-b from-pink-200 to-pink-100">
         <div className="mx-auto max-w-7xl px-4 xs:px-5 sm:px-6 lg:px-8 py-10 sm:py-12">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-5 sm:mb-6">
-              <Search className="w-10 h-10 text-green-600" aria-hidden="true" />
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-pink-200 rounded-full mb-5 sm:mb-6">
+              <Search className="w-10 h-10 text-pink-600" aria-hidden="true" />
             </div>
             <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2.5 sm:mb-3">
               No products found
@@ -57,7 +57,7 @@ export default async function ProductsPage({
             </p>
             <Link
               href="/products"
-              className="inline-flex items-center gap-2 bg-green-600 text-white px-6 sm:px-7 py-3 rounded-full hover:bg-green-700 transition-colors shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+              className="inline-flex items-center gap-2 bg-pink-600 text-white px-6 sm:px-7 py-3 rounded-full hover:bg-green-700 transition-colors shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
               aria-label="View all products"
             >
               View all products
@@ -69,20 +69,23 @@ export default async function ProductsPage({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-green-50">
+    <div className="min-h-screen  bg-gradient-to-r from-pink-100 to-rose-100">
       <div className="mx-auto max-w-7xl px-4 xs:px-5 sm:px-6 lg:px-8 py-8 md:py-12">
         {/* Header */}
         <div className="mb-6 md:mb-10">
           <div className="flex items-center gap-3">
             <div className="p-2.5 bg-green-100 rounded-xl">
-              <Grid3x3 className="w-6 h-6 text-green-600" aria-hidden="true" />
+              <Grid3x3
+                className="w-6 h-6 bg-gradient-to-r from-pink-500 to-rose-500"
+                aria-hidden="true"
+              />
             </div>
             <div className="min-w-0">
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 truncate">
                 {activeCategory?.title || "All Products"}
               </h1>
               <p className="text-sm text-gray-600 mt-1">
-                {products.length} fresh organic products
+                {products.length} fresh original products
               </p>
             </div>
           </div>

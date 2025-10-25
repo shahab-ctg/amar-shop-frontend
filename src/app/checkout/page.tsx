@@ -17,6 +17,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createOrder } from "@/services/orders";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import toast from "react-hot-toast";
 
@@ -30,21 +31,34 @@ const toNum = (v: unknown, fallback = 0) => {
 const money = (n: number) => `৳${toNum(n).toFixed(2)}`;
 
 // stock helper
-const getStock = (it: any): number => {
+const getStock = (it: unknown): number => {
+  const item = it as {
+    stock?: number;
+    availableQty?: number;
+    stockQty?: number;
+  };
   const s =
-    toNum(it?.stock, NaN) ??
-    toNum((it as any)?.availableQty, NaN) ??
-    toNum((it as any)?.stockQty, NaN);
+    toNum(item?.stock, NaN) ??
+    toNum(item?.availableQty, NaN) ??
+    toNum(item?.stockQty, NaN);
   return Number.isFinite(s) ? s : Infinity;
 };
 
 /* ---------------- Row (memoized) ---------------- */
 type RowProps = {
-  item: any;
+  item: {
+    _id: string;
+    title?: string;
+    price?: number;
+    quantity?: number;
+    stock?: number;
+    image?: string;
+  };
 };
+
 const ItemRow = React.memo<RowProps>(function ItemRow({ item }) {
   const price = toNum(item?.price);
-  const qty = Math.max(1, toNum(item?.quantity, 1)); // quantity UI দেখানোর জন্য
+  const qty = Math.max(1, toNum(item?.quantity, 1));
   const stock = getStock(item);
   const outOfStock = stock === 0;
   const atMax = qty >= stock;
@@ -71,24 +85,22 @@ const ItemRow = React.memo<RowProps>(function ItemRow({ item }) {
   return (
     <motion.div
       key={item._id}
-      /* ✅ flicker stop: no initial re-anim on every parent render */
       initial={false}
-      /* কোনো animate ভ্যারিয়েন্ট দিচ্ছি না, শুধু hover/tap থাকলে চলবে */
-      className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl"
+      className="flex items-center gap-3 p-3 bg-gradient-to-r from-pink-50 to-purple-50 rounded-xl border border-pink-100"
     >
       {/* Image */}
-      <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden relative">
+      <div className="w-14 h-14 sm:w-16 sm:h-16 bg-pink-100 rounded-lg flex-shrink-0 overflow-hidden relative">
         {item.image ? (
           <Image
             src={item.image}
-            alt={item.title}
+            alt={item.title ? `${item.title} product image` : "Product image"}
             className="object-cover"
             fill
             sizes="56px"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-400">
-            📦
+          <div className="w-full h-full flex items-center justify-center text-pink-400">
+            💄
           </div>
         )}
         {outOfStock && (
@@ -104,16 +116,16 @@ const ItemRow = React.memo<RowProps>(function ItemRow({ item }) {
           {item?.title ?? "Product"}
         </h3>
 
-        {/* Qty controls (stock-safe) */}
+        {/* Qty controls */}
         <div className="flex items-center gap-2">
           <button
             onClick={dec}
             disabled={qty <= 1 || outOfStock}
-            className="w-6 h-6 flex items-center justify-center rounded bg-gray-200 hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
+            className="w-6 h-6 flex items-center justify-center rounded bg-pink-100 hover:bg-pink-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300"
             aria-label="Decrease quantity"
             title="Decrease quantity"
           >
-            <Minus className="w-3 h-3" />
+            <Minus className="w-3 h-3 text-pink-700" />
           </button>
 
           <span className="text-xs text-gray-600 min-w-4 text-center font-medium">
@@ -123,11 +135,11 @@ const ItemRow = React.memo<RowProps>(function ItemRow({ item }) {
           <button
             onClick={inc}
             disabled={outOfStock || atMax}
-            className="w-6 h-6 flex items-center justify-center rounded bg-gray-200 hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
+            className="w-6 h-6 flex items-center justify-center rounded bg-pink-100 hover:bg-pink-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300"
             aria-label={atMax ? "Reached stock limit" : "Increase quantity"}
             title={atMax ? "Reached stock limit" : "Increase quantity"}
           >
-            <Plus className="w-3 h-3" />
+            <Plus className="w-3 h-3 text-pink-700" />
           </button>
 
           {Number.isFinite(stock) && stock !== Infinity && (
@@ -139,26 +151,27 @@ const ItemRow = React.memo<RowProps>(function ItemRow({ item }) {
       </div>
 
       {/* Line Total */}
-      <div className="font-bold text-green-600">{money(lineTotal)}</div>
+      <div className="font-bold text-pink-600">{money(lineTotal)}</div>
     </motion.div>
   );
 });
 
 /* ---------------- Summary (memoized) ---------------- */
 type SummaryProps = {
-  items: any[];
+  items: RowProps["item"][];
   subtotal: number;
   total: number;
 };
+
 const OrderSummaryCard = React.memo<SummaryProps>(function OrderSummaryCard({
   items,
   subtotal,
   total,
 }) {
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-5 sm:p-6">
+    <div className="bg-white rounded-2xl shadow-lg p-5 sm:p-6 border border-pink-100">
       <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-5 sm:mb-6 flex items-center gap-2">
-        <ShoppingBag className="w-5 h-5 text-green-600" />
+        <ShoppingBag className="w-5 h-5 text-pink-600" />
         Order Summary
       </h2>
 
@@ -168,7 +181,7 @@ const OrderSummaryCard = React.memo<SummaryProps>(function OrderSummaryCard({
         ))}
       </div>
 
-      <div className="border-t border-gray-200 my-4" />
+      <div className="border-t border-pink-200 my-4" />
       <div className="space-y-2 mb-4 text-gray-700">
         <div className="flex justify-between">
           <span>Subtotal</span>
@@ -176,19 +189,19 @@ const OrderSummaryCard = React.memo<SummaryProps>(function OrderSummaryCard({
         </div>
         <div className="flex justify-between">
           <span>Delivery</span>
-          <span className="text-green-600 font-medium">FREE</span>
+          <span className="text-pink-600 font-medium">FREE</span>
         </div>
       </div>
-      <div className="border-t-2 border-gray-200 pt-4">
+      <div className="border-t-2 border-pink-200 pt-4">
         <div className="flex justify-between items-center">
           <span className="text-lg font-semibold text-gray-800">Total</span>
-          <span className="text-2xl font-bold text-green-600">
+          <span className="text-2xl font-bold text-pink-600">
             {money(total)}
           </span>
         </div>
       </div>
-      <div className="mt-6 p-3 bg-green-50 rounded-xl">
-        <p className="text-xs text-center text-green-800">
+      <div className="mt-6 p-3 bg-gradient-to-r from-pink-50 to-purple-50 rounded-xl border border-pink-100">
+        <p className="text-xs text-center text-pink-800">
           🔒 Secure & protected checkout
         </p>
       </div>
@@ -198,13 +211,14 @@ const OrderSummaryCard = React.memo<SummaryProps>(function OrderSummaryCard({
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // cart store
   const items = useCartStore((s) => s.items);
   const getTotalPriceFromStore = useCartStore((s) => s.getTotalPrice);
   const clearCart = useCartStore((s) => s.clearCart);
 
-  // subtotal (number-safe)
+  // subtotal
   const subtotal = useMemo(() => {
     try {
       const v = getTotalPriceFromStore?.();
@@ -238,11 +252,9 @@ export default function CheckoutPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
-
-  // mobile order summary drawer toggle
   const [showMobileSummary, setShowMobileSummary] = useState(false);
 
-  // local validation (backend schema mirror)
+  // validation
   const validateForm = () => {
     const e = { name: "", email: "", phone: "", address: "", area: "" };
 
@@ -296,11 +308,25 @@ export default function CheckoutPage() {
       setTimeout(() => {
         router.push("/products");
       }, 2000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.dismiss();
-      const code = err?.code || err?.name;
+
+      const error = err as {
+        code?: string;
+        name?: string;
+        errors?: { path?: string; message?: string }[];
+        message?: string;
+        data?: {
+          code?: string;
+          message?: string;
+        };
+        status?: number;
+        statusCode?: number;
+      };
+
+      const code = error?.code || error?.name;
       const serverErrors: { path?: string; message?: string }[] =
-        err?.errors || [];
+        error?.errors || [];
 
       if (code === "VALIDATION_ERROR" && Array.isArray(serverErrors)) {
         const e = { name: "", email: "", phone: "", address: "", area: "" };
@@ -321,7 +347,7 @@ export default function CheckoutPage() {
         toast.error("Please check your form details");
       } else if (
         code === "OUT_OF_STOCK" ||
-        err?.data?.code === "OUT_OF_STOCK"
+        error?.data?.code === "OUT_OF_STOCK"
       ) {
         toast.error(
           "Some products in your cart are out of stock. Please update your cart."
@@ -329,7 +355,7 @@ export default function CheckoutPage() {
         setTimeout(() => router.push("/cart"), 2000);
       } else if (
         code === "PRODUCT_MISSING" ||
-        err?.data?.code === "PRODUCT_MISSING"
+        error?.data?.code === "PRODUCT_MISSING"
       ) {
         toast.error(
           "Some products are no longer available. Please update your cart."
@@ -337,8 +363,8 @@ export default function CheckoutPage() {
         setTimeout(() => router.push("/cart"), 2000);
       } else {
         const errorMessage =
-          err?.message ||
-          err?.data?.message ||
+          error?.message ||
+          error?.data?.message ||
           "Failed to place order. Please try again.";
         toast.error(errorMessage);
       }
@@ -355,13 +381,13 @@ export default function CheckoutPage() {
   // Empty cart UI
   if (items.length === 0) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center px-4">
+      <div className="min-h-[60vh] flex items-center justify-center px-4 bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center"
         >
-          <ShoppingBag className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+          <ShoppingBag className="w-16 h-16 mx-auto text-pink-300 mb-4" />
           <h2 className="text-2xl font-bold text-gray-800 mb-2">
             Your cart is empty
           </h2>
@@ -370,7 +396,7 @@ export default function CheckoutPage() {
           </p>
           <Link
             href="/products"
-            className="inline-block bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+            className="inline-block bg-gradient-to-r from-pink-500 to-rose-600 text-white px-6 py-3 rounded-xl hover:from-pink-600 hover:to-rose-700 transition-all shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
           >
             Browse products
           </Link>
@@ -380,7 +406,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="bg-gradient-to-b from-green-50 to-white min-h-screen py-8 px-4 xs:px-5 sm:px-6 pb-24 md:pb-8">
+    <div className="bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 min-h-screen py-8 px-4 xs:px-5 sm:px-6 pb-24 md:pb-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <motion.div
@@ -388,10 +414,10 @@ export default function CheckoutPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6 sm:mb-8"
         >
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
+          <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 mb-2">
             Checkout
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-sm sm:text-base">
             Fill in your details to complete the order.
           </p>
         </motion.div>
@@ -404,9 +430,9 @@ export default function CheckoutPage() {
             transition={{ delay: 0.1 }}
             className="md:col-span-3"
           >
-            <div className="bg-white rounded-2xl shadow-lg p-5 sm:p-6 lg:p-8">
+            <div className="bg-white rounded-2xl shadow-lg p-5 sm:p-6 lg:p-8 border border-pink-100">
               <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-5 sm:mb-6 flex items-center gap-2">
-                <User className="w-5 h-5 text-green-600" />
+                <User className="w-5 h-5 text-pink-600" />
                 Your Information
               </h2>
 
@@ -426,7 +452,7 @@ export default function CheckoutPage() {
                       className={`w-full pl-10 pr-4 py-2.5 sm:py-3 rounded-xl border-2 transition-colors outline-none bg-white text-gray-900 placeholder:text-gray-400 ${
                         errors.name
                           ? "border-red-300 focus:border-red-500"
-                          : "border-gray-200 focus:border-green-500 focus:ring-4 focus:ring-green-100"
+                          : "border-pink-200 focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
                       }`}
                       autoComplete="name"
                     />
@@ -449,10 +475,10 @@ export default function CheckoutPage() {
                     value={formData.email}
                     onChange={(e) => handleChange("email", e.target.value)}
                     placeholder="you@example.com"
-                    className={`w-full px-4 py-2.5 sm:py-3 rounded-XL border-2 transition-colors outline-none bg-white text-gray-900 placeholder:text-gray-400 ${
+                    className={`w-full px-4 py-2.5 sm:py-3 rounded-xl border-2 transition-colors outline-none bg-white text-gray-900 placeholder:text-gray-400 ${
                       errors.email
                         ? "border-red-300 focus:border-red-500"
-                        : "border-gray-200 focus:border-green-500 focus:ring-4 focus:ring-green-100"
+                        : "border-pink-200 focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
                     }`}
                     autoComplete="email"
                   />
@@ -479,7 +505,7 @@ export default function CheckoutPage() {
                       className={`w-full pl-10 pr-4 py-2.5 sm:py-3 rounded-xl border-2 transition-colors outline-none bg-white text-gray-900 placeholder:text-gray-400 ${
                         errors.phone
                           ? "border-red-300 focus:border-red-500"
-                          : "border-gray-200 focus:border-green-500 focus:ring-4 focus:ring-green-100"
+                          : "border-pink-200 focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
                       }`}
                       autoComplete="tel"
                       inputMode="numeric"
@@ -506,7 +532,7 @@ export default function CheckoutPage() {
                     className={`w-full px-4 py-2.5 sm:py-3 rounded-xl border-2 transition-colors outline-none bg-white text-gray-900 placeholder:text-gray-400 ${
                       errors.area
                         ? "border-red-300 focus:border-red-500"
-                        : "border-gray-200 focus:border-green-500 focus:ring-4 focus:ring-green-100"
+                        : "border-pink-200 focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
                     }`}
                     autoComplete="address-level2"
                   />
@@ -533,7 +559,7 @@ export default function CheckoutPage() {
                       className={`w-full pl-10 pr-4 py-3 rounded-xl border-2 transition-colors resize-none outline-none bg-white text-gray-900 placeholder:text-gray-400 ${
                         errors.address
                           ? "border-red-300 focus:border-red-500"
-                          : "border-gray-200 focus:border-green-500 focus:ring-4 focus:ring-green-100"
+                          : "border-pink-200 focus:border-pink-500 focus:ring-4 focus:ring-pink-100"
                       }`}
                       autoComplete="street-address"
                     />
@@ -553,10 +579,10 @@ export default function CheckoutPage() {
                   disabled={isSubmitting || orderSuccess}
                   whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
                   whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
-                  className={`w-full py-3.5 sm:py-4 rounded-2xl font-semibold text-white transition-colors flex items-center justify-center gap-2 focus-visible:outline-none ${
+                  className={`w-full py-3.5 sm:py-4 rounded-2xl font-semibold text-white transition-all flex items-center justify-center gap-2 focus-visible:outline-none shadow-lg ${
                     isSubmitting || orderSuccess
                       ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-green-600 hover:bg-green-700 focus-visible:ring-2 focus-visible:ring-green-500"
+                      : "bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 focus-visible:ring-2 focus-visible:ring-pink-500"
                   }`}
                 >
                   {isSubmitting ? (
@@ -575,11 +601,11 @@ export default function CheckoutPage() {
                 </motion.button>
 
                 {/* Call to Order */}
-                <div className="text-center pt-4 border-t">
-                  <p className="text-gray-600 mb-3">Or</p>
+                <div className="text-center pt-4 border-t border-pink-100">
+                  <p className="text-gray-600 mb-3 text-sm">Or</p>
                   <a
                     href={`tel:${HOTLINE}`}
-                    className="inline-flex items-center gap-2 text-green-600 hover:text-green-700 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 rounded"
+                    className="inline-flex items-center gap-2 text-pink-600 hover:text-pink-700 font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 rounded text-sm sm:text-base"
                   >
                     <Phone className="w-5 h-5" />
                     Call to order: {HOTLINE}
@@ -589,7 +615,7 @@ export default function CheckoutPage() {
             </div>
           </motion.div>
 
-          {/* Right: Order Summary (Desktop only) */}
+          {/* Right: Order Summary (Desktop) */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -597,7 +623,6 @@ export default function CheckoutPage() {
             className="md:col-span-2 hidden md:block"
           >
             <div className="sticky top-4">
-              {/* ✅ memoized: ফর্ম টাইপ করলে রেন্ডার হবে না, items বদলালে তবেই হবে */}
               <OrderSummaryCard
                 items={items}
                 subtotal={subtotal}
@@ -609,17 +634,17 @@ export default function CheckoutPage() {
       </div>
 
       {/* Mobile bottom bar */}
-      <div className="fixed md:hidden left-0 right-0 bottom-0 z-40 bg-white/90 backdrop-blur border-t border-gray-200 pb-[env(safe-area-inset-bottom,0)]">
+      <div className="fixed md:hidden left-0 right-0 bottom-0 z-40 bg-white/90 backdrop-blur border-t border-pink-200 pb-[env(safe-area-inset-bottom,0)]">
         <div className="max-w-6xl mx-auto px-4 xs:px-5 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-3">
           <div className="text-sm">
             <div className="text-gray-600">Total</div>
-            <div className="text-lg font-bold text-green-700">
+            <div className="text-lg font-bold text-pink-700">
               {money(total)}
             </div>
           </div>
           <button
             onClick={() => setShowMobileSummary(true)}
-            className="px-3 sm:px-4 py-2 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+            className="px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-rose-600 text-white font-semibold hover:from-pink-600 hover:to-rose-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 shadow-lg text-sm"
           >
             View Order Summary
           </button>
@@ -645,11 +670,11 @@ export default function CheckoutPage() {
             aria-modal="true"
             aria-label="Order Summary"
           >
-            <div className="flex items-center justify-between pb-2 border-b">
+            <div className="flex items-center justify-between pb-2 border-b border-pink-100">
               <h3 className="text-lg font-semibold">Order Summary</h3>
               <button
                 onClick={() => setShowMobileSummary(false)}
-                className="p-2 rounded-lg hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
+                className="p-2 rounded-lg hover:bg-pink-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-300"
                 aria-label="Close summary"
               >
                 <X className="w-5 h-5" />

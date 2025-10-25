@@ -6,6 +6,8 @@ import type { Product } from "@/types";
 import ProductCard from "@/components/ProductCard";
 import { Check, Phone, Truck, Shield, Sparkles } from "lucide-react";
 import ProductActions from "@/components/product/ProductActions";
+import ProductGallery from "@/components/product/ProductGallery";
+import ProductThumbs from "@/components/product/ProductThumbs";
 
 export const revalidate = 0;
 export const dynamic = "force-dynamic";
@@ -34,6 +36,10 @@ export default async function ProductDetailsPage({
 
   const hasDiscount =
     (product.compareAtPrice ?? 0) > product.price || product.isDiscounted;
+    const galleryImages =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ((product as any)?.images as string[] | undefined)?.filter(Boolean) ??
+      (product.image ? [product.image] : []);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-pink-50 via-white to-rose-50">
@@ -41,7 +47,7 @@ export default async function ProductDetailsPage({
         {/* Top layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12">
           {/* Image */}
-          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-md hover:shadow-xl transition-shadow duration-300 border border-pink-100 p-3 sm:p-4 md:p-6 lg:p-8">
+          {/* <div className="bg-white rounded-2xl sm:rounded-3xl shadow-md hover:shadow-xl transition-shadow duration-300 border border-pink-100 p-3 sm:p-4 md:p-6 lg:p-8">
             <div className="relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-pink-100 via-rose-50 to-purple-100 shadow-inner">
               {product.image ? (
                 <Image
@@ -58,17 +64,47 @@ export default async function ProductDetailsPage({
                 </div>
               )}
             </div>
+          </div> */}
+
+          <div className="bg-white rounded-2xl sm:rounded-3xl shadow-md hover:shadow-xl transition-shadow duration-300 border border-pink-100 p-3 sm:p-4 md:p-6 lg:p-8">
+            {/* 👇 এই id-টা যোগ করুন */}
+            <div
+              id={`main-img-box-${product._id}`}
+              className="relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-pink-100 via-rose-50 to-purple-100 shadow-inner"
+            >
+              {product.image ? (
+                <Image
+                  src={product.image}
+                  alt={product.title}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover hover:scale-105 transition-transform duration-500"
+                  priority
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Sparkles className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 text-pink-300" />
+                </div>
+              )}
+            </div>
+
+            {/* ✅ থাম্বনেইল বার (main image-এর ঠিক নিচে) */}
+            <ProductThumbs
+              title={product.title}
+              mainBoxId={`main-img-box-${product._id}`}
+              images={galleryImages}
+            />
           </div>
 
           {/* Info + actions */}
           <div className="bg-white rounded-2xl sm:rounded-3xl shadow-md border border-pink-100 p-5 sm:p-6 md:p-7 lg:p-8">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.75rem] font-bold text-gray-900 break-words leading-tight tracking-tight">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.25rem] font-bold text-gray-900 break-words leading-tight tracking-tight">
               {product.title}
             </h1>
 
             {/* Price block */}
             <div className="mt-4 sm:mt-5 flex flex-wrap items-end gap-2.5 sm:gap-3">
-              <div className="text-3xl sm:text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent">
+              <div className="text-3xl sm:text-4xl md:text-4xl font-semibold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent">
                 ৳{product.price.toFixed(2)}
               </div>
               {hasDiscount && product.compareAtPrice ? (

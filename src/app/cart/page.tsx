@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Image from "next/image";
@@ -10,7 +11,7 @@ import {
   Minus,
   X,
   ShoppingBag,
-  Leaf,
+  
   ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
@@ -21,7 +22,7 @@ const toNum = (v: unknown, f = 0) =>
   Number.isFinite(Number(v)) ? Number(v) : f;
 const money = (n: number) => `৳${toNum(n).toFixed(2)}`;
 
-// ✅ স্টক বের করার helper (আপনার কার্ট আইটেমে যে প্রপার্টি আছে সেটাই ধরুন)
+// স্টক বের করার helper (আপনার কার্ট আইটেমে যে প্রপার্টি আছে সেটাই ধরুন)
 const getStock = (it: any): number => {
   // আপনার ব্যাকএন্ড/কার্ট-স্টোরে stock, availableQty, stockQty—যেটা আছে সেটাই ধরবে
   const s =
@@ -47,7 +48,7 @@ export default function CartPage() {
       <div className="min-h-[70vh] bg-gradient-to-b from-green-50 to-white">
         <div className="mx-auto max-w-6xl px-4 py-12 text-center">
           <div className="inline-flex items-center justify-center w-24 h-24 bg-green-100 rounded-full mb-6">
-            <ShoppingCart className="w-12 h-12 text-green-600" />
+            <ShoppingCart className="w-12 h-12 text-pink-600" />
           </div>
           <h2 className="text-3xl font-bold text-gray-800 mb-3">
             Your cart is empty
@@ -58,7 +59,7 @@ export default function CartPage() {
           </p>
           <Link
             href="/products"
-            className="inline-flex items-center gap-2 bg-green-600 text-white px-8 py-4 rounded-full hover:bg-green-700 transition-all shadow-lg hover:shadow-xl font-medium focus-visible:ring-2 focus-visible:ring-green-500"
+            className="inline-flex items-center gap-2 bg-pink-600 text-white px-8 py-4 rounded-full hover:bg-pink-700 transition-all shadow-lg hover:shadow-xl font-medium focus-visible:ring-2 focus-visible:ring-pink-500"
           >
             <ShoppingBag className="w-5 h-5" />
             Shop products
@@ -71,7 +72,7 @@ export default function CartPage() {
   const SummaryPanel = () => (
     <div className="bg-white rounded-2xl border-2 border-green-100 p-6 shadow-lg">
       <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-        <ShoppingBag className="w-5 h-5 text-green-600" />
+        <ShoppingBag className="w-5 h-5 text-pink-600" />
         Order Summary
       </h2>
 
@@ -82,14 +83,14 @@ export default function CartPage() {
         </div>
         <div className="flex justify-between items-center text-gray-700">
           <span className="text-sm sm:text-base">Delivery</span>
-          <span className="font-semibold text-green-600">FREE</span>
+          <span className="font-semibold text-pink-600">FREE</span>
         </div>
         <div className="border-t-2 border-gray-100 pt-4">
           <div className="flex justify-between items-center">
             <span className="text-lg font-semibold text-gray-800">
               Grand Total
             </span>
-            <span className="text-2xl font-bold text-green-600">{total}</span>
+            <span className="text-2xl font-bold text-pink-600">{total}</span>
           </div>
         </div>
       </div>
@@ -98,7 +99,7 @@ export default function CartPage() {
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="w-full bg-green-600 text-white py-4 rounded-xl font-semibold hover:bg-green-700 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-green-500"
+          className="w-full bg-pink-600 text-white py-4 rounded-xl font-semibold hover:bg-pink-700 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-pink-500"
         >
           Proceed to Checkout
           <ArrowRight className="w-5 h-5" />
@@ -116,13 +117,13 @@ export default function CartPage() {
   );
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-green-50 via-white to-green-50 pb-24 lg:pb-8">
+    <main className="min-h-screen bg-gradient-to-b from-pink-300-50 via-white to-pink-100 pb-24 lg:pb-8">
       <div className="mx-auto max-w-6xl px-4 xs:px-5 sm:px-6 lg:px-8 py-8 lg:py-12">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 bg-green-100 rounded-lg">
-              <ShoppingCart className="w-6 h-6 text-green-600" />
+              <ShoppingCart className="w-6 h-6 text-pink-600" />
             </div>
             <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
               Your Shopping Bag
@@ -134,7 +135,7 @@ export default function CartPage() {
           {/* Items */}
           <div className="lg:col-span-2 space-y-4">
             <AnimatePresence initial={false} mode="popLayout">
-              {items.map((item, idx) => {
+              {items.map((item) => {
                 const price = toNum(item.price);
                 const qty = Math.max(1, toNum(item.quantity, 1));
                 const line = price * qty;
@@ -181,7 +182,7 @@ export default function CartPage() {
                               {item.title}
                             </h3>
                             <div className="flex items-center gap-2 text-sm text-gray-700">
-                              <span className="font-semibold text-green-700">
+                              <span className="font-semibold text-pink-700">
                                 {money(price)}
                               </span>
                               <span className="text-gray-400">×</span>
@@ -211,7 +212,7 @@ export default function CartPage() {
                                 updateQuantity(item._id, Math.max(1, qty - 1))
                               }
                               disabled={qty <= 1 || outOfStock}
-                              className="w-9 h-9 flex items-center justify-center rounded-lg bg-white border border-green-200 text-green-700 hover:bg-green-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-green-300"
+                              className="w-9 h-9 flex items-center justify-center rounded-lg bg-white border border-pink-200 text-pink-700 hover:bg-pink-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-pink-300"
                               aria-label="Decrease quantity"
                               title="Decrease quantity"
                             >
@@ -225,7 +226,7 @@ export default function CartPage() {
                             <button
                               onClick={() => updateQuantity(item._id, qty + 1)}
                               disabled={outOfStock || atMax}
-                              className="w-9 h-9 flex items-center justify-center rounded-lg bg-white border border-green-200 text-green-700 hover:bg-green-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-green-300"
+                              className="w-9 h-9 flex items-center justify-center rounded-lg bg-white border border-pink-200 text-pink-700 hover:bg-green-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-green-300"
                               aria-label="Increase quantity"
                               title={
                                 atMax && stock !== Infinity
@@ -242,7 +243,7 @@ export default function CartPage() {
                             <div className="text-xs text-gray-500 mb-0.5">
                               Total
                             </div>
-                            <div className="text-lg md:text-xl font-bold text-green-600">
+                            <div className="text-lg md:text-xl font-bold text-pink-600">
                               {money(line)}
                             </div>
                           </div>
@@ -278,7 +279,7 @@ export default function CartPage() {
         <div className="max-w-6xl mx-auto px-4 xs:px-5 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-3">
           <div className="text-sm">
             <div className="text-gray-600">Total</div>
-            <div className="text-lg font-bold text-green-700">{total}</div>
+            <div className="text-lg font-bold text-pink-700">{total}</div>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -289,7 +290,7 @@ export default function CartPage() {
             </button>
             <Link
               href="/checkout"
-              className="px-4 py-2 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 focus-visible:ring-2 focus-visible:ring-green-500"
+              className="px-4 py-2 rounded-xl bg-pink-600 text-white font-semibold hover:bg-pink-700 focus-visible:ring-2 focus-visible:ring-pink-500"
             >
               Checkout
             </Link>

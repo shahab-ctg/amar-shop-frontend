@@ -1,4 +1,5 @@
-// src/app/page.tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import Image from "next/image";
 import Link from "next/link";
 import { fetchCategories, fetchProducts } from "@/services/catalog";
@@ -87,12 +88,12 @@ function ProductCard({ p }: { p: Product }) {
         </div>
         <div className="mt-1 flex items-center gap-2">
           <div className="text-rose-600 font-semibold">
-            ৳{Number(p.price || 0).toFixed(0)}
+            ${Number(p.price || 0).toFixed(0)}
           </div>
           {typeof p.compareAtPrice === "number" &&
           p.compareAtPrice > (p.price || 0) ? (
             <div className="text-xs text-gray-400 line-through">
-              ৳{p.compareAtPrice.toFixed(0)}
+              ${p.compareAtPrice.toFixed(0)}
             </div>
           ) : null}
         </div>
@@ -175,7 +176,7 @@ function PromoCard({
         src={src}
         alt={title}
         fill
-        sizes="(max-width:1024px) 50vw, 25vw"
+        sizes="(max-width:1024px) 50vw, 16vw"
         className="object-cover group-hover:scale-105 transition"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
@@ -197,7 +198,6 @@ export default async function HomePage() {
 
   const cats = (cOk ? categories : []).slice(0, 24);
 
-  // Hero banner (product-first, then fallback)
   const heroCandidates = [...(fresh?.data || []), ...(hot?.data || [])]
     .map((p) => ({ p, img: pickImage(p as any) }))
     .filter((x) => x.img && x.img.length > 3)
@@ -208,203 +208,294 @@ export default async function HomePage() {
   const heroSub =
     "Makeup • Skincare • Fragrance — curated for your unique look";
 
-  // Right-side promos (match hero height by stacking flex items)
-  const promoProducts = (fresh?.data || [])
-    .map((p) => ({ title: p.title, img: pickImage(p as any) }))
+  // Get dynamic promo banners from products (2 banners for right sidebar)
+  const promoBanners = (fresh?.data || [])
+    .map((p) => ({
+      title: p.title,
+      subtitle: "Shop Now",
+      img: pickImage(p as any),
+      href: `/products/${p.slug}`,
+    }))
     .filter((x) => x.img && x.img.length > 3)
     .slice(1, 3);
 
-  const promoA = promoProducts[0] || {
+  // Fill with fallback if not enough products
+  const promoA = promoBanners[0] || {
     title: "Flat 20% Off",
+    subtitle: "On All Products",
     img: FALLBACK_PROMO,
+    href: "#",
   };
-  const promoB = promoProducts[1] || {
+  const promoB = promoBanners[1] || {
     title: "New Collection",
+    subtitle: "Shop Now",
     img: FALLBACK_PROMO,
+    href: "#",
   };
 
-  // Sections (4 cards each)
+  // Sections (8 cards each - will show 4 per row on desktop, 2 per row on mobile)
   const hotDeals = (hot?.data || []).slice(0, 8);
   const newArrivals = (fresh?.data || []).slice(0, 8);
   const editorsPicks = (picks?.data || []).slice(0, 8);
 
   return (
-    <main className="mx-auto max-w-8xl px-3 sm:px-4 lg:px-6 py-4">
-      {/* ================== TOP ROW (lg: Left Fixed Sidebar • Center Hero • Right Promos) ================== */}
-      <div className="grid grid-cols-16 gap-4">
-        {/* ---------- LEFT: Fixed Category Sidebar (lg+) ---------- */}
-        <aside className="hidden lg:block col-span-3">
-          {/* Topbar height approx 84~96px → keep space using sticky top */}
-          <div className="lg:sticky lg:top-[88px]">
-            <div
-              className="rounded-2xl border border-rose-100 bg-white/80 backdrop-blur shadow-sm p-3"
-              style={{ maxHeight: "calc(100vh - 110px)" }}
-            >
-              <div className="mb-2 flex items-center gap-2 text-rose-700 font-semibold">
-                <Sparkles size={16} /> Categories
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-50">
+      {/* Main Dashboard Layout */}
+      <div className="max-w-8xl mx-auto px-3 sm:px-4 lg:px-6 py-4">
+        {/* ================== DASHBOARD GRID LAYOUT ================== */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
+          {/* ---------- LEFT SIDEBAR: Categories (Full Height Dashboard Style) ---------- */}
+          <aside className="hidden lg:block lg:col-span-2">
+            <div className="sticky top-24 h-[calc(100vh-120px)] overflow-hidden">
+              <div className="h-full rounded-2xl border border-rose-100 bg-white/80 backdrop-blur shadow-sm p-4 flex flex-col">
+                <div className="mb-4 flex items-center gap-2 text-rose-700 font-semibold text-lg">
+                  <Sparkles size={20} /> Categories
+                </div>
+
+                {/* Scrollable Categories */}
+                <div className="flex-1 overflow-y-auto pr-2 [scrollbar-width:thin] [scrollbar-color:rgb(244_63_94)_rgb(255_228_230)]">
+                  <div className="space-y-2">
+                    {cats.length > 0
+                      ? cats.map((c) => <CategoryCard key={c._id} c={c} />)
+                      : Array.from({ length: 10 }).map((_, i) => (
+                          <div
+                            key={i}
+                            className="h-14 rounded-xl border border-rose-100 bg-rose-50/50 animate-pulse"
+                          />
+                        ))}
+                  </div>
+                </div>
               </div>
-              {/* 2 cards per row, full vertical scroll */}
-              <div
-                className="grid grid-cols-2 gap-3 overflow-auto pr-1"
-                style={{ maxHeight: "calc(100vh - 160px)" }}
-              >
-                {cats.length > 0
-                  ? cats.map((c) => <CategoryCard key={c._id} c={c} />)
-                  : Array.from({ length: 10 }).map((_, i) => (
+            </div>
+          </aside>
+
+          {/* ---------- MAIN CONTENT AREA ---------- */}
+          <main className="lg:col-span-10 space-y-6">
+            {/* Banner + Right Sidebar Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
+              {/* Center Banner - 8 columns */}
+              <div className="lg:col-span-8">
+                <div className="relative rounded-2xl overflow-hidden border border-rose-100 bg-white shadow-lg h-full">
+                  <div className="relative h-[200px] sm:h-[300px] lg:h-[400px]">
+                    <Image
+                      src={heroSrc}
+                      alt={heroTitle}
+                      fill
+                      priority
+                      sizes="(max-width:1024px) 100vw, 66vw"
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                    <div className="absolute left-4 sm:left-6 bottom-4 sm:bottom-6 text-white drop-shadow max-w-[80%]">
+                      <div className="inline-flex items-center gap-2 rounded-full bg-rose-600/90 px-3 py-1 text-xs mb-2">
+                        <Camera size={14} /> Beauty Week
+                      </div>
+                      <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">
+                        {heroTitle}
+                      </h1>
+                      <p className="text-xs sm:text-sm opacity-90 mt-1">
+                        {heroSub}
+                      </p>
+                      <div className="mt-3">
+                        <Link
+                          href="/products"
+                          className="inline-flex items-center gap-2 rounded-xl bg-white/95 text-rose-700 px-4 py-2 text-sm font-medium shadow hover:shadow-md hover:-translate-y-0.5 transition"
+                        >
+                          Shop now <ChevronRight size={16} />
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Sidebar - 4 columns, matches banner height */}
+              <div className="lg:col-span-4 hidden lg:block">
+                <div className="h-full rounded-2xl border border-rose-100 bg-white/80 backdrop-blur shadow-sm p-4 flex flex-col gap-4">
+                  <div className="flex items-center gap-2 text-rose-700 font-semibold text-lg">
+                    <Sparkles size={20} /> Featured
+                  </div>
+
+                  {/* Fixed 2 Promo Banners */}
+                  <div className="flex flex-col gap-4 flex-1">
+                    {/* Banner 1 */}
+                    <div className="flex-1 min-h-0">
+                      <PromoCard
+                        title={promoA.title}
+                        subtitle={promoA.subtitle}
+                        img={promoA.img}
+                        href={promoA.href}
+                      />
+                    </div>
+
+                    {/* Banner 2 */}
+                    <div className="flex-1 min-h-0">
+                      <PromoCard
+                        title={promoB.title}
+                        subtitle={promoB.subtitle}
+                        img={promoB.img}
+                        href={promoB.href}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Promo Banners - Below main banner */}
+            <div className="lg:hidden grid grid-cols-2 gap-4">
+              <div className="h-32 sm:h-40">
+                <PromoCard
+                  title={promoA.title}
+                  subtitle={promoA.subtitle}
+                  img={promoA.img}
+                  href={promoA.href}
+                />
+              </div>
+              <div className="h-32 sm:h-40">
+                <PromoCard
+                  title={promoB.title}
+                  subtitle={promoB.subtitle}
+                  img={promoB.img}
+                  href={promoB.href}
+                />
+              </div>
+            </div>
+
+            {/* ================== CATEGORY RAIL (Full Width) ================== */}
+            <section className="bg-white/80 rounded-2xl border border-rose-100 p-4 shadow-sm">
+              <div className="mb-3 flex items-center justify-between">
+                <div className="flex items-center gap-2 text-rose-700 font-semibold">
+                  <Sparkles size={18} /> Shop by Category
+                </div>
+                <Link
+                  href="/categories"
+                  className="text-sm text-rose-600 hover:text-rose-700"
+                >
+                  View All
+                </Link>
+              </div>
+
+              <div className="overflow-x-auto [scrollbar-width:thin] [scrollbar-color:rgb(244_63_94)_rgb(255_228_230)]">
+                <div className="flex gap-4 min-w-max pb-2">
+                  {(cOk ? categories : []).length > 0
+                    ? (cOk ? categories : [])
+                        .slice(0, 12)
+                        .map((c) => <CategoryTiny key={c._id} c={c} />)
+                    : Array.from({ length: 8 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className="min-w-[72px] flex flex-col items-center gap-2"
+                        >
+                          <div className="h-14 w-14 rounded-xl bg-rose-50/50 animate-pulse" />
+                          <div className="h-3 w-12 bg-rose-50/50 rounded animate-pulse" />
+                        </div>
+                      ))}
+                </div>
+              </div>
+            </section>
+
+            {/* ================== PRODUCT SECTIONS ================== */}
+
+            {/* Hot Deals - 4 cards per row on desktop, 2 on mobile */}
+            <section className="bg-white/80 rounded-2xl border border-rose-100 p-4 sm:p-6 shadow-sm">
+              <SectionHeader
+                title="🔥 Hot Deals"
+                href="/search?discounted=true"
+                subtitle="Limited time beauty steals"
+              />
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                {hotDeals.length > 0
+                  ? hotDeals
+                      .slice(0, 4)
+                      .map((p) => <ProductCard key={p._id} p={p} />)
+                  : Array.from({ length: 4 }).map((_, i) => (
                       <div
                         key={i}
-                        className="h-[56px] rounded-xl border border-rose-100 bg-rose-50/50 animate-shimmer"
+                        className="h-56 rounded-2xl border border-rose-100 bg-rose-50/50 animate-pulse"
                       />
                     ))}
               </div>
-            </div>
-          </div>
-        </aside>
+              {hotDeals.length > 4 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 mt-4">
+                  {hotDeals.slice(4, 8).map((p) => (
+                    <ProductCard key={p._id} p={p} />
+                  ))}
+                </div>
+              )}
+            </section>
 
-        {/* ---------- CENTER: Hero Banner ---------- */}
-        <section className="col-span-12 lg:col-span-10 order-1 lg:order-none">
-          <div className="relative rounded-2xl overflow-hidden border border-rose-100 bg-white">
-            <div className="relative h-[220px] sm:h-[300px] lg:h-[480px]">
-              <Image
-                src={heroSrc}
-                alt={heroTitle}
-                fill
-                priority
-                sizes="(max-width:1024px) 100vw, 50vw"
-                className="object-cover animate-scale-in"
+            {/* New Arrivals */}
+            <section className="bg-white/80 rounded-2xl border border-rose-100 p-4 sm:p-6 shadow-sm">
+              <SectionHeader
+                title="🆕 New Arrivals"
+                href="/search?sort=new"
+                subtitle="Fresh drops in makeup & skincare"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-              <div className="absolute left-4 sm:left-6 bottom-4 sm:bottom-6 text-white drop-shadow max-w-[80%]">
-                <div className="inline-flex items-center gap-2 rounded-full bg-rose-600/90 px-2 py-1 text-xs mb-2">
-                  <Camera size={14} /> Beauty Week
-                </div>
-                <h1 className="text-xl sm:text-3xl font-bold">{heroTitle}</h1>
-                <p className="text-xs sm:text-sm opacity-90">{heroSub}</p>
-                <div className="mt-3">
-                  <Link
-                    href="#"
-                    className="inline-flex items-center gap-2 rounded-xl bg-white/95 text-rose-700 px-3 py-2 text-sm font-medium shadow hover:shadow-md hover:-translate-y-0.5 transition"
-                  >
-                    Shop now <ChevronRight size={16} />
-                  </Link>
-                </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                {newArrivals.length > 0
+                  ? newArrivals
+                      .slice(0, 4)
+                      .map((p) => <ProductCard key={p._id} p={p} />)
+                  : Array.from({ length: 4 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className="h-56 rounded-2xl border border-rose-100 bg-rose-50/50 animate-pulse"
+                      />
+                    ))}
               </div>
-            </div>
+              {newArrivals.length > 4 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 mt-4">
+                  {newArrivals.slice(4, 8).map((p) => (
+                    <ProductCard key={p._id} p={p} />
+                  ))}
+                </div>
+              )}
+            </section>
+
+            {/* Editor's Picks */}
+            <section className="bg-white/80 rounded-2xl border border-rose-100 p-4 sm:p-6 shadow-sm">
+              <SectionHeader
+                title="⭐ Editor's Picks"
+                href="/search?tag=featured"
+                subtitle="Curated by our beauty editors"
+              />
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                {editorsPicks.length > 0
+                  ? editorsPicks
+                      .slice(0, 4)
+                      .map((p) => <ProductCard key={p._id} p={p} />)
+                  : Array.from({ length: 4 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className="h-56 rounded-2xl border border-rose-100 bg-rose-50/50 animate-pulse"
+                      />
+                    ))}
+              </div>
+              {editorsPicks.length > 4 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 mt-4">
+                  {editorsPicks.slice(4, 8).map((p) => (
+                    <ProductCard key={p._id} p={p} />
+                  ))}
+                </div>
+              )}
+            </section>
+          </main>
+
+         
+          
+        </div>
+
+        {/* ================== MOBILE CATEGORY GRID ================== */}
+        <section className="lg:hidden mt-6 bg-white/80 rounded-2xl border border-rose-100 p-4 shadow-sm">
+          <SectionHeader title="📁 All Categories" href="/categories" />
+          <div className="grid grid-cols-3 gap-3">
+            {(cOk ? categories : []).slice(0, 6).map((c) => (
+              <CategoryCard key={c._id} c={c} />
+            ))}
           </div>
         </section>
-
-        {/* ---------- RIGHT: Two Promos (equal height) ---------- */}
-        <aside className="hidden lg:flex col-span-3">
-          <div
-            className="flex lg:flex-col  gap-4 w-full"
-            style={{ height: "480px" }}
-          >
-            <div className="flex-1">
-              <PromoCard title={promoA.title} img={promoA.img} />
-            </div>
-            <div className="flex-1">
-              <PromoCard title={promoB.title} img={promoB.img} />
-            </div>
-          </div>
-        </aside>
-
-        {/* ---------- Tablet (md→lg): Left hidden, promos under banner side-by-side ---------- */}
-        <div className="col-span-12 lg:hidden grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-          <div className="h-40 sm:h-48">
-            <PromoCard title={promoA.title} img={promoA.img} />
-          </div>
-          <div className="h-40 sm:h-48">
-            <PromoCard title={promoB.title} img={promoB.img} />
-          </div>
-        </div>
       </div>
-
-      {/* ================== CATEGORY RAIL (horizontal, small icon cards) ================== */}
-      <section className="mt-6">
-        <div className="mb-2 flex items-center gap-2 text-rose-700 font-semibold">
-          <Sparkles size={16} /> Explore Categories
-        </div>
-        <div className="-mx-3 px-3 overflow-x-auto">
-          <div className="flex gap-3 pr-4">
-            {(cOk ? categories : []).length > 0
-              ? (cOk ? categories : []).map((c) => (
-                  <CategoryTiny key={c._id} c={c} />
-                ))
-              : Array.from({ length: 10 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="h-20 w-60 lg:h-34 lg:w-[150px] rounded-xl border border-rose-100 bg-rose-50/50 animate-shimmer"
-                  />
-                ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ================== PRODUCT SECTIONS (4 cards each) ================== */}
-      <section className="mt-8 sm:mt-10">
-        <SectionHeader
-          title="Hot Deals"
-          href="/search?discounted=true"
-          subtitle="Limited time beauty steals"
-        />
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-          {hotDeals.length > 0
-            ? hotDeals.map((p) => <ProductCard key={p._id} p={p} />)
-            : Array.from({ length: 4 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-56 rounded-2xl border border-rose-100 bg-rose-50/50 animate-shimmer"
-                />
-              ))}
-        </div>
-      </section>
-
-      <section className="mt-8 sm:mt-10">
-        <SectionHeader
-          title="New Arrivals"
-          href="/search?sort=new"
-          subtitle="Fresh drops in makeup & skincare"
-        />
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-          {newArrivals.length > 0
-            ? newArrivals.map((p) => <ProductCard key={p._id} p={p} />)
-            : Array.from({ length: 4 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-56 rounded-2xl border border-rose-100 bg-rose-50/50 animate-shimmer"
-                />
-              ))}
-        </div>
-      </section>
-
-      <section className="mt-8 sm:mt-10">
-        <SectionHeader
-          title="Editor’s Picks"
-          href="/search?tag=featured"
-          subtitle="Curated by our beauty editors"
-        />
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-          {editorsPicks.length > 0
-            ? editorsPicks.map((p) => <ProductCard key={p._id} p={p} />)
-            : Array.from({ length: 4 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-56 rounded-2xl border border-rose-100 bg-rose-50/50 animate-shimmer"
-                />
-              ))}
-        </div>
-      </section>
-
-      {/* ================== MOBILE CATEGORY GRID (3 per row) — optional helper ================== */}
-      {/* চাইলে নিচের ব্লকটা রেখে দিতে পারো; না চাইলে মুছে দাও */}
-      <section className="lg:hidden mt-8">
-        <SectionHeader title="Shop by category" href="/categories" />
-        <div className="grid grid-cols-3 gap-3">
-          {(cOk ? categories : []).slice(0, 12).map((c) => (
-            <CategoryCard key={c._id} c={c} />
-          ))}
-        </div>
-      </section>
-    </main>
+    </div>
   );
 }

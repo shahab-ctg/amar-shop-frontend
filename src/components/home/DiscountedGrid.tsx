@@ -64,13 +64,19 @@ export default async function DiscountedGrid({
             p.image ??
             (Array.isArray(p.images) ? p.images[0] : undefined) ??
             FALLBACK_IMG;
-          const showCompare =
-            typeof p.compareAtPrice === "number" && p.compareAtPrice > p.price;
-          const discount = showCompare
-            ? Math.round(
-                ((p.compareAtPrice - p.price) / p.compareAtPrice) * 100
-              )
-            : 0;
+
+         const showCompare =
+           p.compareAtPrice != null &&
+           p.price != null &&
+           Number(p.compareAtPrice) > Number(p.price);
+
+         const discount = showCompare
+           ? Math.round(
+               ((Number(p.compareAtPrice) - Number(p.price)) /
+                 Number(p.compareAtPrice)) *
+                 100
+             )
+           : 0;
 
           return (
             <Link
@@ -104,7 +110,7 @@ export default async function DiscountedGrid({
                   </span>
                   {showCompare && (
                     <span className="text-sm sm:text-base text-gray-400 line-through">
-                      ৳{p.compareAtPrice.toLocaleString()}
+                      ৳{p.compareAtPrice?.toLocaleString()}
                     </span>
                   )}
                 </div>

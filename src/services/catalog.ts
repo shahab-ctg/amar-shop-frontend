@@ -10,7 +10,10 @@ import {
 const API = process.env.NEXT_PUBLIC_API_BASE_URL!;
 if (!API) throw new Error("NEXT_PUBLIC_API_BASE_URL is missing");
 
-type Query = Record<string, string | number | boolean | undefined | null>;
+type Query =
+  | Record<string, string | number | boolean | undefined | null>
+  | null
+  | undefined;
 
 function buildURL(path: string, params?: Query) {
   const usp = new URLSearchParams();
@@ -227,8 +230,9 @@ export async function fetchProduct(slug: string) {
 }
 
 export async function fetchBanners(position?: "hero" | "side") {
-  const params: Query = position ? { position } : undefined;
+  const params: Query = position ? { position } : {};
   const raw = await getJSON<unknown>("/banners", params);
+ 
 
   // Accept both { ok, data } and raw arrays
   let dataUnknown: unknown[] = [];

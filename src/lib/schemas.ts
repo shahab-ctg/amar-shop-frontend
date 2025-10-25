@@ -15,8 +15,9 @@ export const ZProduct = z.object({
   slug: z.string(),
   image: z.string().optional(), // legacy single
   images: z.array(z.string()).optional(), // ⭐ multi
-  price: z.number(),
-  compareAtPrice: z.number().optional(),
+  price: z.coerce.number().min(0),
+  compareAtPrice: z.coerce.number().min(0).optional(),
+ 
   isDiscounted: z.boolean().optional(),
   featured: z.boolean().optional(), // ⭐
   stock: z.number().optional(),

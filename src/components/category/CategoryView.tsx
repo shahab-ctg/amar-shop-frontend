@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Leaf, ArrowRight, ShoppingBag, Sparkles } from "lucide-react";
+import {  ArrowRight, ShoppingBag, Sparkles } from "lucide-react";
 
 import { fetchCategories, fetchProducts } from "@/services/catalog";
 import ProductCard from "@/components/ProductCard";
@@ -86,13 +86,13 @@ export default function CategoryView({ slug }: { slug: string }) {
               There is no products in this Category
             </h2>
             <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8 px-4">
-              Soon add new products 
+              Soon add new products
             </p>
             <Link
               href="/products"
-              className="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 sm:px-6 sm:py-3 rounded-full hover:bg-green-700 transition-colors text-sm sm:text-base font-medium shadow-md hover:shadow-lg"
+              className="inline-flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 rounded-full transition-colors  sm:text-base   hover:shadow-lg   bg-gradient-to-r from-pink-500 to-rose-600 text-white font-semibold hover:from-pink-600 hover:to-rose-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 shadow-lg text-sm"
             >
-            Sell All Products
+              Sell All Products
               <ArrowRight className="w-4 h-4" />
             </Link>
           </motion.div>
@@ -103,7 +103,7 @@ export default function CategoryView({ slug }: { slug: string }) {
 
   // Main UI with full responsive design
   return (
-    <div className="bg-gradient-to-b from-green-50 via-white to-green-50 min-h-screen">
+    <div className=" bg-gradient-to-r from-pink-100 to-rose-100 min-h-screen">
       <div className="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8 md:py-10 lg:py-12">
         {/* Category Header - Fully Responsive */}
         <div className="mb-6 sm:mb-8 md:mb-10 lg:mb-12">
@@ -154,9 +154,9 @@ export default function CategoryView({ slug }: { slug: string }) {
         <div className="mt-6 sm:mt-8 md:mt-10 lg:mt-12 flex justify-center px-3 sm:px-0">
           <Link
             href={`/products?category=${encodeURIComponent(slug)}`}
-            className="group inline-flex items-center justify-center gap-2 bg-white border-2 border-green-600 text-green-600 px-5 py-2.5 sm:px-6 sm:py-3 md:px-8 md:py-4 rounded-full hover:bg-green-600 hover:text-white transition-all shadow-md hover:shadow-lg font-semibold text-sm sm:text-base w-full sm:w-auto max-w-xs sm:max-w-none"
+            className="group inline-flex items-center justify-center gap-2 bg-white border-2 border-pink-600  px-5 py-2.5 sm:px-6 sm:py-3 md:px-8 md:py-4 rounded-full hover:bg-green-600 hover:text-white transition-all  hover:shadow-lg  sm:text-base w-full sm:w-auto max-w-xs sm:max-w-none  bg-gradient-to-r from-pink-500 to-rose-600 text-white font-semibold hover:from-pink-600 hover:to-rose-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 shadow-lg text-sm"
           >
-            সব পণ্য দেখুন
+            See All Products
             <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
@@ -171,10 +171,10 @@ export default function CategoryView({ slug }: { slug: string }) {
           >
             <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">🌱</div>
             <h3 className="font-semibold text-gray-800 mb-1 sm:mb-2 text-sm sm:text-base">
-              ১০০% জৈব
+              100 % Original
             </h3>
             <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-              রাসায়নিক মুক্ত প্রাকৃতিক পণ্য
+              Trusted Original Products
             </p>
           </motion.div>
 
@@ -186,10 +186,10 @@ export default function CategoryView({ slug }: { slug: string }) {
           >
             <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">🚜</div>
             <h3 className="font-semibold text-gray-800 mb-1 sm:mb-2 text-sm sm:text-base">
-              সরাসরি খামার থেকে
+              Collectected From Company
             </h3>
             <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-              তাজা ও মানসম্পন্ন পণ্যের নিশ্চয়তা
+              New & Trusted Proudcts
             </p>
           </motion.div>
 
@@ -201,10 +201,10 @@ export default function CategoryView({ slug }: { slug: string }) {
           >
             <div className="text-3xl sm:text-4xl mb-2 sm:mb-3">🏡</div>
             <h3 className="font-semibold text-gray-800 mb-1 sm:mb-2 text-sm sm:text-base">
-              হোম ডেলিভারি
+              Home Delivery
             </h3>
             <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-              দ্রুত ও নিরাপদ ডেলিভারি সেবা
+              Safe & Quick Delivery
             </p>
           </motion.div>
         </div>

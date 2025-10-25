@@ -36,3 +36,38 @@ export type Paginated<T> = {
     hasNext?: boolean;
   };
 };
+
+
+// src/lib/schemas.ts - নিচে যোগ করুন
+export type CartItem = {
+  _id: string;
+  title?: string;
+  price?: number;
+  quantity?: number;
+  stock?: number;
+  image?: string;
+  slug?: string;
+  compareAtPrice?: number;
+  isDiscounted?: boolean;
+  featured?: boolean;
+  categorySlug?: string;
+  tagSlugs?: string[];
+  status?: "ACTIVE" | "DRAFT" | "HIDDEN";
+  createdAt?: string;
+  updatedAt?: string;
+  images?: string[];
+  imageId?: string;
+};
+
+export type OrderError = {
+  code?: string;
+  name?: string;
+  errors?: { path?: string; message?: string }[];
+  message?: string;
+  data?: {
+    code?: string;
+    message?: string;
+  };
+  status?: number;
+  statusCode?: number;
+};
