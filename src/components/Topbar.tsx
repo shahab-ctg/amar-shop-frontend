@@ -300,7 +300,7 @@ export default function Topbar() {
       </nav>
 
       {/* Spacer to avoid overlap */}
-      <div className="pt-20 lg:pt-24 pb-14 lg:pb-0"></div>
+      <div className="h-[64px] sm:h-[72px] md:h-[80px] lg:h-[96px]" />
     </>
   );
 }

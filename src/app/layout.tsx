@@ -36,8 +36,9 @@ export default function RootLayout({
           <div className="absolute inset-0 bg-[#F5FDF8]" />
           {/* subtle blobs */}
           <div className="pointer-events-none absolute inset-0">
-            <div className="absolute -top-10 -left-10 w-72 h-72 bg-pink-200/50 rounded-full blur-3xl animate-float" />
-            <div className="absolute top-24 -right-10 w-80 h-80 bg-purple-200/40 rounded-full blur-3xl animate-float animation-delay-600" />
+            <div className="absolute top-0 -left-10 w-72 h-72 bg-pink-200/40 rounded-full blur-3xl animate-float" />
+            <div className="absolute top-12 -right-10 w-80 h-80 bg-purple-200/30 rounded-full blur-3xl animate-float animation-delay-600" />
+
             <div className="absolute bottom-10 left-1/3 w-96 h-96 bg-rose-200/40 rounded-full blur-3xl animate-float animation-delay-1000" />
           </div>
 

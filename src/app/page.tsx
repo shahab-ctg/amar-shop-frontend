@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { fetchCategories, fetchProducts } from "@/services/catalog";
 import type { Product, Category } from "@/lib/schemas";
-import { ShoppingBag, ChevronRight, Camera, Sparkles } from "lucide-react";
+import { ShoppingBag, ChevronRight, Sparkles } from "lucide-react";
 
 /** ---- Fallback images ---- */
 const FALLBACK_PROMO =
@@ -63,21 +63,21 @@ function BannerCarousel() {
 
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute left-3 sm:left-5 bottom-3 sm:bottom-5 text-white drop-shadow max-w-[80%] pointer-events-auto">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-rose-600/90 px-2.5 py-1 text-[10px] sm:text-xs mb-1.5 sm:mb-2">
+            {/* <div className="inline-flex items-center gap-1.5 rounded-full bg-rose-600/90 px-2.5 py-1 text-[10px] sm:text-xs mb-1.5 sm:mb-2">
               <Camera size={12} /> Beauty Week
-            </div>
-            <h1 className="text-base sm:text-xl lg:text-2xl font-bold leading-tight">
+            </div> */}
+            {/* <h1 className="text-base sm:text-xl lg:text-2xl font-bold leading-tight">
               Glow like never before
-            </h1>
-            <p className="text-[10px] sm:text-xs opacity-90 mt-0.5 sm:mt-1">
+            </h1> */}
+            {/* <p className="text-[10px] sm:text-xs opacity-90 mt-0.5 sm:mt-1">
               Makeup • Skincare • Fragrance
-            </p>
+            </p> */}
             <div className="mt-2 sm:mt-3">
               <Link
                 href="/products"
                 className="inline-flex items-center gap-1.5 rounded-lg bg-white/95 text-rose-700 px-3 py-1.5 text-xs sm:text-sm font-medium shadow hover:shadow-md hover:-translate-y-0.5 transition pointer-events-auto"
               >
-                Shop now <ChevronRight size={14} />
+                Shop now <ChevronRight size={12} />
               </Link>
             </div>
           </div>
@@ -297,14 +297,14 @@ export default function HomePage() {
 
   const promoBanners = [
     {
-      title: "Surgical Products",
-      subtitle: "Shop Now",
+      // title: "Surgical Products",
+      // subtitle: "Shop Now",
       img: "/surgical.png",
       href: "/products?category=surgical",
     },
     {
-      title: "All Products",
-      subtitle: "Explore All",
+      // title: "All Products",
+      // subtitle: "Explore All",
       img: "/order.png",
       href: "/products",
     },
@@ -358,9 +358,9 @@ export default function HomePage() {
           </aside>
 
           {/* ---------- MAIN CONTENT ---------- */}
-          <main className="space-y-2.5 lg:space-y-3 min-w-0">
+          <main className="space-y-2.5 lg:space-y-3 min-w-0 ">
             {/* Banner + Right Promo (Desktop) */}
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_200px] gap-2 lg:gap-3">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_200px] gap-2 lg:gap-3 ">
               <BannerCarousel />
 
               {/* Right Promo (Desktop Only) */}
@@ -380,28 +380,33 @@ export default function HomePage() {
 
             {/* Mobile Promo Cards (Below Banner) */}
             <div className="lg:hidden grid grid-cols-2 gap-2">
-              {promoBanners.map((promo, idx) => (
-                <Link key={idx} href={promo.href} className="mobile-promo-card">
-                  <Image
-                    src={promo.img || FALLBACK_PROMO}
-                    alt={promo.title}
-                    fill
-                    sizes="50vw"
-                    className="object-cover"
-                  />
-                  <div className="mobile-promo-card__gradient" />
-                  <div className="mobile-promo-card__content">
-                    <div className="mobile-promo-card__title">
-                      {promo.title}
-                    </div>
-                    {promo.subtitle && (
-                      <div className="mobile-promo-card__subtitle">
-                        {promo.subtitle}
-                      </div>
-                    )}
-                  </div>
-                </Link>
-              ))}
+              {/* Orange Div */}
+              <Link
+                href="/products?category=surgical"
+                className="rounded-lg bg-orange-500 text-white text-center py-8 px-3 hover:bg-orange-600 transition shadow"
+              >
+                <div className="flex flex-col items-center justify-center gap-1">
+                  <Sparkles size={24} className="text-white" />
+                  <h3 className="text-sm font-bold">AmarShopBD</h3>
+                  <p className="text-[11px] leading-snug">
+                    সকল ধরনের সার্জিক্যাল অর্ডার করতে এখানে ক্লিক করুন
+                  </p>
+                </div>
+              </Link>
+
+              {/* Blue Div */}
+              <Link
+                href="/products"
+                className="rounded-lg bg-blue-600 text-white text-center py-8 px-3 hover:bg-blue-700 transition shadow"
+              >
+                <div className="flex flex-col items-center justify-center gap-1">
+                  <Sparkles size={24} className="text-white" />
+                  <h3 className="text-sm font-bold">AmarShopBD</h3>
+                  <p className="text-[11px] leading-snug">
+                    সকল ধরনের অর্ডারের জন্য এখানে ক্লিক করুন
+                  </p>
+                </div>
+              </Link>
             </div>
 
             {/* Mobile Categories Scroll (4 cards visible) */}
@@ -517,31 +522,35 @@ function ProductSection({
 /* ---------------------------------------------------------
     PromoCard (for desktop sidebar)
 ---------------------------------------------------------- */
+/* ---------------------------------------------------------
+    PromoCard (for desktop sidebar)
+---------------------------------------------------------- */
 function PromoCard({
-  title,
-  subtitle,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   img,
   href = "#",
 }: {
-  title: string;
-  subtitle?: string;
-  img: string;
+  img?: string;
   href?: string;
 }) {
-  const src = img || FALLBACK_PROMO;
+  // ✅ আমরা পুরনো static image বাদ দিয়ে, দুইটা color div বানাচ্ছি
+  //    যেন existing workflow (promo mapping, layout, spacing) ঠিক থাকে
+  const isSurgical = href.includes("surgical");
   return (
-    <Link href={href} className="promo-card">
-      <Image
-        src={src}
-        alt={title}
-        fill
-        sizes="200px"
-        className="promo-card__image"
-      />
-      <div className="promo-card__gradient" />
-      <div className="promo-card__content">
-        <div className="promo-card__title">{title}</div>
-        {subtitle && <div className="promo-card__subtitle">{subtitle}</div>}
+    <Link
+      href={href}
+      className={`block rounded-lg text-white text-center py-6 px-3 shadow-md transition
+        ${isSurgical ? "bg-orange-500 hover:bg-orange-600" : "bg-blue-600 hover:bg-blue-700"}
+      `}
+    >
+      <div className="flex flex-col items-center justify-center gap-2">
+        <Sparkles size={26} className="text-white" />
+        <h3 className="text-sm font-bold">AmarShopBD</h3>
+        <p className="text-xs leading-snug">
+          {isSurgical
+            ? "সকল ধরনের সার্জিক্যাল অর্ডার করতে এখানে ক্লিক করুন"
+            : "সকল ধরনের অর্ডারের জন্য এখানে ক্লিক করুন"}
+        </p>
       </div>
     </Link>
   );
