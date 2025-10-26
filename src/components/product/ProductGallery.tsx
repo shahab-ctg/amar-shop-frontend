@@ -7,11 +7,13 @@ export default function ProductGallery({
   images,
   title,
   fallback,
+
 }: {
   images?: string[] | null;
   title: string;
   
   fallback?: string;
+  
 }) {
 
   const list = useMemo(() => {
@@ -87,11 +89,7 @@ export default function ProductGallery({
           </div>
         </div>
       )}
-      {description && (
-        <p className="mt-3 text-gray-700 text-sm sm:text-base leading-relaxed text-center px-2 sm:px-4">
-          {description}
-        </p>
-      )}
+      
     </div>
   );
 }
