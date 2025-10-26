@@ -115,7 +115,7 @@ function CategoriesScrollCarousel({ categories }: { categories: Category[] }) {
           </h2>
         </div>
         <Link
-          href="/products"
+          href="/products?categories=true"
           className="text-sm text-[#167389] hover:text-rose-600 transition flex items-center gap-1"
         >
           View All <ChevronRight size={16} />
