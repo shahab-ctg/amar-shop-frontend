@@ -8,12 +8,6 @@ import type { Product, Category } from "@/lib/schemas";
 import { ShoppingBag, ChevronRight, Camera, Sparkles } from "lucide-react";
 
 /** ---- Fallback images ---- */
-const FALLBACK_BANNER =
-  "data:image/svg+xml;utf8," +
-  encodeURIComponent(
-    `<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='600'><rect width='100%' height='100%' fill='#fde2e8'/><text x='50%' y='50%' text-anchor='middle' fill='#c24165' font-size='26' font-family='Arial' dy='.3em'>Beauty & Cosmetics</text></svg>`
-  );
-
 const FALLBACK_PROMO =
   "data:image/svg+xml;utf8," +
   encodeURIComponent(
@@ -38,7 +32,7 @@ function pickImage(p: Partial<Product> & { images?: string[] }): string {
 }
 
 /* ---------------------------------------------------------
-    BannerCarousel – fast, one-by-one image fade animation
+    BannerCarousel
 ---------------------------------------------------------- */
 function BannerCarousel() {
   const [index, setIndex] = useState(0);
@@ -51,8 +45,8 @@ function BannerCarousel() {
   }, []);
 
   return (
-    <div className="relative rounded-2xl overflow-hidden border border-rose-100 bg-white shadow-lg h-full">
-      <div className="relative h-[200px] sm:h-[300px] lg:h-[400px]">
+    <div className="relative rounded-xl overflow-hidden border border-gray-200 bg-white shadow-sm h-full">
+      <div className="relative h-[180px] sm:h-[250px] lg:h-[360px]">
         {BANNER_IMAGES.map((src, i) => (
           <Image
             key={i}
@@ -60,7 +54,7 @@ function BannerCarousel() {
             alt={`Banner ${i + 1}`}
             fill
             priority={i === 0}
-            sizes="(max-width:1024px) 100vw, 66vw"
+            sizes="(max-width:1024px) 100vw, 70vw"
             className={`object-cover transition-opacity duration-700 ease-in-out ${
               i === index ? "opacity-100" : "opacity-0"
             }`}
@@ -68,32 +62,32 @@ function BannerCarousel() {
         ))}
 
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute left-4 sm:left-6 bottom-4 sm:bottom-6 text-white drop-shadow max-w-[80%] pointer-events-auto">
-            <div className="inline-flex items-center gap-2 rounded-full bg-rose-600/90 px-3 py-1 text-xs mb-2">
-              <Camera size={14} /> Beauty Week
+          <div className="absolute left-3 sm:left-5 bottom-3 sm:bottom-5 text-white drop-shadow max-w-[80%] pointer-events-auto">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-rose-600/90 px-2.5 py-1 text-[10px] sm:text-xs mb-1.5 sm:mb-2">
+              <Camera size={12} /> Beauty Week
             </div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">
+            <h1 className="text-base sm:text-xl lg:text-2xl font-bold leading-tight">
               Glow like never before
             </h1>
-            <p className="text-xs sm:text-sm opacity-90 mt-1">
-              Makeup • Skincare • Fragrance — curated for your unique look
+            <p className="text-[10px] sm:text-xs opacity-90 mt-0.5 sm:mt-1">
+              Makeup • Skincare • Fragrance
             </p>
-            <div className="mt-3">
+            <div className="mt-2 sm:mt-3">
               <Link
                 href="/products"
-                className="inline-flex items-center gap-2 rounded-xl bg-white/95 text-rose-700 px-4 py-2 text-sm font-medium shadow hover:shadow-md hover:-translate-y-0.5 transition pointer-events-auto"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-white/95 text-rose-700 px-3 py-1.5 text-xs sm:text-sm font-medium shadow hover:shadow-md hover:-translate-y-0.5 transition pointer-events-auto"
               >
-                Shop now <ChevronRight size={16} />
+                Shop now <ChevronRight size={14} />
               </Link>
             </div>
           </div>
         </div>
 
-        <div className="absolute bottom-4 right-4 flex gap-2">
+        <div className="absolute bottom-2 sm:bottom-3 right-2 sm:right-3 flex gap-1.5">
           {BANNER_IMAGES.map((_, i) => (
             <div
               key={i}
-              className={`w-2 h-2 rounded-full transition ${
+              className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition ${
                 i === index ? "bg-white" : "bg-white/50"
               }`}
             />
@@ -105,20 +99,18 @@ function BannerCarousel() {
 }
 
 /* ---------------------------------------------------------
-    Auto-Scrolling Categories Carousel (NEW)
+    Desktop Categories Scroll Carousel (Below Banner) - FIXED
 ---------------------------------------------------------- */
 function CategoriesScrollCarousel({ categories }: { categories: Category[] }) {
   const [isPaused, setIsPaused] = useState(false);
-
-  // Double the categories for seamless infinite scroll
-  const displayCategories = [...categories, ...categories];
+  const duplicatedCategories = [...categories, ...categories];
 
   return (
-    <section className="bg-white rounded-2xl border border-rose-100 shadow-sm p-4 sm:p-6 overflow-hidden">
-      <div className="flex items-center justify-between mb-4">
+    <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 overflow-hidden">
+      <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Sparkles className="text-[#167389]" size={20} />
-          <h2 className="text-lg sm:text-xl font-semibold text-[#167389]">
+          <Sparkles className="text-[#167389]" size={18} />
+          <h2 className="text-base font-semibold text-[#167389]">
             Shop by Categories
           </h2>
         </div>
@@ -131,59 +123,52 @@ function CategoriesScrollCarousel({ categories }: { categories: Category[] }) {
       </div>
 
       <div
-        className="relative"
+        className="relative overflow-hidden"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
       >
         <div className="overflow-hidden">
           <div
-            className={`flex gap-3 sm:gap-4 ${
-              isPaused ? "" : "animate-scroll"
-            }`}
+            className={`flex gap-3 ${isPaused ? "" : "animate-scroll-desktop"}`}
             style={{
-              width: `${displayCategories.length * 140}px`,
+              width: `${duplicatedCategories.length * 120}px`,
             }}
           >
-            {displayCategories.map((cat, idx) => (
+            {duplicatedCategories.map((cat, idx) => (
               <Link
                 key={`${cat._id}-${idx}`}
                 href={`/c/${cat.slug}`}
-                className="group flex-shrink-0 w-28 sm:w-32"
+                className="desktop-category-scroll-card"
               >
-                <div className="bg-white rounded-xl border border-rose-100 shadow-sm hover:shadow-md transition-all overflow-hidden">
-                  <div className="relative h-24 sm:h-28 bg-gradient-to-br from-rose-50 to-pink-50">
-                    {cat.image ? (
-                      <Image
-                        src={cat.image}
-                        alt={cat.title}
-                        fill
-                        sizes="128px"
-                        className="object-cover group-hover:scale-110 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="h-full w-full grid place-items-center">
-                        <ShoppingBag className="text-rose-300" size={32} />
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-2 sm:p-3 text-center">
-                    <p className="text-xs sm:text-sm font-medium text-gray-700 line-clamp-2 group-hover:text-[#167389] transition">
-                      {cat.title}
-                    </p>
-                  </div>
+                <div className="desktop-category-scroll-card__image-wrapper">
+                  {cat.image ? (
+                    <Image
+                      src={cat.image}
+                      alt={cat.title}
+                      fill
+                      sizes="110px"
+                      className="object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                  ) : (
+                    <div className="h-full w-full grid place-items-center">
+                      <ShoppingBag className="text-[#167389]" size={28} />
+                    </div>
+                  )}
                 </div>
+                <p className="desktop-category-scroll-card__title">
+                  {cat.title}
+                </p>
               </Link>
             ))}
           </div>
         </div>
 
-        {/* Gradient overlays for smooth edges */}
-        <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-white to-transparent pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white to-transparent pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-white to-transparent pointer-events-none z-10" />
+        <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white to-transparent pointer-events-none z-10" />
       </div>
 
       <style jsx>{`
-        @keyframes scroll {
+        @keyframes scroll-desktop {
           0% {
             transform: translateX(0);
           }
@@ -192,15 +177,61 @@ function CategoriesScrollCarousel({ categories }: { categories: Category[] }) {
           }
         }
 
-        .animate-scroll {
-          animation: scroll 30s linear infinite;
-        }
-
-        .animate-scroll:hover {
-          animation-play-state: paused;
+        .animate-scroll-desktop {
+          animation: scroll-desktop 40s linear infinite;
         }
       `}</style>
     </section>
+  );
+}
+
+/* ---------------------------------------------------------
+    Mobile Categories Scroll (4 cards visible)
+---------------------------------------------------------- */
+function MobileCategoriesScroll({ categories }: { categories: Category[] }) {
+  return (
+    <div className="lg:hidden">
+      <div className="flex items-center justify-between mb-2.5">
+        <div className="flex items-center gap-1.5">
+          <Sparkles className="text-[#167389]" size={16} />
+          <h3 className="text-sm font-semibold text-[#167389]">Categories</h3>
+        </div>
+        <Link
+          href="/products"
+          className="text-xs text-[#167389] hover:text-rose-600 transition flex items-center gap-0.5"
+        >
+          All <ChevronRight size={14} />
+        </Link>
+      </div>
+      <div className="overflow-x-auto scrollbar-hide -mx-3 px-3">
+        <div className="flex gap-2.5 min-w-max pb-1">
+          {categories.map((cat) => (
+            <Link
+              key={cat._id}
+              href={`/c/${cat.slug}`}
+              className="mobile-category-card"
+            >
+              <div className="mobile-category-card__image">
+                {cat.image ? (
+                  <Image
+                    src={cat.image}
+                    alt={cat.title}
+                    fill
+                    sizes="70px"
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="h-full w-full grid place-items-center">
+                    <ShoppingBag className="text-[#167389]" size={20} />
+                  </div>
+                )}
+              </div>
+              <p className="mobile-category-card__title">{cat.title}</p>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -246,7 +277,7 @@ export default function HomePage() {
         );
 
         if (active) {
-          setCategories(catRes?.data?.slice(0, 24) || []);
+          setCategories(catRes?.data || []);
           setHotDeals(hotRes?.data?.slice(0, 8) || []);
           setNewArrivals(freshRes?.data?.slice(0, 8) || []);
           setEditorsPicks(pickRes?.data?.slice(0, 8) || []);
@@ -278,50 +309,47 @@ export default function HomePage() {
       href: "/products",
     },
   ];
-  const promoA = promoBanners[0];
-  const promoB = promoBanners[1];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br bg-white top-0">
-      <div className="max-w-8xl mx-auto px-3 sm:px-4 lg:px-6 py-4">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
-          {/* ---------- LEFT SIDEBAR ---------- */}
-          <aside className="hidden lg:block lg:col-span-2">
-            <div className="sticky top-24 h-full overflow-hidden">
-              <div className="h-full rounded-2xl border bg-white/80 backdrop-blur shadow-sm p-4 flex flex-col">
-                <div className="mb-4 flex items-center gap-2 text-[#167389] font-semibold text-lg">
-                  <Sparkles size={20} /> Categories
+    <div className="min-h-screen bg-white">
+      <div className="max-w-[1600px] mx-auto px-2.5 sm:px-3 lg:px-5 pt-0 pb-1.5 sm:pb-2 lg:py-3">
+        <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-2 lg:gap-3">
+          {/* ---------- LEFT SIDEBAR (Desktop Only) ---------- */}
+          <aside className="hidden lg:block">
+            <div className="sticky top-[72px]">
+              <div className="desktop-sidebar">
+                <div className="desktop-sidebar__header">
+                  <Sparkles size={18} /> Categories
                 </div>
-                <div className="flex-1 overflow-y-auto pr-2 space-y-2">
+                <div className="desktop-sidebar__content">
                   {loading
-                    ? Array.from({ length: 10 }).map((_, i) => (
-                        <div
-                          key={i}
-                          className="h-14 rounded-xl border bg-rose-50/50 animate-pulse"
-                        />
+                    ? Array.from({ length: 12 }).map((_, i) => (
+                        <div key={i} className="desktop-sidebar__skeleton" />
                       ))
                     : categories.map((c) => (
                         <Link
                           key={c._id}
                           href={`/c/${c.slug}`}
-                          className="group rounded-xl border border- bg-white/80 hover:bg-white shadow-sm hover:shadow transition p-2 flex items-center gap-2"
+                          className="desktop-sidebar__card"
                         >
-                          <div className="relative h-10 w-10 rounded-lg overflow-hidden bg-rose-50">
+                          <div className="desktop-sidebar__card-image">
                             {c.image ? (
                               <Image
                                 src={c.image}
                                 alt={c.title}
                                 fill
-                                sizes="40px"
-                                className="object-cover group-hover:scale-105 transition"
+                                sizes="50px"
+                                className="object-cover"
                               />
                             ) : (
-                              <div className="h-full w-full grid place-items-center text-cyan-500">
-                                <ShoppingBag size={16} />
+                              <div className="h-full w-full grid place-items-center text-[#167389]">
+                                <ShoppingBag size={18} />
                               </div>
                             )}
                           </div>
-                          <div className="text-sm text-gray-700">{c.title}</div>
+                          <div className="desktop-sidebar__card-title">
+                            {c.title}
+                          </div>
                         </Link>
                       ))}
                 </div>
@@ -330,47 +358,81 @@ export default function HomePage() {
           </aside>
 
           {/* ---------- MAIN CONTENT ---------- */}
-          <main className="lg:col-span-10 space-y-6">
-            {/* Banner + Promo */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-2 lg:gap-4">
-              <div className="lg:col-span-10">
-                <BannerCarousel />
-              </div>
-              <div className="lg:col-span-2 hidden lg:block">
-                <div className="h-full rounded-2xl border border-rose-100 bg-white/80 shadow-sm p-2 flex flex-col gap-4">
-                  <div className="flex items-center gap-2 text-[#167389] font-semibold text-lg">
-                    <Sparkles size={20} /> Featured
+          <main className="space-y-2.5 lg:space-y-3 min-w-0">
+            {/* Banner + Right Promo (Desktop) */}
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_200px] gap-2 lg:gap-3">
+              <BannerCarousel />
+
+              {/* Right Promo (Desktop Only) */}
+              <div className="hidden lg:block">
+                <div className="desktop-promo">
+                  <div className="desktop-promo__header">
+                    <Sparkles size={16} /> Featured
                   </div>
-                  <div className="flex flex-col gap-2 flex-1">
-                    <PromoCard {...promoA} />
-                    <PromoCard {...promoB} />
+                  <div className="desktop-promo__content">
+                    {promoBanners.map((promo, idx) => (
+                      <PromoCard key={idx} {...promo} />
+                    ))}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* NEW: Auto-Scrolling Categories Section */}
+            {/* Mobile Promo Cards (Below Banner) */}
+            <div className="lg:hidden grid grid-cols-2 gap-2">
+              {promoBanners.map((promo, idx) => (
+                <Link key={idx} href={promo.href} className="mobile-promo-card">
+                  <Image
+                    src={promo.img || FALLBACK_PROMO}
+                    alt={promo.title}
+                    fill
+                    sizes="50vw"
+                    className="object-cover"
+                  />
+                  <div className="mobile-promo-card__gradient" />
+                  <div className="mobile-promo-card__content">
+                    <div className="mobile-promo-card__title">
+                      {promo.title}
+                    </div>
+                    {promo.subtitle && (
+                      <div className="mobile-promo-card__subtitle">
+                        {promo.subtitle}
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            {/* Mobile Categories Scroll (4 cards visible) */}
             {!loading && categories.length > 0 && (
-              <CategoriesScrollCarousel categories={categories} />
+              <MobileCategoriesScroll categories={categories} />
+            )}
+
+            {/* Desktop Categories Scroll (Below Banner) */}
+            {!loading && categories.length > 0 && (
+              <div className="hidden lg:block">
+                <CategoriesScrollCarousel categories={categories} />
+              </div>
             )}
 
             {/* Product Sections */}
             <ProductSection
-              title=" Hot Deals"
+              title="🔥 Hot Deals"
               subtitle="Limited time beauty steals"
               products={hotDeals}
               loading={loading}
               href="/search?discounted=true"
             />
             <ProductSection
-              title=" New Arrivals"
+              title="✨ New Arrivals"
               subtitle="Fresh drops in makeup & skincare"
               products={newArrivals}
               loading={loading}
               href="/search?sort=new"
             />
             <ProductSection
-              title=" Editor's Picks"
+              title="💎 Editor's Picks"
               subtitle="Curated by our beauty editors"
               products={editorsPicks}
               loading={loading}
@@ -400,58 +462,46 @@ function ProductSection({
   loading: boolean;
 }) {
   return (
-    <section className="bg-white/80 rounded-2xl border border-rose-100 p-4 sm:p-6 shadow-sm">
-      <div className="flex items-end justify-between mb-3 sm:mb-4">
+    <section className="product-section">
+      <div className="product-section__header">
         <div>
-          <h2 className="text-lg sm:text-xl font-semibold text-[#167389]">
-            {title}
-          </h2>
-          {subtitle && (
-            <p className="text-xs text-gray-500 mt-0.5">{subtitle}</p>
-          )}
+          <h2 className="product-section__title">{title}</h2>
+          {subtitle && <p className="product-section__subtitle">{subtitle}</p>}
         </div>
-        <Link
-          href={href}
-          className="inline-flex items-center gap-1 text-sm text-[#167389] hover:text-rose-700"
-        >
+        <Link href={href} className="product-section__link">
           View more <ChevronRight size={16} />
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="product-section__grid">
         {loading
           ? Array.from({ length: 8 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-56 rounded-2xl border border-rose-100 bg-rose-50/50 animate-pulse"
-              />
+              <div key={i} className="product-section__skeleton" />
             ))
           : products.map((p) => (
               <Link
                 key={p._id}
                 href={`/products/${p.slug}`}
-                className="group block rounded-2xl border border-rose-100 bg-white/80 shadow hover:shadow-md transition overflow-hidden"
+                className="product-card"
               >
-                <div className="relative h-40 sm:h-44">
+                <div className="product-card__image">
                   <Image
                     src={pickImage(p) || FALLBACK_PROMO}
                     alt={p.title}
                     fill
-                    sizes="(max-width:640px) 100vw, (max-width:1024px) 33vw, 25vw"
-                    className="object-cover group-hover:scale-105 transition"
+                    sizes="(max-width:640px) 50vw, (max-width:1024px) 33vw, 25vw"
+                    className="product-card__img"
                   />
                 </div>
-                <div className="p-3">
-                  <div className="line-clamp-1 text-sm font-medium text-gray-800">
-                    {p.title}
-                  </div>
-                  <div className="mt-1 flex items-center gap-2">
-                    <div className="text-rose-600 font-semibold">
+                <div className="product-card__content">
+                  <div className="product-card__title">{p.title}</div>
+                  <div className="product-card__price-group">
+                    <div className="product-card__price">
                       ${Number(p.price || 0).toFixed(0)}
                     </div>
                     {typeof p.compareAtPrice === "number" &&
                       p.compareAtPrice > (p.price || 0) && (
-                        <div className="text-xs text-gray-400 line-through">
+                        <div className="product-card__compare-price">
                           ${p.compareAtPrice.toFixed(0)}
                         </div>
                       )}
@@ -465,7 +515,7 @@ function ProductSection({
 }
 
 /* ---------------------------------------------------------
-    PromoCard
+    PromoCard (for desktop sidebar)
 ---------------------------------------------------------- */
 function PromoCard({
   title,
@@ -480,21 +530,18 @@ function PromoCard({
 }) {
   const src = img || FALLBACK_PROMO;
   return (
-    <Link
-      href={href}
-      className="group relative block h-full w-full rounded-2xl overflow-hidden border border-rose-100 bg-white/70 shadow"
-    >
+    <Link href={href} className="promo-card">
       <Image
         src={src}
         alt={title}
         fill
-        sizes="(max-width:1024px) 50vw, 16vw"
-        className="object-cover group-hover:scale-105 transition"
+        sizes="200px"
+        className="promo-card__image"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-      <div className="absolute left-3 bottom-3 text-white drop-shadow">
-        <div className="text-sm font-semibold">{title}</div>
-        {subtitle && <div className="text-xs opacity-90">{subtitle}</div>}
+      <div className="promo-card__gradient" />
+      <div className="promo-card__content">
+        <div className="promo-card__title">{title}</div>
+        {subtitle && <div className="promo-card__subtitle">{subtitle}</div>}
       </div>
     </Link>
   );
