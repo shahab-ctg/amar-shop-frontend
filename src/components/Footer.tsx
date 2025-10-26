@@ -40,9 +40,9 @@ export default function Footer() {
                 <h3 className="text-lg sm:text-xl font-bold truncate">
                   {brand}
                 </h3>
-                <p className="text-[11px] sm:text-xs text-[#167389]">
+                {/* <p className="text-[11px] sm:text-xs text-[#167389]">
                   Beauty & Cosmetics
-                </p>
+                </p> */}
               </div>
             </div>
             <p className="text-black text-sm leading-relaxed mb-4 text-pretty">

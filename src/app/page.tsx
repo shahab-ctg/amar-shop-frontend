@@ -5,16 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { fetchCategories, fetchProducts } from "@/services/catalog";
 import type { Product, Category } from "@/lib/schemas";
-import {
-  ShoppingBag,
-  ChevronRight,
-  Camera,
-
-  Sparkles,
-} from "lucide-react";
+import { ShoppingBag, ChevronRight, Camera, Sparkles } from "lucide-react";
 
 /** ---- Fallback images ---- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const FALLBACK_BANNER =
   "data:image/svg+xml;utf8," +
   encodeURIComponent(
@@ -53,7 +46,7 @@ function BannerCarousel() {
   useEffect(() => {
     const timer = setInterval(() => {
       setIndex((prev) => (prev + 1) % BANNER_IMAGES.length);
-    }, 3000); // ⏱ change every 3s fast, one by one
+    }, 3000);
     return () => clearInterval(timer);
   }, []);
 
@@ -74,7 +67,6 @@ function BannerCarousel() {
           />
         ))}
 
-        {/* Overlay text */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute left-4 sm:left-6 bottom-4 sm:bottom-6 text-white drop-shadow max-w-[80%] pointer-events-auto">
             <div className="inline-flex items-center gap-2 rounded-full bg-rose-600/90 px-3 py-1 text-xs mb-2">
@@ -97,7 +89,6 @@ function BannerCarousel() {
           </div>
         </div>
 
-        {/* Dots */}
         <div className="absolute bottom-4 right-4 flex gap-2">
           {BANNER_IMAGES.map((_, i) => (
             <div
@@ -114,7 +105,107 @@ function BannerCarousel() {
 }
 
 /* ---------------------------------------------------------
-    Main HomePage (optimized data fetching, no infinite call)
+    Auto-Scrolling Categories Carousel (NEW)
+---------------------------------------------------------- */
+function CategoriesScrollCarousel({ categories }: { categories: Category[] }) {
+  const [isPaused, setIsPaused] = useState(false);
+
+  // Double the categories for seamless infinite scroll
+  const displayCategories = [...categories, ...categories];
+
+  return (
+    <section className="bg-white rounded-2xl border border-rose-100 shadow-sm p-4 sm:p-6 overflow-hidden">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Sparkles className="text-[#167389]" size={20} />
+          <h2 className="text-lg sm:text-xl font-semibold text-[#167389]">
+            Shop by Categories
+          </h2>
+        </div>
+        <Link
+          href="/products"
+          className="text-sm text-[#167389] hover:text-rose-600 transition flex items-center gap-1"
+        >
+          View All <ChevronRight size={16} />
+        </Link>
+      </div>
+
+      <div
+        className="relative"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+      >
+        <div className="overflow-hidden">
+          <div
+            className={`flex gap-3 sm:gap-4 ${
+              isPaused ? "" : "animate-scroll"
+            }`}
+            style={{
+              width: `${displayCategories.length * 140}px`,
+            }}
+          >
+            {displayCategories.map((cat, idx) => (
+              <Link
+                key={`${cat._id}-${idx}`}
+                href={`/c/${cat.slug}`}
+                className="group flex-shrink-0 w-28 sm:w-32"
+              >
+                <div className="bg-white rounded-xl border border-rose-100 shadow-sm hover:shadow-md transition-all overflow-hidden">
+                  <div className="relative h-24 sm:h-28 bg-gradient-to-br from-rose-50 to-pink-50">
+                    {cat.image ? (
+                      <Image
+                        src={cat.image}
+                        alt={cat.title}
+                        fill
+                        sizes="128px"
+                        className="object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="h-full w-full grid place-items-center">
+                        <ShoppingBag className="text-rose-300" size={32} />
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-2 sm:p-3 text-center">
+                    <p className="text-xs sm:text-sm font-medium text-gray-700 line-clamp-2 group-hover:text-[#167389] transition">
+                      {cat.title}
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* Gradient overlays for smooth edges */}
+        <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-white to-transparent pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white to-transparent pointer-events-none" />
+      </div>
+
+      <style jsx>{`
+        @keyframes scroll {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+
+        .animate-scroll {
+          animation: scroll 30s linear infinite;
+        }
+
+        .animate-scroll:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
+    </section>
+  );
+}
+
+/* ---------------------------------------------------------
+    Main HomePage
 ---------------------------------------------------------- */
 export default function HomePage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -123,64 +214,56 @@ export default function HomePage() {
   const [editorsPicks, setEditorsPicks] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  //  fetch only once, not infinite
- useEffect(() => {
-   let active = true;
+  useEffect(() => {
+    let active = true;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const cache: Record<string, any> = {};
 
-  
-   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-   const cache: Record<string, any> = {};
+    async function safeFetch<T>(key: string, fn: () => Promise<T>) {
+      if (cache[key]) return cache[key];
+      const res = await fn();
+      cache[key] = res;
+      return res;
+    }
 
-   async function safeFetch<T>(key: string, fn: () => Promise<T>) {
-     if (cache[key]) return cache[key];
-     const res = await fn();
-     cache[key] = res;
-     return res;
-   }
+    async function loadData() {
+      try {
+        setLoading(true);
 
-   async function loadData() {
-     try {
-       setLoading(true);
+        const catRes = await safeFetch("categories", fetchCategories);
+        const hotRes = await safeFetch("hotDeals", () =>
+          fetchProducts({ discounted: "true", limit: 12 })
+        );
+        await new Promise((r) => setTimeout(r, 100));
 
-       // ⏳ Step 1: fetch categories first
-       const catRes = await safeFetch("categories", fetchCategories);
+        const freshRes = await safeFetch("newArrivals", () =>
+          fetchProducts({ limit: 12 })
+        );
+        await new Promise((r) => setTimeout(r, 100));
 
-       // ⏳ Step 2: stagger product fetches (100 ms gap between each)
-       const hotRes = await safeFetch("hotDeals", () =>
-         fetchProducts({ discounted: "true", limit: 12 })
-       );
-       await new Promise((r) => setTimeout(r, 100));
+        const pickRes = await safeFetch("editorsPicks", () =>
+          fetchProducts({ limit: 12 })
+        );
 
-       const freshRes = await safeFetch("newArrivals", () =>
-         fetchProducts({ limit: 12 })
-       );
-       await new Promise((r) => setTimeout(r, 100));
+        if (active) {
+          setCategories(catRes?.data?.slice(0, 24) || []);
+          setHotDeals(hotRes?.data?.slice(0, 8) || []);
+          setNewArrivals(freshRes?.data?.slice(0, 8) || []);
+          setEditorsPicks(pickRes?.data?.slice(0, 8) || []);
+        }
+      } catch (err) {
+        console.error("Failed to load home data:", err);
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
 
-       const pickRes = await safeFetch("editorsPicks", () =>
-         fetchProducts({ limit: 12 })
-       );
+    loadData();
+    return () => {
+      active = false;
+    };
+  }, []);
 
-       if (active) {
-         setCategories(catRes?.data?.slice(0, 24) || []);
-         setHotDeals(hotRes?.data?.slice(0, 8) || []);
-         setNewArrivals(freshRes?.data?.slice(0, 8) || []);
-         setEditorsPicks(pickRes?.data?.slice(0, 8) || []);
-       }
-     } catch (err) {
-       console.error("Failed to load home data:", err);
-     } finally {
-       if (active) setLoading(false);
-     }
-   }
-
-   loadData();
-   return () => {
-     active = false;
-   };
- }, []);
-
-
-  // ✅ promo banners remain same
   const promoBanners = [
     {
       title: "Surgical Products",
@@ -198,16 +281,15 @@ export default function HomePage() {
   const promoA = promoBanners[0];
   const promoB = promoBanners[1];
 
-  /* --- Same layout preserved --- */
   return (
-    <div className="min-h-screen bg-gradient-to-br bg-white">
+    <div className="min-h-screen bg-gradient-to-br bg-white top-0">
       <div className="max-w-8xl mx-auto px-3 sm:px-4 lg:px-6 py-4">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
           {/* ---------- LEFT SIDEBAR ---------- */}
           <aside className="hidden lg:block lg:col-span-2">
             <div className="sticky top-24 h-full overflow-hidden">
-              <div className="h-full rounded-2xl border border-rose-100 bg-white/80 backdrop-blur shadow-sm p-4 flex flex-col">
-                <div className="mb-4 flex items-center gap-2 text-rose-700 font-semibold text-lg">
+              <div className="h-full rounded-2xl border bg-white/80 backdrop-blur shadow-sm p-4 flex flex-col">
+                <div className="mb-4 flex items-center gap-2 text-[#167389] font-semibold text-lg">
                   <Sparkles size={20} /> Categories
                 </div>
                 <div className="flex-1 overflow-y-auto pr-2 space-y-2">
@@ -215,14 +297,14 @@ export default function HomePage() {
                     ? Array.from({ length: 10 }).map((_, i) => (
                         <div
                           key={i}
-                          className="h-14 rounded-xl border border-rose-100 bg-rose-50/50 animate-pulse"
+                          className="h-14 rounded-xl border bg-rose-50/50 animate-pulse"
                         />
                       ))
                     : categories.map((c) => (
                         <Link
                           key={c._id}
                           href={`/c/${c.slug}`}
-                          className="group rounded-xl border border-rose-100 bg-white/80 hover:bg-white shadow-sm hover:shadow transition p-2 flex items-center gap-2"
+                          className="group rounded-xl border border- bg-white/80 hover:bg-white shadow-sm hover:shadow transition p-2 flex items-center gap-2"
                         >
                           <div className="relative h-10 w-10 rounded-lg overflow-hidden bg-rose-50">
                             {c.image ? (
@@ -250,22 +332,27 @@ export default function HomePage() {
           {/* ---------- MAIN CONTENT ---------- */}
           <main className="lg:col-span-10 space-y-6">
             {/* Banner + Promo */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
-              <div className="lg:col-span-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-2 lg:gap-4">
+              <div className="lg:col-span-10">
                 <BannerCarousel />
               </div>
-              <div className="lg:col-span-4 hidden lg:block">
-                <div className="h-full rounded-2xl border border-rose-100 bg-white/80 shadow-sm p-4 flex flex-col gap-4">
-                  <div className="flex items-center gap-2 text-rose-700 font-semibold text-lg">
+              <div className="lg:col-span-2 hidden lg:block">
+                <div className="h-full rounded-2xl border border-rose-100 bg-white/80 shadow-sm p-2 flex flex-col gap-4">
+                  <div className="flex items-center gap-2 text-[#167389] font-semibold text-lg">
                     <Sparkles size={20} /> Featured
                   </div>
-                  <div className="flex flex-col gap-4 flex-1">
+                  <div className="flex flex-col gap-2 flex-1">
                     <PromoCard {...promoA} />
                     <PromoCard {...promoB} />
                   </div>
                 </div>
               </div>
             </div>
+
+            {/* NEW: Auto-Scrolling Categories Section */}
+            {!loading && categories.length > 0 && (
+              <CategoriesScrollCarousel categories={categories} />
+            )}
 
             {/* Product Sections */}
             <ProductSection
@@ -297,7 +384,7 @@ export default function HomePage() {
 }
 
 /* ---------------------------------------------------------
-    Small reusable Product Section component
+    Product Section component
 ---------------------------------------------------------- */
 function ProductSection({
   title,
@@ -316,7 +403,7 @@ function ProductSection({
     <section className="bg-white/80 rounded-2xl border border-rose-100 p-4 sm:p-6 shadow-sm">
       <div className="flex items-end justify-between mb-3 sm:mb-4">
         <div>
-          <h2 className="text-lg sm:text-xl font-semibold text-rose-700">
+          <h2 className="text-lg sm:text-xl font-semibold text-[#167389]">
             {title}
           </h2>
           {subtitle && (
@@ -378,7 +465,7 @@ function ProductSection({
 }
 
 /* ---------------------------------------------------------
-   ✅ Simple PromoCard reused (unchanged layout)
+    PromoCard
 ---------------------------------------------------------- */
 function PromoCard({
   title,

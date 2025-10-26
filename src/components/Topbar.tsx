@@ -140,7 +140,7 @@ export default function Topbar() {
               className="hidden lg:flex items-center justify-center"
             >
               <div className="flex w-full max-w-2xl items-stretch gap-2">
-                <select
+                {/* <select
                   value={cat}
                   onChange={(e) => setCat(e.target.value)}
                   disabled={categoriesLoading}
@@ -158,7 +158,7 @@ export default function Topbar() {
                       {c.title}
                     </option>
                   ))}
-                </select>
+                </select> */}
 
                 <div className="relative flex-1">
                   <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
@@ -170,7 +170,7 @@ export default function Topbar() {
                     onChange={(e) => setQ(e.target.value)}
                     className="w-full pl-10 pr-10 py-2 rounded-xl border-2 border-cyan-200 bg-white text-[#167389] placeholder:text-cyan-500 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-200/40 text-sm"
                   />
-                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-cyan-600 pointer-events-none" />
+                  <Search className="absolute bg-cyan-600 text-white right-0 top-1/2 -translate-y-1/2 w-8 p-2 rounded-r-full h-10  pointer-events-none" />
                 </div>
               </div>
             </form>

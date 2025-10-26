@@ -69,16 +69,13 @@ export default async function ProductsPage({
   }
 
   return (
-    <div className="min-h-screen  bg-gradient-to-r from-pink-100 to-rose-100">
+    <div className="min-h-screen  bg-white">
       <div className="mx-auto max-w-7xl px-4 xs:px-5 sm:px-6 lg:px-8 py-8 md:py-12">
         {/* Header */}
         <div className="mb-6 md:mb-10">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-green-100 rounded-xl">
-              <Grid3x3
-                className="w-6 h-6 bg-gradient-to-r from-pink-500 to-rose-500"
-                aria-hidden="true"
-              />
+            <div className="p-2.5 bg-[#167389] text-white rounded-xl">
+              <Grid3x3 className="w-6 h-6 bg-[]" aria-hidden="true" />
             </div>
             <div className="min-w-0">
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 truncate">

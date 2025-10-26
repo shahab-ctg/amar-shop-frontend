@@ -324,12 +324,12 @@ export default function MyOrdersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 py-6 sm:py-8">
+    <div className="min-h-screen bg-white py-6 sm:py-8">
       <div className="max-w-6xl mx-auto px-3 sm:px-4 lg:px-6">
         {/* Header */}
         <div className="text-center mb-8 sm:mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-3 bg-gradient-to-r from-pink-500 to-rose-500 rounded-2xl shadow-lg">
+            <div className="p-3 bg-gradient-to-r from-[#167389]] to-[#167389] rounded-2xl">
               <Sparkles className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-#167389 to-[#167389] bg-clip-text text-transparent">

@@ -40,7 +40,7 @@ export default function ProductGallery({
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-pink-300">
-            {/* ফallback UI */}
+           
             <svg
               className="w-20 h-20 sm:w-24 sm:h-24"
               viewBox="0 0 24 24"

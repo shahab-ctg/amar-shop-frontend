@@ -12,7 +12,7 @@ export default function ProductThumbs({
   images?: string[] | null;
   title: string;
   mainBoxId: string;
-  description?: string; // ✅ added optional prop
+  description?: string; 
 }) {
   const list = useMemo(
     () => Array.from(new Set((images ?? []).filter(Boolean))),
@@ -77,7 +77,7 @@ export default function ProductThumbs({
         ))}
       </div>
 
-      {/* ✅ dynamic product description added below thumbnails */}
+      {/*  dynamic product description added below thumbnails */}
       {description && (
         <p className="mt-3 text-gray-700 text-sm sm:text-base leading-relaxed text-center px-2 sm:px-4">
           {description}
