@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Order } from "@/types/order";
 
+const API = process.env.NEXT_PUBLIC_API_BASE_URL!;
+
 export function useCustomerOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -12,10 +14,9 @@ export function useCustomerOrders() {
         setIsLoading(true);
         setError(null);
 
-        // This would typically fetch orders for the logged-in customer
-        // For now, we'll use a mock API call
+        
         const response = await fetch(
-          "http://localhost:5000/api/v1/customer/orders",
+          `${API}/customer/orders`,
           {
             credentials: "include",
           }
