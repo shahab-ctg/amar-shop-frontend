@@ -41,7 +41,7 @@ export default function Topbar() {
     [cartItems]
   );
 
-  const brand = process.env.NEXT_PUBLIC_BRAND || "AmarShop";
+  const brand = process.env.NEXT_PUBLIC_BRAND || "AmarShopBD";
   const hotline = process.env.NEXT_PUBLIC_HOTLINE || "01700-000000";
   const API_BASE =
     process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE;
@@ -118,8 +118,8 @@ export default function Topbar() {
             : "bg-[#167389] border-b border-[#1a8ba5]"
         )}
       >
-        <div className="max-w-8xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10">
-          <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 sm:gap-3 md:gap-4 py-2.5 sm:py-3 md:py-4">
+        <div className="max-w-8xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 h-[120px] lg:h-[100px]">
+          <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 sm:gap-3 md:gap-4 py-2.5 sm:py-3 md:py-4 items-cente ">
             {/* Left: Logo */}
             <Link
               href="/"
@@ -134,44 +134,36 @@ export default function Topbar() {
               </div>
             </Link>
 
-            {/* Center: Search */}
+            {/* ✅ Center: Search (Desktop only, perfectly centered) */}
             <form
               onSubmit={onSearch}
-              className="hidden lg:flex items-center justify-center"
+              className="hidden lg:flex items-center justify-center w-full"
             >
-              <div className="flex w-full max-w-2xl items-stretch gap-2">
-                {/* <select
-                  value={cat}
-                  onChange={(e) => setCat(e.target.value)}
-                  disabled={categoriesLoading}
-                  className="px-3 py-2 rounded-xl border-2 min-w-[150px] bg-white text-[#167389] border-cyan-200 focus:border-cyan-500 text-sm"
-                >
-                  <option value="">
-                    {categoriesLoading
-                      ? "Loading..."
-                      : categoriesError
-                        ? "Category"
-                        : "All Categories"}
-                  </option>
-                  {categories.map((c) => (
-                    <option key={c._id} value={c.slug}>
-                      {c.title}
-                    </option>
-                  ))}
-                </select> */}
-
-                <div className="relative flex-1">
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
-                    <CurrentIcon className="w-5 h-5 text-cyan-600" />
-                  </div>
-                  <input
-                    placeholder={placeholders[placeholderIndex].text}
-                    value={q}
-                    onChange={(e) => setQ(e.target.value)}
-                    className="w-full pl-10 pr-10 py-2 rounded-xl border-2 border-cyan-200 bg-white text-[#167389] placeholder:text-cyan-500 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-200/40 text-sm"
-                  />
-                  <Search className="absolute bg-cyan-600 text-white right-0 top-1/2 -translate-y-1/2 w-8 p-2 rounded-r-full h-10  pointer-events-none" />
+              <div className="relative flex w-full max-w-2xl items-stretch">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
+                  {/* Camera icon */}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-5 h-5 text-cyan-600"
+                  >
+                    <path d="M23 19V7a2 2 0 0 0-2-2h-3.17a2 2 0 0 1-1.41-.59l-.83-.82A2 2 0 0 0 14.17 3H9.83a2 2 0 0 0-1.41.59l-.83.82A2 2 0 0 1 6.17 5H3a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2ZM12 9a4 4 0 1 1-4 4 4 4 0 0 1 4-4Z" />
+                  </svg>
                 </div>
+                <input
+                  placeholder={placeholders[placeholderIndex].text}
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  className="w-full pl-10 pr-10 py-2 rounded-xl border-2 border-cyan-200 bg-white text-[#167389] placeholder:text-cyan-500 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-200/40 text-sm"
+                />
+
+                <Search className="absolute bg-cyan-600 text-white right-0 top-1/2 -translate-y-1/2 w-8 p-2 rounded-r-full h-10  pointer-events-none" />
+               
               </div>
             </form>
 
@@ -198,7 +190,7 @@ export default function Topbar() {
               >
                 <Phone className="w-5 h-5" />
               </a>
-              <button
+              {/* <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="lg:hidden p-2 text-white hover:bg-white/10 rounded-xl"
               >
@@ -207,9 +199,41 @@ export default function Topbar() {
                 ) : (
                   <Menu className="w-5 h-5" />
                 )}
-              </button>
+              </button> */}
             </div>
           </div>
+
+          <form
+            onSubmit={onSearch}
+            className="lg:hidden items-center justify-center top-0"
+          >
+            <div className="flex w-full max-w-2xl items-stretch gap-2">
+              <div className="relative  flex-1">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
+                  {/* Replace icon with Camera */}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-5 h-5 text-cyan-600"
+                  >
+                    <path d="M23 19V7a2 2 0 0 0-2-2h-3.17a2 2 0 0 1-1.41-.59l-.83-.82A2 2 0 0 0 14.17 3H9.83a2 2 0 0 0-1.41.59l-.83.82A2 2 0 0 1 6.17 5H3a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2ZM12 9a4 4 0 1 1-4 4 4 4 0 0 1 4-4Z" />
+                  </svg>
+                </div>
+                <input
+                  placeholder={placeholders[placeholderIndex].text}
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  className="w-full pl-10 pr-10 py-2 rounded-xl border-2 border-cyan-200 bg-white text-[#167389] placeholder:text-cyan-500 focus:border-cyan-400 focus:ring-4 focus:ring-cyan-200/40 text-sm"
+                />
+                <Search className="absolute bg-cyan-600 text-white right-0 top-1/2 -translate-y-1/2 w-8 p-2 rounded-r-full h-10  pointer-events-none" />
+              </div>
+            </div>
+          </form>
         </div>
       </header>
       {/* ===== MOBILE MENU OVERLAY (works with fixed navbar) ===== */}

@@ -48,7 +48,7 @@ export default function CartPage() {
           Your cart is empty
         </h2>
         <p className="text-gray-600 mb-6 max-w-xs sm:max-w-md mx-auto text-sm sm:text-base">
-          Add fresh organic products to your bag and start a healthy lifestyle
+          Add Original products to your bag and start a healthy lifestyle
           today!
         </p>
         <Link
@@ -95,7 +95,7 @@ export default function CartPage() {
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="w-full bg-[#167389] text-white py-3 sm:py-4 rounded-xl font-semibold text-sm sm:text-base hover:bg-cyan-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+          className="w-full bg-gradient-to-r from-[#167389] to-[#167389]  hover:from-cyan-200 hover:to-cyan-600 text-white py-3 sm:py-4 rounded-xl font-semibold text-sm sm:text-base hover:bg-cyan-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
         >
           Proceed to Checkout
           <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -148,28 +148,34 @@ export default function CartPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 8 }}
                     transition={{ duration: 0.18 }}
-                    className="bg-white rounded-2xl border border-cyan-100 p-3 sm:p-5 md:p-6 shadow-sm flex flex-col sm:flex-row gap-3 sm:gap-5"
+                    className="bg-white rounded-2xl border border-cyan-100 p-3 sm:p-4 md:p-5 shadow-sm 
+             flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-5"
                   >
-                    <div className="relative shrink-0 mx-auto sm:mx-0">
-                      <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-gray-50 ring-1 ring-cyan-100">
+                    {/* 🖼 Product Image */}
+                    <div className="relative flex-shrink-0">
+                      <div
+                        className="w-20 h-20 xs:w-24 xs:h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-xl overflow-hidden 
+                    bg-gray-50 ring-1 ring-cyan-100 flex items-center justify-center"
+                      >
                         <Image
                           src={item.image || "https://via.placeholder.com/112"}
                           alt={item.title}
-                          width={112}
-                          height={112}
-                          className="w-full h-full object-cover"
+                          width={128}
+                          height={128}
+                          className="object-cover w-full h-full transition-transform duration-300 hover:scale-105"
                         />
                       </div>
                       {outOfStock && (
-                        <span className="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] px-2 py-1 rounded-full shadow">
-                          Out of stock
+                        <span className="absolute -top-1.5 -right-1.5 bg-red-600 text-white text-[10px] px-1.5 py-0.5 rounded-full shadow">
+                          Out
                         </span>
                       )}
                     </div>
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex justify-between items-start gap-2 mb-3">
-                        <div className="min-w-0">
+                    {/* 📄 Item Details */}
+                    <div className="flex-1 w-full min-w-0 flex flex-col justify-between">
+                      <div className="flex justify-between items-start w-full mb-2">
+                        <div className="min-w-0 flex-1">
                           <h3 className="font-semibold text-gray-800 text-sm sm:text-base md:text-lg mb-1 line-clamp-2">
                             {item.title}
                           </h3>
@@ -186,25 +192,29 @@ export default function CartPage() {
                             )}
                           </div>
                         </div>
+
                         <button
                           onClick={() => removeItem(item._id)}
-                          className="p-1.5 sm:p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                          className="p-1 text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
                         >
                           <X className="w-4 h-4 sm:w-5 sm:h-5" />
                         </button>
                       </div>
 
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
-                        {/* Quantity controls */}
-                        <div className="flex items-center gap-1 bg-cyan-50 rounded-xl p-1">
+                      {/* ➕ Quantity & total */}
+                      <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 mt-1">
+                        {/* Quantity Controls */}
+                        <div className="flex items-center gap-1 bg-cyan-50 rounded-xl px-1 py-1">
                           <button
                             onClick={() =>
                               updateQuantity(item._id, Math.max(1, qty - 1))
                             }
                             disabled={qty <= 1 || outOfStock}
-                            className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-lg bg-white border border-cyan-200 text-cyan-700 hover:bg-cyan-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-md bg-white 
+                     border border-cyan-200 text-cyan-700 hover:bg-cyan-100 
+                     transition disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            <Minus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                            <Minus className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                           </button>
                           <div className="min-w-[2rem] text-center font-semibold text-gray-800 text-sm sm:text-base">
                             {qty}
@@ -212,18 +222,20 @@ export default function CartPage() {
                           <button
                             onClick={() => updateQuantity(item._id, qty + 1)}
                             disabled={outOfStock || atMax}
-                            className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-lg bg-white border border-cyan-200 text-cyan-700 hover:bg-cyan-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-md bg-white 
+                     border border-cyan-200 text-cyan-700 hover:bg-cyan-100 
+                     transition disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                            <Plus className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                           </button>
                         </div>
 
                         {/* Line total */}
-                        <div className="text-right">
-                          <div className="text-[11px] sm:text-xs text-gray-500">
+                        <div className="text-right flex-1">
+                          <div className="text-[10px] sm:text-xs text-gray-500 leading-none">
                             Total
                           </div>
-                          <div className="text-base sm:text-lg font-bold text-cyan-700">
+                          <div className="text-sm sm:text-base md:text-lg font-bold text-cyan-700">
                             {money(line)}
                           </div>
                         </div>

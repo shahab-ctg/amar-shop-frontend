@@ -337,7 +337,7 @@ export default function MyOrdersPage() {
             </h1>
           </div>
           <p className="text-lg sm:text-xl text-gray-700 max-w-2xl mx-auto">
-            Track your cosmetics and beauty product orders in one place
+            Track your Cosmetics and Surgical product orders in one place
           </p>
         </div>
 

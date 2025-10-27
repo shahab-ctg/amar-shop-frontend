@@ -16,7 +16,7 @@ import {
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
-  const brand = process.env.NEXT_PUBLIC_BRAND || "AmarShop";
+  const brand = process.env.NEXT_PUBLIC_BRAND || "AmarShopBD";
   const hotline = process.env.NEXT_PUBLIC_HOTLINE || "01700000000";
 
   return (
@@ -46,14 +46,14 @@ export default function Footer() {
               </div>
             </div>
             <p className="text-black text-sm leading-relaxed mb-4 text-pretty">
-              Your trusted destination for authentic beauty and cosmetics
+              Your trusted destination for authentic Surgical and cosmetics
               products. Bringing premium quality and radiant beauty to your
               doorstep.
             </p>
             <div className="flex items-center gap-2 text-sm text-[#167389]">
               <Heart className="w-4 h-4 fill-pink-300" aria-hidden="true" />
               <span className="text-pretty">
-                Beauty that inspires confidence
+                Health that inspires confidence
               </span>
             </div>
           </div>

@@ -583,7 +583,7 @@ export default function CheckoutPage() {
                   className={`w-full py-3.5 sm:py-4 rounded-2xl font-semibold text-white transition-all flex items-center justify-center gap-2 focus-visible:outline-none shadow-lg ${
                     isSubmitting || orderSuccess
                       ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-gradient-to-r from-[#167389] to-[#167389] hover:from-pink-600 hover:to-rose-700 focus-visible:ring-2 focus-visible:ring-pink-500"
+                      : "bg-gradient-to-r from-[#167389] to-[#167389]  hover:from-cyan-200 hover:to-cyan-600 text-whitefocus-visible:ring-2 focus-visible:ring-pink-500"
                   }`}
                 >
                   {isSubmitting ? (
