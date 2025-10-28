@@ -916,3 +916,29 @@ aside.category-sidebar {
   contain: none !important;
   isolation: auto !important;
 }
+/* === Category Scroll Fix for small screens === */
+section.relative {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Arrows should always be above gradients */
+section.relative button[aria-label*="Scroll"] {
+  z-index: 50 !important;
+}
+/* ==== CategoriesScroll hard-safe overrides (scoped) ==== */
+.cat-scroll { position: relative !important; overflow: visible !important; }
+.cat-scroll .cat-track { overflow-x: auto !important; overflow-y: visible !important; }
+.cat-scroll .cat-arrow { position: absolute; z-index: 60 !important; }
+.cat-scroll .cat-fade-left, .cat-scroll .cat-fade-right { z-index: 40 !important; }
+/* ensure scrollbars hidden consistently */
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }

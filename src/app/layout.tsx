@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AmarShop",
+  title: "Amaar Shop",
   description: "Beauty & Cosmetics ecommerce",
 };
 

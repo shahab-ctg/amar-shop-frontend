@@ -2,7 +2,13 @@
 import { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Sparkles, ShoppingBag, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Sparkles,
+  ShoppingBag,
+  ChevronLeft,
+  ChevronRight,
+  ChevronRight as ArrowRight,
+} from "lucide-react";
 import type { Category } from "@/lib/schemas";
 
 interface Props {
@@ -12,18 +18,17 @@ interface Props {
 export default function CategoriesScroll({ categories }: Props) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
-  // Scroll one category at a time
   const scrollByOne = (dir: "left" | "right") => {
     if (!scrollRef.current) return;
-    const itemWidth = scrollRef.current.querySelector("a")?.clientWidth || 120;
+    const itemW = scrollRef.current.querySelector("a")?.clientWidth || 120;
     scrollRef.current.scrollBy({
-      left: dir === "left" ? -itemWidth : itemWidth,
+      left: dir === "left" ? -itemW : itemW,
       behavior: "smooth",
     });
   };
 
   return (
-    <section className="relative bg-white rounded-xl border border-gray-200 shadow-sm p-4 overflow-hidden">
+    <section className="cat-scroll relative bg-white rounded-xl border border-gray-200 shadow-sm p-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
@@ -36,36 +41,31 @@ export default function CategoriesScroll({ categories }: Props) {
           href="/categories"
           className="text-sm text-[#167389] hover:text-rose-600 transition flex items-center gap-1"
         >
-          View All <ChevronRight size={16} />
+          View All <ArrowRight size={16} />
         </Link>
       </div>
 
-      {/* ✅ Scroll buttons (visible on all screen sizes) */}
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-between px-1 sm:px-2 z-20">
-        <button
-          onClick={() => scrollByOne("left")}
-          aria-label="Scroll Left"
-          className="pointer-events-auto flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-white border border-gray-300 shadow hover:bg-gray-100 active:scale-95 transition"
-        >
-          <ChevronLeft className="text-[#167389]" size={20} />
-        </button>
-        <button
-          onClick={() => scrollByOne("right")}
-          aria-label="Scroll Right"
-          className="pointer-events-auto flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-white border border-gray-300 shadow hover:bg-gray-100 active:scale-95 transition"
-        >
-          <ChevronRight className="text-[#167389]" size={20} />
-        </button>
-      </div>
+      {/* Arrows */}
+      <button
+        onClick={() => scrollByOne("left")}
+        aria-label="Scroll Left"
+        className="cat-arrow absolute left-2 top-1/2 -translate-y-1/2 h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-white border border-gray-300 shadow hover:bg-gray-100 active:scale-95 flex items-center justify-center"
+      >
+        <ChevronLeft className="text-[#167389]" size={20} />
+      </button>
+      <button
+        onClick={() => scrollByOne("right")}
+        aria-label="Scroll Right"
+        className="cat-arrow absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-white border border-gray-300 shadow hover:bg-gray-100 active:scale-95 flex items-center justify-center"
+      >
+        <ChevronRight className="text-[#167389]" size={20} />
+      </button>
 
-      {/* Scrollable content */}
+      {/* Scrollable strip */}
       <div
         ref={scrollRef}
-        className="overflow-x-auto scrollbar-hide -mx-2 px-2 scroll-smooth"
-        style={{
-          overscrollBehaviorX: "contain",
-          scrollBehavior: "smooth",
-        }}
+        className="cat-track overflow-x-auto scrollbar-hide -mx-2 px-2 scroll-smooth relative"
+        style={{ overscrollBehaviorX: "contain" }}
       >
         <div className="flex gap-3 min-w-max pb-1">
           {categories.map((cat) => (
@@ -95,9 +95,26 @@ export default function CategoriesScroll({ categories }: Props) {
         </div>
       </div>
 
-      {/* Gradient fade edges */}
-      <div className="absolute left-0 top-0 bottom-0 w-8 sm:w-10 bg-gradient-to-r from-white to-transparent pointer-events-none z-10" />
-      <div className="absolute right-0 top-0 bottom-0 w-8 sm:w-10 bg-gradient-to-l from-white to-transparent pointer-events-none z-10" />
+      {/* fade edges */}
+      <div className="cat-fade-left absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-white to-transparent pointer-events-none" />
+      <div className="cat-fade-right absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-white to-transparent pointer-events-none" />
+
+      {/* Local hard override to beat globals without touching them */}
+      <style jsx>{`
+        .cat-scroll {
+          overflow: visible !important;
+        }
+        .cat-track {
+          overflow-y: visible;
+        }
+        .cat-arrow {
+          z-index: 60;
+        }
+        .cat-fade-left,
+        .cat-fade-right {
+          z-index: 40;
+        }
+      `}</style>
     </section>
   );
 }
