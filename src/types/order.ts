@@ -1,3 +1,7 @@
+// ---------------------------------------------------
+// 🧾 Order Types (Frontend + Backend Aligned)
+// ---------------------------------------------------
+
 export type OrderStatus =
   | "PENDING"
   | "IN_PROGRESS"
@@ -5,6 +9,18 @@ export type OrderStatus =
   | "DELIVERED"
   | "CANCELLED";
 
+// ✅ Customer info structure (matches backend Zod schema)
+export type OrderCustomer = {
+  name: string;
+  email: string;
+  phone: string;
+  houseOrVillage: string;
+  roadOrPostOffice: string;
+  blockOrThana: string;
+  district: string;
+};
+
+// ✅ Individual line item in an order
 export type OrderLine = {
   productId: string;
   title: string;
@@ -13,43 +29,45 @@ export type OrderLine = {
   qty: number;
 };
 
+// ✅ Core order model (shared by backend + frontend)
 export type Order = {
   _id: string;
-  customer: {
-    name: string;
-    email: string;
-    phone: string;
-    address: string;
-    area: string;
-  };
+  customer: OrderCustomer;
   lines: OrderLine[];
-  totals: { subTotal: number; shipping: number; grandTotal: number };
+  totals: {
+    subTotal: number;
+    shipping: number;
+    grandTotal: number;
+  };
   status: OrderStatus;
   createdAt?: string;
-  updatedAT?: string;
+  updatedAt?: string; // ✅ fixed typo: updatedAT → updatedAt
 };
 
-// Create (Frontend -> Backend)
+// ---------------------------------------------------
+// 📨 API DTOs (Data Transfer Objects)
+// ---------------------------------------------------
+
+// ✅ Client → Backend
 export type CreateOrderDTO = {
-  customer: {
-    name: string;
-    email: string;
-    phone: string;
-    address: string;
-    area: string;
-  };
+  customer: OrderCustomer;
   lines: { productId: string; qty: number }[];
 };
 
-// Create response (Backend -> Frontend)
+// ✅ Backend → Client (after create)
 export type OrderCreateResult = {
   id: string;
-  totals: { subTotal: number; shipping: number; grandTotal: number };
+  totals: {
+    subTotal: number;
+    shipping: number;
+    grandTotal: number;
+  };
   status: OrderStatus;
 };
 
-// Common wrappers
+// ✅ Common API wrappers
 export type ApiOk<T> = { ok: true; data: T };
+
 export type Paginated<T> = {
   items: T[];
   page: number;

@@ -13,9 +13,7 @@ const API =
   process.env.NEXT_PUBLIC_API_URL ||
   "http://localhost:5000/api/v1";
 
-const API_BASE =
-  API ||
-  "https://amar-shop-backend-3tkvvjwfb-shahabs-projects-5a60f0e3.vercel.app";
+const API_BASE = API || "https://amar-shop-backend.vercel.app";
 
 if (!API) {
   console.warn("⚠️ API URL missing — using fallback");
