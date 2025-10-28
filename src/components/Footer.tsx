@@ -1,7 +1,7 @@
-// components/Footer.tsx
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import {
   Sparkles,
   Mail,
@@ -9,10 +9,10 @@ import {
   MapPin,
   Facebook,
   Instagram,
-  Twitter,
   Youtube,
   Heart,
 } from "lucide-react";
+import { SiTiktok } from "react-icons/si"; // ✅ TikTok icon (react-icons)
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -30,21 +30,24 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="min-w-0">
             <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[#167389] to-[#167389] rounded-xl flex items-center justify-center shadow-lg shrink-0">
-                <Sparkles
-                  className="w-6 h-6 sm:w-7 sm:h-7 text-white"
-                  strokeWidth={2.5}
+              {/* ✅ Added logo image (favicon.ico) */}
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center overflow-hidden bg-white shadow-md">
+                <Image
+                  src="/favicon.ico"
+                  alt={`${brand} Logo`}
+                  width={48}
+                  height={48}
+                  className="object-contain w-full h-full"
                 />
               </div>
+
               <div className="min-w-0">
                 <h3 className="text-lg sm:text-xl font-bold truncate">
                   {brand}
                 </h3>
-                {/* <p className="text-[11px] sm:text-xs text-[#167389]">
-                  Beauty & Cosmetics
-                </p> */}
               </div>
             </div>
+
             <p className="text-black text-sm leading-relaxed mb-4 text-pretty">
               Your trusted destination for authentic Surgical and cosmetics
               products. Bringing premium quality and radiant beauty to your
@@ -64,12 +67,12 @@ export default function Footer() {
               <span className="w-1 h-5 sm:h-6 bg-[#167389] rounded-full"></span>
               <span>Quick Links</span>
             </h4>
-            <ul className="space-y-2.5 text-black">
+            <ul className="space-y-2.5">
               <li>
                 <Link
                   href="https://amar-shop-admin.vercel.app/login"
-                  className="hover:text-white hover:pl-2 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded"
-                  title="Products"
+                  className="hover:text-[#167389] hover:pl-2 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded"
+                  title="Dashboard"
                 >
                   Dashboard
                 </Link>
@@ -77,7 +80,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/products"
-                  className="hover:text-white hover:pl-2 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded"
+                  className="hover:text-[#167389] hover:pl-2 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded"
                   title="Products"
                 >
                   Products
@@ -86,8 +89,8 @@ export default function Footer() {
               <li>
                 <Link
                   href="/orders"
-                  className="hover:text-white hover:pl-2 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#167389] rounded"
-                  title="Products"
+                  className="hover:text-[#167389] hover:pl-2 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#167389] rounded"
+                  title="My Orders"
                 >
                   My Orders
                 </Link>
@@ -95,7 +98,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/categories"
-                  className="hover:text-white hover:pl-2 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded"
+                  className="hover:text-[#167389] hover:pl-2 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded"
                   title="Categories"
                 >
                   Categories
@@ -104,7 +107,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/cart"
-                  className="hover:text-white hover:pl-2 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded"
+                  className="hover:text-[#167389] hover:pl-2 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded"
                   title="Shopping Cart"
                 >
                   Shopping Cart
@@ -113,7 +116,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/about"
-                  className="hover:text-white hover:pl-2 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded"
+                  className="hover:text-[#167389] hover:pl-2 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded"
                   title="About Us"
                 >
                   About Us
@@ -125,16 +128,18 @@ export default function Footer() {
           {/* Contact Info */}
           <div className="min-w-0">
             <h4 className="text-base sm:text-lg font-bold mb-3 sm:mb-4 flex items-center gap-2">
-              <span className="w-1 h-5 sm:h-6  rounded-full"></span>
+              <span className="w-1 h-5 sm:h-6 rounded-full bg-[#167389]"></span>
               <span>Contact Us</span>
             </h4>
             <ul className="space-y-3 text-black text-sm">
               <li className="flex items-start gap-3">
                 <MapPin
-                  className="w-5 h-5 text-black flex-shrink-0 mt-0.5"
+                  className="w-5 h-5 text-black  flex-shrink-0 mt-0.5"
                   aria-hidden="true"
                 />
-                <span className="break-words">Dhaka, Bangladesh</span>
+                <span className="break-words hover:text-[#167389]">
+                  Dhaka, Bangladesh
+                </span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone
@@ -143,7 +148,7 @@ export default function Footer() {
                 />
                 <a
                   href={`tel:${hotline}`}
-                  className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded"
+                  className="hover:text-[#167389] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded"
                   title="Call hotline"
                 >
                   +880 {hotline}
@@ -156,7 +161,7 @@ export default function Footer() {
                 />
                 <a
                   href="mailto:support@amarshop.com"
-                  className="hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded break-words"
+                  className="hover:text-[#167389] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded break-words"
                   title="Email support"
                 >
                   support@amarshop.com
@@ -171,39 +176,47 @@ export default function Footer() {
               <span className="w-1 h-5 sm:h-6 bg-pink-400 rounded-full"></span>
               <span>Connect With Us</span>
             </h4>
+
             <div className="flex flex-wrap gap-2.5 sm:gap-3 mb-5 sm:mb-6">
+              {/* Facebook */}
               <a
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 sm:w-10 sm:h-10  rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
                 aria-label="Facebook"
                 title="Facebook"
               >
                 <Facebook className="w-5 h-5" aria-hidden="true" />
               </a>
+
+              {/* Instagram */}
               <a
-                href="https://instagram.com"
+                href="https://www.instagram.com/amaarshopbd/?igsh=MTk5cWtmbzAyZTRyMQ%3D%3D#"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 sm:w-10 sm:h-10  rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
                 aria-label="Instagram"
                 title="Instagram"
               >
                 <Instagram className="w-5 h-5" aria-hidden="true" />
               </a>
+
+              {/* ✅ TikTok (replacing Twitter) */}
               <a
-                href="https://twitter.com"
+                href="https://www.tiktok.com/@amaarshop1?_t=ZS-90tPDmEVWSY&_r=1"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 sm:w-10 sm:h-10  rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
-                aria-label="Twitter"
-                title="Twitter"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
+                aria-label="TikTok"
+                title="TikTok"
               >
-                <Twitter className="w-5 h-5" aria-hidden="true" />
+                <SiTiktok className="w-5 h-5" aria-hidden="true" />
               </a>
+
+              {/* YouTube */}
               <a
-                href="https://youtube.com"
+                href="https://youtube.com/@amarshopb?si=oblM13m2Lo-NamLI"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"
