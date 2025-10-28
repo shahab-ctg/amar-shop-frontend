@@ -10,6 +10,7 @@ export default function OrderSummaryCard({
   subtotal,
   total,
 }: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   items: any[];
   subtotal: number;
   total: number;

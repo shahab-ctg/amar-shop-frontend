@@ -1,6 +1,7 @@
 "use client";
 
 import CategoriesScroll from "@/components/home/CategoriesScroll";
+import MobileCategoriesGrid from "@/components/home/MobileCategoriesGrid";
 import {
   BannerCarousel,
   PromoCard,
@@ -72,7 +73,10 @@ export default function HomePage() {
           {/* ===== Categories ===== */}
           {!loading && (
             <>
-              <MobileCategories categories={categories} />
+              {/* Mobile: 8 Cards in 2 Rows (4x2 Grid) */}
+              <MobileCategoriesGrid categories={categories} loading={loading} />
+              
+              {/* Desktop: Horizontal Scrolling */}
               <div className="hidden lg:block">
                 <CategoriesScroll categories={categories} />
               </div>

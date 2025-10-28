@@ -1293,3 +1293,100 @@ section.relative button[aria-label*="Scroll"] {
     background-position: 200% 0;
   }
 }
+/* ======== Mobile Categories Grid (4x2) ======== */
+.mobile-category-card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 8px 4px !important;
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  text-decoration: none !important;
+  transition: all 0.2s ease !important;
+  height: 100px !important;
+  justify-content: flex-start !important;
+}
+
+.mobile-category-card:active {
+  transform: scale(0.97) !important;
+  border-color: #167389 !important;
+}
+
+.mobile-category-card__image {
+  position: relative !important;
+  width: 50px !important;
+  height: 50px !important;
+  border-radius: 50% !important;
+  overflow: hidden !important;
+  background: #f9fafb !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.mobile-category-card__title {
+  font-size: 10px !important;
+  color: #374151 !important;
+  text-align: center !important;
+  line-height: 1.2 !important;
+  overflow: hidden !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  word-break: break-word !important;
+  font-weight: 500 !important;
+}
+
+/* Small phones (< 375px) */
+@media (max-width: 374px) {
+  .mobile-category-card {
+    height: 90px !important;
+    padding: 6px 3px !important;
+    gap: 4px !important;
+  }
+
+  .mobile-category-card__image {
+    width: 42px !important;
+    height: 42px !important;
+  }
+
+  .mobile-category-card__title {
+    font-size: 9px !important;
+  }
+}
+
+/* Regular phones (375px - 639px) */
+@media (min-width: 375px) and (max-width: 639px) {
+  .mobile-category-card {
+    height: 100px !important;
+  }
+
+  .mobile-category-card__image {
+    width: 50px !important;
+    height: 50px !important;
+  }
+
+  .mobile-category-card__title {
+    font-size: 10px !important;
+  }
+}
+
+/* Tablets (640px - 1023px) */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .mobile-category-card {
+    height: 110px !important;
+    padding: 10px 6px !important;
+  }
+
+  .mobile-category-card__image {
+    width: 60px !important;
+    height: 60px !important;
+  }
+
+  .mobile-category-card__title {
+    font-size: 11px !important;
+  }
+}

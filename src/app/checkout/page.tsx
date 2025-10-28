@@ -34,6 +34,7 @@ export default function CheckoutPage() {
   const [showMobileSummary, setShowMobileSummary] = useState(false);
 
   // 🧾 handle order submit
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleSubmit = async (data: any) => {
     if (!items.length) {
       toast.error("Your cart is empty. Please add products first.");
@@ -64,6 +65,7 @@ export default function CheckoutPage() {
       toast.success("Order placed successfully!");
       clearCart();
       setTimeout(() => router.push("/products"), 1500);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       toast.dismiss();
       toast.error(

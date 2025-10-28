@@ -5,6 +5,7 @@ import type { OrderStatus } from "@/types/order";
 
 const STATUS_CONFIG: Record<
   OrderStatus,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   { label: string; color: string; bgColor: string; icon: any }
 > = {
   PENDING: {
