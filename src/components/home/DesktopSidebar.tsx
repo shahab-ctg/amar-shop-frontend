@@ -13,7 +13,7 @@ interface Props {
 function DesktopSidebarBase({ categories, loading }: Props) {
   return (
     <aside className="hidden lg:block">
-      <div className="sticky top-[72px] h-[calc(100vh-88px)]">
+      <div className="sticky">
         <div className="desktop-sidebar h-full">
           <div className="desktop-sidebar__header">
             <Sparkles size={18} /> Categories

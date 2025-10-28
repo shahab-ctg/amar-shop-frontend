@@ -12,22 +12,18 @@ interface Props {
 export default function CategoriesScroll({ categories }: Props) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
-  // Left scroll handler
-  const scrollLeft = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: -250, behavior: "smooth" });
-    }
-  };
-
-  // Right scroll handler
-  const scrollRight = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: 250, behavior: "smooth" });
-    }
+  // Scroll one category at a time
+  const scrollByOne = (dir: "left" | "right") => {
+    if (!scrollRef.current) return;
+    const itemWidth = scrollRef.current.querySelector("a")?.clientWidth || 120;
+    scrollRef.current.scrollBy({
+      left: dir === "left" ? -itemWidth : itemWidth,
+      behavior: "smooth",
+    });
   };
 
   return (
-    <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 overflow-hidden relative">
+    <section className="relative bg-white rounded-xl border border-gray-200 shadow-sm p-4 overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
@@ -44,36 +40,41 @@ export default function CategoriesScroll({ categories }: Props) {
         </Link>
       </div>
 
-      {/* Scroll buttons */}
-      <button
-        onClick={scrollLeft}
-        aria-label="Scroll Left"
-        className="hidden lg:flex items-center justify-center absolute left-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-white border border-gray-300 shadow hover:bg-gray-100 transition"
-      >
-        <ChevronLeft className="text-[#167389]" size={22} />
-      </button>
+      {/* ✅ Scroll buttons (visible on all screen sizes) */}
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-between px-1 sm:px-2 z-20">
+        <button
+          onClick={() => scrollByOne("left")}
+          aria-label="Scroll Left"
+          className="pointer-events-auto flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-white border border-gray-300 shadow hover:bg-gray-100 active:scale-95 transition"
+        >
+          <ChevronLeft className="text-[#167389]" size={20} />
+        </button>
+        <button
+          onClick={() => scrollByOne("right")}
+          aria-label="Scroll Right"
+          className="pointer-events-auto flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-white border border-gray-300 shadow hover:bg-gray-100 active:scale-95 transition"
+        >
+          <ChevronRight className="text-[#167389]" size={20} />
+        </button>
+      </div>
 
-      <button
-        onClick={scrollRight}
-        aria-label="Scroll Right"
-        className="hidden lg:flex items-center justify-center absolute right-0 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-white border border-gray-300 shadow hover:bg-gray-100 transition"
-      >
-        <ChevronRight className="text-[#167389]" size={22} />
-      </button>
-
-      {/* Scroll area */}
+      {/* Scrollable content */}
       <div
         ref={scrollRef}
-        className="overflow-x-auto scrollbar-hide -mx-2 px-2"
+        className="overflow-x-auto scrollbar-hide -mx-2 px-2 scroll-smooth"
+        style={{
+          overscrollBehaviorX: "contain",
+          scrollBehavior: "smooth",
+        }}
       >
         <div className="flex gap-3 min-w-max pb-1">
           {categories.map((cat) => (
             <Link
               key={cat._id}
               href={`/c/${cat.slug}`}
-              className="flex flex-col items-center justify-start gap-2 bg-white border border-gray-200 rounded-lg p-3 w-[110px] sm:w-[130px] flex-shrink-0 hover:border-[#167389] hover:shadow-md transition"
+              className="flex flex-col items-center justify-start gap-2 bg-white border border-gray-200 rounded-lg p-3 w-[100px] sm:w-[120px] flex-shrink-0 hover:border-[#167389] hover:shadow-md transition"
             >
-              <div className="relative w-[70px] h-[70px] sm:w-[80px] sm:h-[80px] rounded-full overflow-hidden bg-gray-50 flex items-center justify-center">
+              <div className="relative w-[65px] h-[65px] sm:w-[75px] sm:h-[75px] rounded-full overflow-hidden bg-gray-50 flex items-center justify-center">
                 {cat.image ? (
                   <Image
                     src={cat.image}
@@ -83,7 +84,7 @@ export default function CategoriesScroll({ categories }: Props) {
                     className="object-cover"
                   />
                 ) : (
-                  <ShoppingBag className="text-[#167389]" size={28} />
+                  <ShoppingBag className="text-[#167389]" size={26} />
                 )}
               </div>
               <p className="text-[11px] sm:text-sm font-medium text-gray-700 text-center line-clamp-2 leading-tight">
@@ -94,9 +95,9 @@ export default function CategoriesScroll({ categories }: Props) {
         </div>
       </div>
 
-      {/* Gradient edges */}
-      <div className="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-white to-transparent pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-white to-transparent pointer-events-none" />
+      {/* Gradient fade edges */}
+      <div className="absolute left-0 top-0 bottom-0 w-8 sm:w-10 bg-gradient-to-r from-white to-transparent pointer-events-none z-10" />
+      <div className="absolute right-0 top-0 bottom-0 w-8 sm:w-10 bg-gradient-to-l from-white to-transparent pointer-events-none z-10" />
     </section>
   );
 }

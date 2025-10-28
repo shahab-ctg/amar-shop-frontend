@@ -42,7 +42,7 @@ export default function RootLayout({
 
             <div className="relative z-10">
               <Topbar />
-              <main className="container mx-auto px-3 sm:px-4 lg:px-0 pb-4 bg-[#F5FDF8] lg:pt-2 pt-10">
+              <main className="container mx-auto sm:px-4 lg:px-0 pb-4 bg-[#F5FDF8] lg:pt-2 pt-10">
                 {children}
               </main>
               <Footer />
