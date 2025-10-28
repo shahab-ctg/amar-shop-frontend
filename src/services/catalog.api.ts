@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { fetchCategories, fetchProducts } from "./catalog"; // তোমার আগের ফাইল
+import { fetchCategories, fetchProducts, ProductsQuery } from "./catalog"; // তোমার আগের ফাইল
 import type { Product, Category } from "@/lib/schemas";
 
 export const catalogApi = createApi({
@@ -22,9 +23,9 @@ export const catalogApi = createApi({
 
     getProducts: builder.query<{ data: Product[] }, Record<string, any> | void>(
       {
-        async queryFn(arg, _api, _extra, _baseQuery) {
+        async queryFn(arg = {}, _api, _extra, _baseQuery) {
           try {
-            const res = await fetchProducts(arg);
+            const res = await fetchProducts(arg as ProductsQuery);
             return { data: { data: res.data } };
           } catch (error) {
             return { error: { status: 500, data: error } as any };

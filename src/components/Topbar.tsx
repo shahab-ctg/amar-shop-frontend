@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image"; // ✅ Correct import for logo
+import Image from "next/image"; 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -16,10 +16,11 @@ import {
   Sparkles,
   User,
   Link2,
-  Home,
+  
 } from "lucide-react"; // ✅ removed 'Image' icon
+import { Category } from "@/lib/schemas";
 
-type Category = { _id: string; slug: string; title: string };
+
 
 export default function Topbar() {
   const router = useRouter();
@@ -74,6 +75,7 @@ export default function Topbar() {
           throw new Error(`Failed to load categories (${res.status})`);
         const json = await res.json();
         setCategories((json?.data ?? []) as Category[]);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         if (err.name !== "AbortError") {
           setCategoriesError(err.message || "Failed to fetch categories");
@@ -419,7 +421,7 @@ export default function Topbar() {
                   <div className="relative w-[70px] h-[70px] rounded-full overflow-hidden bg-gray-50 flex items-center justify-center">
                     {cat.image ? (
                       <Image
-                        src={cat.image}
+                        src={cat?.image}
                         alt={cat.title}
                         fill
                         sizes="90px"

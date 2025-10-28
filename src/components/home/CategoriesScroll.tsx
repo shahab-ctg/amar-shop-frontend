@@ -33,7 +33,7 @@ export default function CategoriesScroll({ categories }: Props) {
           </h2>
         </div>
         <Link
-          href="/products?categories=true"
+          href="/categories"
           className="text-sm text-[#167389] hover:text-rose-600 transition flex items-center gap-1"
         >
           View All <ChevronRight size={16} />
