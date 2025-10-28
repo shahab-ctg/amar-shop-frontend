@@ -239,7 +239,6 @@ export default function Topbar() {
       </header>
 
       {/* ======= MOBILE BOTTOM NAVBAR ======= */}
-      {/* ======= MOBILE BOTTOM NAVBAR ======= */}
       <nav className="lg:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow-lg z-50">
         <div className="flex justify-between items-center px-5 py-2 text-[#167389] relative">
           {/* ✅ Left Side: Categories & Cart */}
@@ -286,7 +285,7 @@ export default function Topbar() {
           {/* ✅ Right Side: WhatsApp & Call */}
           <div className="flex items-center gap-6">
             <a
-              href="https://wa.me/8801700000000"
+              href="https://wa.me/+8801318319610"
               target="_blank"
               rel="noopener noreferrer"
               className="flex flex-col items-center text-xs"

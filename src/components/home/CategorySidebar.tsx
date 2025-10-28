@@ -5,19 +5,17 @@ import Image from "next/image";
 import { ShoppingBag } from "lucide-react";
 import { Category } from "@/lib/schemas";
 
-type Props = {
-  categories: Category[];
-};
+type Props = { categories: Category[] };
 
 export default function CategorySidebar({ categories }: Props) {
   return (
-    <aside className="hidden lg:flex flex-col w-[260px] shrink-0 bg-transparent min-h-screen">
+    <aside className="category-sidebar hidden lg:flex flex-col w-[260px] shrink-0 bg-transparent">
       {/* Header */}
       <div className="px-4 py-3">
         <h3 className="font-semibold text-[#167389] text-lg">Categories</h3>
       </div>
 
-      {/* ✅ Dynamic, full-height, no scrollbar */}
+      {/* Dynamic, full-height, no scrollbar */}
       <div className="flex-1 px-4 pb-6">
         <div className="grid grid-cols-2 gap-3 h-auto">
           {categories.length > 0
@@ -57,16 +55,17 @@ export default function CategorySidebar({ categories }: Props) {
         </div>
       </div>
 
-      {/* ✅ Force remove scrollbars globally */}
+      {/* Hard overrides so NO inner scrollbars or fixed heights leak in */}
       <style jsx global>{`
-        aside {
-          height: 100%;
+        .category-sidebar,
+        .category-sidebar * {
+          max-height: none !important;
           overflow: visible !important;
-          scrollbar-width: none;
-          -ms-overflow-style: none;
         }
-        aside::-webkit-scrollbar {
-          display: none !important;
+        /* Plain look: no border/shadow if any inherited */
+        .category-sidebar {
+          box-shadow: none !important;
+          border: 0 !important;
         }
       `}</style>
     </aside>

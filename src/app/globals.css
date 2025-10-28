@@ -892,3 +892,27 @@ html { scroll-behavior: smooth; }
     max-height: none;
   }
 }
+
+/* ==== SIDEBAR FINAL OVERRIDES (place at end of globals.css) ==== */
+.desktop-sidebar,
+.desktop-sidebar__content {
+  max-height: none !important;
+  height: auto !important;
+  overflow: visible !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* যদি কোথাও ভুলে overflow-auto পড়ে থাকে, সেগুলোও neutralize */
+[class*="overflow-auto"],
+[class*="overflow-y-auto"] {
+  overflow: visible !important;
+}
+
+/* Left column container যদি কোনো wrapper এ ক্লিপ করত, সেটা খুলে দিচ্ছি */
+.left-column,
+.sidebar,
+aside.category-sidebar {
+  contain: none !important;
+  isolation: auto !important;
+}
