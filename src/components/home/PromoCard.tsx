@@ -18,11 +18,11 @@ function PromoCardBase({ href, className = "" }: PromoCardProps) {
       `}
     >
       <Sparkles size={26} className="text-white mb-1" />
-      <h3 className="text-sm font-bold">AmarShopBD</h3>
+      <h3 className="text-sm font-bold">Amaar Shop</h3>
       <p className="text-xs leading-snug mt-1">
         {isSurgical
           ? "সকল ধরনের সার্জিক্যাল পণ্য অর্ডার করতে এখানে ক্লিক করুন"
-          : "সকল ধরনের মেডিক্যাল পণ্য অর্ডার করতে এখানে ক্লিক করুন"}
+          : "সকল ধরনের ঔষধ অর্ডার করতে এখানে ক্লিক করুন"}
       </p>
     </Link>
   );

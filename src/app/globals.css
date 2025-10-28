@@ -942,3 +942,354 @@ section.relative button[aria-label*="Scroll"] {
 /* ensure scrollbars hidden consistently */
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+
+/* ======== Mobile Scroll Arrow (Fix) ======== */
+@media (max-width: 639px) {
+  .category-scroll-container {
+    position: relative;
+  }
+
+  .scroll-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid #e5e7eb;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+  }
+
+  .scroll-arrow.left {
+    left: 5px;
+  }
+
+  .scroll-arrow.right {
+    right: 5px;
+  }
+
+  .scroll-arrow svg {
+    width: 16px;
+    height: 16px;
+    color: #167389;
+  }
+}
+/* ======== Skeleton Loading for Category Scroll ======== */
+.category-scroll-skeleton {
+  flex-shrink: 0;
+  width: 110px;
+  height: 130px;
+  border-radius: 10px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@media (max-width: 639px) {
+  .category-scroll-skeleton {
+    width: 80px;
+    height: 95px;
+    border-radius: 8px;
+  }
+}
+/* === Categories Scroll Arrow Fix for All Screens === */
+.cat-scroll { 
+  position: relative !important; 
+  overflow: visible !important; 
+}
+
+.cat-scroll .cat-track { 
+  overflow-x: auto !important; 
+  overflow-y: visible !important; 
+}
+
+/* Arrow buttons - show on all screens */
+.cat-scroll .cat-arrow { 
+  position: absolute !important; 
+  z-index: 60 !important; 
+  display: flex !important;
+}
+
+/* Left arrow positioning */
+.cat-scroll .cat-arrow:first-of-type {
+  left: 8px !important;
+}
+
+/* Right arrow positioning */  
+.cat-scroll .cat-arrow:last-of-type {
+  right: 8px !important;
+}
+
+/* Mobile screens */
+@media (max-width: 639px) {
+  .cat-scroll .cat-arrow {
+    height: 32px !important;
+    width: 32px !important;
+  }
+  
+  .cat-scroll .cat-arrow svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+}
+
+/* Tablet screens */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .cat-scroll .cat-arrow {
+    height: 36px !important;
+    width: 36px !important;
+  }
+}
+
+/* Desktop screens */
+@media (min-width: 1024px) {
+  .cat-scroll .cat-arrow {
+    height: 40px !important;
+    width: 40px !important;
+  }
+}
+
+.cat-scroll .cat-fade-left, 
+.cat-scroll .cat-fade-right { 
+  z-index: 40 !important; 
+}
+/* === Skeleton Loading for Categories Scroll === */
+.categories-skeleton {
+  display: flex;
+  gap: 12px;
+  overflow-x: hidden;
+}
+
+.skeleton-category-card {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100px;
+  padding: 12px;
+}
+
+/* Mobile skeleton */
+@media (max-width: 639px) {
+  .skeleton-category-card {
+    width: 85px;
+    padding: 8px 6px;
+  }
+  
+  .skeleton-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+  }
+  
+  .skeleton-text {
+    width: 60px;
+    height: 24px;
+  }
+}
+
+/* Tablet skeleton */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .skeleton-category-card {
+    width: 110px;
+  }
+  
+  .skeleton-image {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+  }
+  
+  .skeleton-text {
+    width: 80px;
+    height: 28px;
+  }
+}
+
+/* Desktop skeleton */
+@media (min-width: 1024px) {
+  .skeleton-category-card {
+    width: 120px;
+  }
+  
+  .skeleton-image {
+    width: 75px;
+    height: 75px;
+    border-radius: 50%;
+  }
+  
+  .skeleton-text {
+    width: 90px;
+    height: 32px;
+  }
+}
+
+.skeleton-image,
+.skeleton-text {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+  border-radius: 8px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* === Categories Scroll Arrow Fix for All Screens === */
+.cat-scroll { 
+  position: relative !important; 
+  overflow: visible !important; 
+}
+
+.cat-scroll .cat-track { 
+  overflow-x: auto !important; 
+  overflow-y: visible !important; 
+}
+
+/* Arrow buttons - show on all screens */
+.cat-arrow { 
+  position: absolute !important; 
+  z-index: 60 !important; 
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+}
+
+/* Mobile screens */
+@media (max-width: 639px) {
+  .cat-arrow {
+    height: 32px !important;
+    width: 32px !important;
+  }
+  
+  .cat-arrow svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+}
+
+/* Tablet screens */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .cat-arrow {
+    height: 36px !important;
+    width: 36px !important;
+  }
+}
+
+/* Desktop screens */
+@media (min-width: 1024px) {
+  .cat-arrow {
+    height: 40px !important;
+    width: 40px !important;
+  }
+}
+
+.cat-fade-left, 
+.cat-fade-right { 
+  z-index: 40 !important; 
+}
+
+/* === Skeleton Loading for Categories Scroll === */
+.categories-skeleton {
+  display: flex !important;
+  gap: 12px !important;
+  min-width: max-content !important;
+}
+
+.skeleton-category-card {
+  flex-shrink: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: 100px !important;
+  padding: 12px !important;
+}
+
+/* Mobile skeleton */
+@media (max-width: 639px) {
+  .skeleton-category-card {
+    width: 85px !important;
+    padding: 8px 6px !important;
+  }
+  
+  .skeleton-image {
+    width: 50px !important;
+    height: 50px !important;
+    border-radius: 50% !important;
+  }
+  
+  .skeleton-text {
+    width: 60px !important;
+    height: 12px !important;
+  }
+}
+
+/* Tablet skeleton */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .skeleton-category-card {
+    width: 110px !important;
+  }
+  
+  .skeleton-image {
+    width: 65px !important;
+    height: 65px !important;
+    border-radius: 50% !important;
+  }
+  
+  .skeleton-text {
+    width: 80px !important;
+    height: 14px !important;
+  }
+}
+
+/* Desktop skeleton */
+@media (min-width: 1024px) {
+  .skeleton-category-card {
+    width: 120px !important;
+  }
+  
+  .skeleton-image {
+    width: 75px !important;
+    height: 75px !important;
+    border-radius: 50% !important;
+  }
+  
+  .skeleton-text {
+    width: 90px !important;
+    height: 16px !important;
+  }
+}
+
+.skeleton-image,
+.skeleton-text {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%) !important;
+  background-size: 200% 100% !important;
+  animation: shimmer 2s infinite linear !important;
+  border-radius: 8px !important;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}

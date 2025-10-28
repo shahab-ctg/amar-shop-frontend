@@ -38,7 +38,7 @@ export default async function FeaturedGrid({
           </p>
         </div>
         <Link
-          href="/products?featured=true"
+          href="/search?featured=true"
           className="text-sm sm:text-base font-medium text-pink-600 hover:text-pink-700 transition-colors flex items-center gap-1 group"
         >
           View all

@@ -34,7 +34,7 @@ export default async function LatestGrid({
           </p>
         </div>
         <Link
-          href="/products?sort=createdAt%3Adesc"
+          href="/search?sort=createdAt%3Adesc"
           className="text-sm sm:text-base font-medium text-pink-600 hover:text-pink-700 transition-colors flex items-center gap-1 group"
         >
           View all

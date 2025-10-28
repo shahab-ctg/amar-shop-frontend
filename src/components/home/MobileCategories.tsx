@@ -15,13 +15,13 @@ function MobileCategoriesBase({ categories }: Props) {
       <div className="flex items-center justify-between mb-2.5">
         <div className="flex items-center gap-1.5">
           <Sparkles className="text-[#167389]" size={16} />
-          <h3 className="text-sm font-semibold text-[#167389]">Categories</h3>
+          <h3 className="text-xl font-bold text-[#167389]">Categories</h3>
         </div>
         <Link
-          href="/products"
-          className="text-xs text-[#167389] hover:text-rose-600 flex items-center gap-0.5"
+          href="/categories"
+          className="text-sm font-semibold text-[#167389] hover:text-rose-600 flex items-center gap-0.5"
         >
-          All <ChevronRight size={14} />
+         View All <ChevronRight size={14} />
         </Link>
       </div>
       <div className="overflow-x-auto scrollbar-hide -mx-3 px-3">

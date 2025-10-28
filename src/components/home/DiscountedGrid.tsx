@@ -38,7 +38,7 @@ export default async function DiscountedGrid({
           </p>
         </div>
         <Link
-          href="/products?discounted=true"
+          href="/search?discounted=true"
           className="text-sm sm:text-base font-medium text-pink-600 hover:text-pink-700 transition-colors flex items-center gap-1 group"
         >
           View all

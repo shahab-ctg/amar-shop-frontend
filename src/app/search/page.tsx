@@ -1,10 +1,10 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { fetchProducts } from "@/services/catalog";
+import { useMemo } from "react";
+import { useGetProductsQuery } from "@/services/catalog.api";
 import { ZProduct, type Product } from "@/lib/schemas";
 
 const FALLBACK_IMG =
@@ -17,50 +17,58 @@ const FALLBACK_IMG =
   );
 
 export default function SearchPage() {
-  const searchParams = useSearchParams();
-  const discounted = searchParams.get("discounted");
-  const featured = searchParams.get("tag");
-  const sort = searchParams.get("sort");
+  const sp = useSearchParams();
 
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  // URL → query args mapping (stable key-এর জন্য primitive values রাখছি)
+  const queryArg = useMemo(() => {
+    const discounted = sp.get("discounted") === "true" ? "true" : undefined;
+    const featured = sp.get("tag") === "featured" ? "true" : undefined;
 
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      const query: any = { limit: 24 };
+    // /search?sort=new অথবা /search?sort=createdAt:desc — দুটোই new হিসেবে ধরছি
+    const sortParam = sp.get("sort");
+    const sort =
+      sortParam === "new" || sortParam === "createdAt:desc"
+        ? "createdAt:desc"
+        : undefined;
 
-      if (discounted === "true") query.discounted = "true";
-      if (featured === "featured") query.featured = "true";
-      if (sort === "new" || sort === "createdAt:desc")
-        query.sort = "createdAt:desc";
+    return {
+      discounted,
+      featured,
+      sort,
+      limit: 24,
+    };
+  }, [sp]);
 
-      const res = await fetchProducts(query);
-      const data = res.data.map((p) => ZProduct.parse(p)) as Product[];
-      setProducts(data);
-      setLoading(false);
-    }
-    load();
-  }, [discounted, featured, sort]);
+  // ✅ RTK Query hook — ক্যাশ/ডিডুপ/স্টেট হ্যান্ডলিং অটো
+  const { data, isLoading } = useGetProductsQuery(queryArg);
+
+  const products: Product[] = useMemo(() => {
+    const arr = data?.data ?? [];
+    // client-side এ আবার validate করে নেই (টাইপ সেফ রাখার জন্য)
+    return arr.map((p) => ZProduct.parse(p));
+  }, [data]);
+
+  const title =
+    queryArg.discounted === "true"
+      ? "Hot Deals"
+      : queryArg.featured === "true"
+        ? "Featured Products"
+        : queryArg.sort === "createdAt:desc"
+          ? "New Arrivals"
+          : "All Products";
 
   return (
     <main className="py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <div className="mb-8 text-center">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
-          {discounted === "true"
-            ? "Hot Deals"
-            : featured === "featured"
-              ? "Featured Products"
-              : sort === "new"
-                ? "New Arrivals"
-                : "All Products"}
+          {title}
         </h1>
         <p className="text-gray-600 mt-2">
           Explore our collection of products tailored just for you
         </p>
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
           {Array.from({ length: 8 }).map((_, i) => (
             <div
@@ -76,10 +84,12 @@ export default function SearchPage() {
               p.image ??
               (Array.isArray(p.images) ? p.images[0] : undefined) ??
               FALLBACK_IMG;
+
             const showCompare =
               p.compareAtPrice &&
               p.price &&
               Number(p.compareAtPrice) > Number(p.price);
+
             const discount = showCompare
               ? Math.round(
                   ((Number(p.compareAtPrice) - Number(p.price)) /

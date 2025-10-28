@@ -180,7 +180,7 @@ export default function Footer() {
             <div className="flex flex-wrap gap-2.5 sm:gap-3 mb-5 sm:mb-6">
               {/* Facebook */}
               <a
-                href="https://facebook.com"
+                href="https://www.facebook.com/share/1Ara58741x"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400"

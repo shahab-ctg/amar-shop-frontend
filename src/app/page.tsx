@@ -53,7 +53,7 @@ export default function HomePage() {
                   href="/products?category=surgical"
                   className="flex-1"
                 />
-                <PromoCard href="/products" className="flex-1" />
+                <PromoCard href="/products?category=medicine" className="flex-1" />
               </div>
             </div>
 
@@ -64,7 +64,7 @@ export default function HomePage() {
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <PromoCard href="/products?category=surgical" />
-                <PromoCard href="/products" />
+                <PromoCard href="/products?category=medicine" />
               </div>
             </div>
           </div>
