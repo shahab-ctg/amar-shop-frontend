@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Sparkles, ShoppingBag } from "lucide-react";
 import type { Category } from "@/lib/schemas";
-import { memo } from "react";
+import { memo, useState, useEffect, useRef } from "react";
 
 interface Props {
   categories: Category[];
@@ -11,6 +11,29 @@ interface Props {
 }
 
 function DesktopSidebarBase({ categories, loading }: Props) {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return (
+      <aside className="hidden lg:block">
+        <div className="desktop-sidebar h-full">
+          <div className="desktop-sidebar__header">
+            <Sparkles size={18} /> Categories
+          </div>
+          <div className="desktop-sidebar__content">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div key={`safe-${i}`} className="desktop-sidebar__skeleton" />
+            ))}
+          </div>
+        </div>
+      </aside>
+    );
+  }
+
   return (
     <aside className="hidden lg:block">
       <div className="sticky">
@@ -21,7 +44,10 @@ function DesktopSidebarBase({ categories, loading }: Props) {
           <div className="desktop-sidebar__content">
             {loading
               ? Array.from({ length: 12 }).map((_, i) => (
-                  <div key={i} className="desktop-sidebar__skeleton" />
+                  <div
+                    key={`load-${i}`}
+                    className="desktop-sidebar__skeleton"
+                  />
                 ))
               : categories.map((c) => (
                   <Link
@@ -53,4 +79,5 @@ function DesktopSidebarBase({ categories, loading }: Props) {
     </aside>
   );
 }
+
 export const DesktopSidebar = memo(DesktopSidebarBase);

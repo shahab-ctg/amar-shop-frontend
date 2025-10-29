@@ -6,15 +6,22 @@ import {
   BannerCarousel,
   PromoCard,
   DesktopSidebar,
-  MobileCategories,
   ProductSection,
 } from "../components";
 import {
   useGetCategoriesQuery,
   useGetProductsQuery,
 } from "@/services/catalog.api";
+import ErrorBoundary from "@/components/home/ErrorBoundary";
+import { useState, useEffect } from "react"; // useEffect add করেছি
 
 export default function HomePage() {
+  const [isMounted, setIsMounted] = useState(false); // নতুন state add করেছি
+
+  useEffect(() => {
+    setIsMounted(true); // Component mount হওয়ার পর set করছি
+  }, []);
+
   const { data: catRes, isLoading: catLoading } = useGetCategoriesQuery();
   const { data: hotRes, isLoading: hotLoading } = useGetProductsQuery({
     discounted: "true",
@@ -34,11 +41,53 @@ export default function HomePage() {
   const newArrivals = newRes?.data?.slice(0, 8) || [];
   const editorsPicks = pickRes?.data?.slice(0, 8) || [];
 
+  // শুধু এই line টি change করেছি - early return for safety
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen bg-white overflow-hidden">
+        <div className="max-w-[1600px] mx-auto lg:px-5 py-3 grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-3">
+          {/* Loading skeleton দেখাবে */}
+          <div className="hidden lg:block">
+            <div className="desktop-sidebar h-full">
+              <div className="desktop-sidebar__header">Categories</div>
+              <div className="desktop-sidebar__content">
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <div key={i} className="desktop-sidebar__skeleton" />
+                ))}
+              </div>
+            </div>
+          </div>
+          <main className="space-y-4 lg:space-y-5">
+            {/* Loading state for product sections */}
+            {[1, 2, 3].map((i) => (
+              <section key={i} className="product-section">
+                <div className="product-section__header">
+                  <div>
+                    <h2 className="product-section__title">Loading...</h2>
+                  </div>
+                </div>
+                <div className="product-section__grid">
+                  {Array.from({ length: 8 }).map((_, j) => (
+                    <div key={j} className="product-section__skeleton" />
+                  ))}
+                </div>
+              </section>
+            ))}
+          </main>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white overflow-hidden">
       <div className="max-w-[1600px] mx-auto lg:px-5 py-3 grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-3">
         {/* Left sidebar */}
-        <DesktopSidebar categories={categories} loading={loading} />
+        <div className="hidden lg:block">
+          <ErrorBoundary>
+            <DesktopSidebar categories={categories} loading={loading} />
+          </ErrorBoundary>
+        </div>
 
         {/* Main content */}
         <main className="space-y-4 lg:space-y-5 overflow-hidden">
@@ -54,7 +103,10 @@ export default function HomePage() {
                   href="/products?category=surgical"
                   className="flex-1"
                 />
-                <PromoCard href="/products?category=medicine" className="flex-1" />
+                <PromoCard
+                  href="/products?category=medicine"
+                  className="flex-1"
+                />
               </div>
             </div>
 
@@ -75,7 +127,7 @@ export default function HomePage() {
             <>
               {/* Mobile: 8 Cards in 2 Rows (4x2 Grid) */}
               <MobileCategoriesGrid categories={categories} loading={loading} />
-              
+
               {/* Desktop: Horizontal Scrolling */}
               <div className="hidden lg:block">
                 <CategoriesScroll categories={categories} />

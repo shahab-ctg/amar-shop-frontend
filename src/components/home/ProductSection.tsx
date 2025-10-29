@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ChevronRight } from "lucide-react";
 import type { Product } from "@/lib/schemas";
-import { memo } from "react";
+import { memo, useState, useEffect } from "react"; // useEffect add করেছি
 
 const FALLBACK = "/fallback.webp";
 
@@ -20,7 +20,37 @@ function ProductSectionBase({
   products: Product[];
   loading: boolean;
 }) {
+  const [isMounted, setIsMounted] = useState(false); // নতুন state add করেছি
+
+  useEffect(() => {
+    setIsMounted(true); // Component mount হওয়ার পর set করছি
+  }, []);
+
   const pickImage = (p: Product) => p.image || p.images?.[0] || FALLBACK;
+
+  // শুধু এই line টি change করেছি - early return for safety
+  if (!isMounted) {
+    return (
+      <section className="product-section">
+        <div className="product-section__header">
+          <div>
+            <h2 className="product-section__title">{title}</h2>
+            {subtitle && (
+              <p className="product-section__subtitle">{subtitle}</p>
+            )}
+          </div>
+          <div className="product-section__link">
+            View more <ChevronRight size={16} />
+          </div>
+        </div>
+        <div className="product-section__grid">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="product-section__skeleton" />
+          ))}
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="product-section">
