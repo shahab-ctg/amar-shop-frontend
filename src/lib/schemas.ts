@@ -1,4 +1,4 @@
-// src/lib/schemas.ts
+
 import { z } from "zod";
 
 export const ZCategory = z.object({
@@ -17,7 +17,7 @@ export const ZProduct = z.object({
   images: z.array(z.string()).optional(), // ⭐ multi
   price: z.coerce.number().min(0),
   compareAtPrice: z.coerce.number().min(0).optional(),
- 
+
   isDiscounted: z.boolean().optional(),
   featured: z.boolean().optional(), // ⭐
   stock: z.number().optional(),
@@ -25,6 +25,7 @@ export const ZProduct = z.object({
   tagSlugs: z.array(z.string()).optional(),
   status: z.enum(["ACTIVE", "DRAFT", "HIDDEN"]),
   createdAt: z.string().optional(),
+  description: z.string().optional().default(""),
 });
 
 export const ZCategoriesResponse = z.object({

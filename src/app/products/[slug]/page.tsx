@@ -1,3 +1,4 @@
+// app/(shop)/p/[slug]/page.tsx  ← আপনার রুট অনুযায়ী path ঠিক করুন
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -6,7 +7,6 @@ import type { Product } from "@/types";
 import ProductCard from "@/components/ProductCard";
 import { Check, Phone, Truck, Shield, Sparkles } from "lucide-react";
 import ProductActions from "@/components/product/ProductActions";
-
 import ProductThumbs from "@/components/product/ProductThumbs";
 
 export const revalidate = 0;
@@ -24,6 +24,18 @@ export default async function ProductDetailsPage({
   if (!res?.data) return notFound();
   const product = res.data as Product;
 
+  // images fallback
+  const galleryImages =
+    (Array.isArray((product as any)?.images)
+      ? ((product as any)?.images as string[]).filter(Boolean)
+      : []) ?? [];
+  const finalGallery = galleryImages.length
+    ? galleryImages
+    : product.image
+      ? [product.image]
+      : [];
+
+  // related
   let related: Product[] = [];
   if (product.categorySlug) {
     const rel = await fetchProducts({
@@ -35,45 +47,32 @@ export default async function ProductDetailsPage({
   }
 
   const hasDiscount =
-    (product.compareAtPrice ?? 0) > product.price || product.isDiscounted;
-    const galleryImages =
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ((product as any)?.images as string[] | undefined)?.filter(Boolean) ??
-      (product.image ? [product.image] : []);
+    !!product.isDiscounted ||
+    (typeof product.compareAtPrice === "number" &&
+      product.compareAtPrice > product.price);
+
+  // sanitize description (basic)
+  const rawDesc =
+    typeof product.description === "string" ? product.description : "";
+  const hasDesc = /\S/.test(rawDesc);
+  const safeDesc = rawDesc.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "");
+  const looksHtml = /<\/?[a-z][\s\S]*>/i.test(safeDesc);
 
   return (
     <div className="min-h-screen bg-[#F5FDF8]">
       <div className="max-w-7xl mx-auto px-4 xs:px-5 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-10 lg:py-12">
         {/* Top layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12">
-          {/* Image */}
-          {/* <div className="bg-white rounded-2xl sm:rounded-3xl shadow-md hover:shadow-xl transition-shadow duration-300 border border-pink-100 p-3 sm:p-4 md:p-6 lg:p-8">
-            <div className="relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-pink-100 via-rose-50 to-purple-100 shadow-inner">
-              {product.image ? (
-                <Image
-                  src={product.image}
-                  alt={product.title}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  className="object-cover hover:scale-105 transition-transform duration-500"
-                  priority
-                />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Sparkles className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 text-pink-300" />
-                </div>
-              )}
-            </div>
-          </div> */}
-
-          <div className="bg-white rounded-2xl text-black sm:rounded-3xl shadow-md hover:shadow-xl transition-shadow duration-300 border border-pink-100 p-3 sm:p-4 md:p-6 lg:p-8">
+          {/* LEFT: Image + Thumbs + Description */}
+          <div className="bg-white rounded-2xl text-black sm:rounded-3xl shadow-md hover:shadow-xl transition-shadow duration-300 border border-pink-100 p-3 sm:p-4 md:p-6 lg:p-8 space-y-4">
+            {/* Main image */}
             <div
               id={`main-img-box-${product._id}`}
               className="relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-[#F5FDF8] via-[#F5FDF8] to-[#F5FDF8] shadow-inner"
             >
-              {product.image ? (
+              {finalGallery[0] ? (
                 <Image
-                  src={product.image}
+                  src={finalGallery[0]}
                   alt={product.title}
                   fill
                   sizes="(max-width: 1024px) 100vw, 50vw"
@@ -87,15 +86,38 @@ export default async function ProductDetailsPage({
               )}
             </div>
 
-            <ProductThumbs
-              title={product.title}
-              mainBoxId={`main-img-box-${product._id}`}
-              images={galleryImages}
-              description={product.description}
-            />
+            {/* Thumbs */}
+            <div className="[&_div]:mb-0">
+              <ProductThumbs
+                title={product.title}
+                mainBoxId={`main-img-box-${product._id}`}
+                images={finalGallery}
+              />
+            </div>
+
+            {/* Description (always just below thumbs) */}
+            <div className="mt-1">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+                Description
+              </h3>
+              {hasDesc ? (
+                looksHtml ? (
+                  <div
+                    className="mt-2 leading-relaxed text-gray-800 break-words prose prose-sm max-w-none [&_*]:text-gray-800"
+                    dangerouslySetInnerHTML={{ __html: safeDesc }}
+                  />
+                ) : (
+                  <p className="mt-2 leading-relaxed text-gray-800 whitespace-pre-line break-words">
+                    {safeDesc}
+                  </p>
+                )
+              ) : (
+                <p className="mt-2 text-gray-500">No description available.</p>
+              )}
+            </div>
           </div>
 
-          {/* Info + actions */}
+          {/* RIGHT: Info + Actions */}
           <div className="bg-white rounded-2xl sm:rounded-3xl shadow-md border border-pink-100 p-5 sm:p-6 md:p-7 lg:p-8">
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.25rem] font-bold text-gray-900 break-words leading-tight tracking-tight">
               {product.title}
@@ -106,7 +128,7 @@ export default async function ProductDetailsPage({
               <div className="text-3xl sm:text-4xl md:text-4xl font-semibold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent">
                 ৳{product.price.toFixed(2)}
               </div>
-              {hasDiscount && product.compareAtPrice ? (
+              {hasDiscount && typeof product.compareAtPrice === "number" ? (
                 <div className="text-lg sm:text-xl md:text-2xl text-gray-400 line-through font-semibold">
                   ৳{product.compareAtPrice.toFixed(2)}
                 </div>
@@ -121,11 +143,7 @@ export default async function ProductDetailsPage({
             {/* Small details */}
             <div className="mt-5 sm:mt-6 grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 text-sm sm:text-base">
               <div className="flex items-center gap-2 sm:gap-2.5 text-gray-700 bg-gradient-to-r from-pink-50 to-rose-50 rounded-lg sm:rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 border border-pink-200 shadow-sm">
-                <Check
-                  className="w-5 h-5 sm:w-5 sm:h-5 text-pink-600 flex-shrink-0"
-                  aria-hidden="true"
-                />
-
+                <Check className="w-5 h-5 sm:w-5 sm:h-5 text-pink-600 flex-shrink-0" />
                 <span className="font-semibold text-sm sm:text-base">
                   {product.stock && product.stock > 0
                     ? "In Stock"
@@ -133,26 +151,20 @@ export default async function ProductDetailsPage({
                 </span>
               </div>
               <div className="flex items-center gap-2 sm:gap-2.5 text-gray-700 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg sm:rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 border border-purple-200 shadow-sm">
-                <Truck
-                  className="w-5 h-5 sm:w-5 sm:h-5 text-purple-600 flex-shrink-0"
-                  aria-hidden="true"
-                />
+                <Truck className="w-5 h-5 sm:w-5 sm:h-5 text-purple-600 flex-shrink-0" />
                 <span className="font-semibold text-sm sm:text-base">
                   Free Delivery
                 </span>
               </div>
               <div className="flex items-center gap-2 sm:gap-2.5 text-gray-700 bg-gradient-to-r from-rose-50 to-pink-50 rounded-lg sm:rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 border border-rose-200 shadow-sm">
-                <Shield
-                  className="w-5 h-5 sm:w-5 sm:h-5 text-rose-600 flex-shrink-0"
-                  aria-hidden="true"
-                />
+                <Shield className="w-5 h-5 sm:w-5 sm:h-5 text-rose-600 flex-shrink-0" />
                 <span className="font-semibold text-sm sm:text-base">
                   100% Authentic
                 </span>
               </div>
             </div>
 
-            {/* Actions (client) */}
+            {/* Actions */}
             <div className="mt-6 sm:mt-7">
               <ProductActions product={product} hotline={hotline} />
             </div>
@@ -185,9 +197,9 @@ export default async function ProductDetailsPage({
             <div className="mt-6 sm:mt-7">
               <a
                 href={`tel:${hotline}`}
-                className="inline-flex items-center justify-center gap-2 sm:gap-2.5 w-full sm:w-auto px-5 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-r from-[#167389] to-[#167389] text-white font-bold rounded-xl sm:rounded-2xl  hover:from-cyan-200 hover:to-cyan-600 transition-all shadow-md hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 text-sm sm:text-base"
+                className="inline-flex items-center justify-center gap-2 sm:gap-2.5 w-full sm:w-auto px-5 sm:px-6 py-3 sm:py-3.5 bg-gradient-to-r from-[#167389] to-[#167389] text-white font-bold rounded-xl sm:rounded-2xl hover:from-cyan-200 hover:to-cyan-600 transition-all shadow-md hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 text-sm sm:text-base"
               >
-                <Phone className="w-5 h-5 sm:w-5 sm:h-5" aria-hidden="true" />
+                <Phone className="w-5 h-5 sm:w-5 sm:h-5" />
                 <span>Hotline: {hotline}</span>
               </a>
             </div>
