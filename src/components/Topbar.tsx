@@ -17,7 +17,7 @@ import {
   User,
   Link2,
   
-} from "lucide-react"; // ✅ removed 'Image' icon
+} from "lucide-react";
 import { Category } from "@/lib/schemas";
 
 

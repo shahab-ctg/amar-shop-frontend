@@ -12,8 +12,7 @@ import {
   Youtube,
   Heart,
 } from "lucide-react";
-import { SiTiktok } from "react-icons/si"; // ✅ TikTok icon (react-icons)
-
+import { SiTiktok } from "react-icons/si"; 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
   const brand = process.env.NEXT_PUBLIC_BRAND || "Amaar Shop";

@@ -20,7 +20,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Amaar Shop",
-  description: "Beauty & Cosmetics ecommerce",
+  description: "Medicine, Sugical, Beauty & Cosmetics Ecommerce",
 };
 
 export default function RootLayout({

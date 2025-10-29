@@ -57,13 +57,13 @@ localStorage.setItem("customer_phone", data.phone);
         qty: Math.max(1, toNum(it.quantity, 1)),
       })),
     };
-    console.log(payload, "payload in checkout page")
+    // console.log(payload, "payload in checkout page")
 
     try {
       setIsSubmitting(true);
-      const loadingToast = toast.loading("Placing your order...");
+      // const loadingToast = toast.loading("Placing your order...");
       await createOrder(payload);
-      toast.dismiss(loadingToast);
+      // toast.dismiss(loadingToast);
       toast.success("Order placed successfully!");
       clearCart();
       setTimeout(() => router.push("/products"), 1500);

@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -39,6 +39,23 @@ export default function CategoriesScroll({
       behavior: "smooth",
     });
   };
+
+  // component top
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(true);
+
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      {
+        root: null,
+        threshold: 0, // যতটুকু দেখলেই true
+        rootMargin: "-100px 0px 0px 0px", // ~ navbar height
+      }
+    );
+    if (containerRef.current) obs.observe(containerRef.current);
+    return () => obs.disconnect();
+  }, []);
 
   return (
     <section className="cat-scroll relative bg-white rounded-xl border border-gray-200 shadow-sm p-4">
@@ -118,73 +135,53 @@ export default function CategoriesScroll({
       </div>
 
       {/* ============ Tablet+ / Desktop: Original scroll UI (>=sm) ============ */}
-      <div className="hidden sm:block">
-        {/* Arrows — শুধু lg এবং তার উপরে দেখাই (ট্যাবলেটে ওভারলে এড়াতে) */}
+      <div className="hidden sm:block relative isolate overflow-hidden">
+        {/* Arrows */}
         {!loading && categories.length > 0 && (
           <>
             <button
               onClick={() => scrollByOne("left")}
               aria-label="Scroll Left"
-              className="hidden lg:flex cat-arrow left-2 h-10 w-10 rounded-full bg-white border border-gray-300 shadow hover:bg-gray-100 active:scale-95 items-center justify-center"
+              className="hidden lg:flex absolute top-1/2 -translate-y-1/2 left-2 z-10
+                   h-10 w-10 rounded-full bg-white border border-gray-300 shadow
+                   hover:bg-gray-100 active:scale-95 items-center justify-center"
             >
               <ChevronLeft className="text-[#167389]" size={18} />
             </button>
+
             <button
               onClick={() => scrollByOne("right")}
               aria-label="Scroll Right"
-              className="hidden lg:flex cat-arrow right-2 h-10 w-10 rounded-full bg-white border border-gray-300 shadow hover:bg-gray-100 active:scale-95 items-center justify-center"
+              className="hidden lg:flex absolute top-1/2 -translate-y-1/2 right-2 z-10
+                   h-10 w-10 rounded-full bg-white border border-gray-300 shadow
+                   hover:bg-gray-100 active:scale-95 items-center justify-center"
             >
               <ChevronRight className="text-[#167389]" size={18} />
             </button>
           </>
         )}
 
-        {/* Horizontal track */}
+        {/* Track */}
         <div
           ref={scrollRef}
           className="cat-track overflow-x-auto scrollbar-hide -mx-2 px-2 scroll-smooth relative"
           style={{ overscrollBehaviorX: "contain" }}
+          onScroll={handleScroll} // নিচের স্টেপ–৩ এ ইউজ হবে
         >
-          <div className="flex gap-3 min-w-max pb-1">
-            {loading
-              ? skeletonItems.map((i) => (
-                  <div key={`sk-d-${i}`} className="skeleton-category-card">
-                    <div className="skeleton-image" />
-                    <div className="skeleton-text" />
-                  </div>
-                ))
-              : categories.map((cat, index) => (
-                  <Link
-                    key={cat._id || `cat-${index}`}
-                    href={`/c/${cat.slug}`}
-                    className="desktop-category-scroll-card"
-                  >
-                    <div className="desktop-category-scroll-card__image-wrapper">
-                      {cat.image ? (
-                        <Image
-                          src={cat.image}
-                          alt={cat.title}
-                          fill
-                          sizes="90px"
-                          className="object-cover"
-                        />
-                      ) : (
-                        <ShoppingBag className="text-[#167389]" size={26} />
-                      )}
-                    </div>
-                    <p className="desktop-category-scroll-card__title">
-                      {cat.title}
-                    </p>
-                  </Link>
-                ))}
-          </div>
+          <div className="flex gap-3 min-w-max pb-1">{/* ...items... */}</div>
         </div>
 
-        {/* Fade edges */}
+        {/* Fades */}
         {!loading && categories.length > 0 && (
           <>
-            <div className="cat-fade-left absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-white to-transparent pointer-events-none" />
-            <div className="cat-fade-right absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-white to-transparent pointer-events-none" />
+            <div
+              className="absolute inset-y-0 left-0 w-10 z-10
+                      bg-gradient-to-r from-white to-transparent pointer-events-none"
+            />
+            <div
+              className="absolute inset-y-0 right-0 w-10 z-10
+                      bg-gradient-to-l from-white to-transparent pointer-events-none"
+            />
           </>
         )}
       </div>
