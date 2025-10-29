@@ -12,7 +12,7 @@ import type { Category } from "@/lib/schemas";
 type Props = {
   categories: Category[];
   loading?: boolean;
-  title?: string; // optional
+  title?: string; 
 };
 
 export default function MobileCategoriesGrid({
@@ -20,7 +20,7 @@ export default function MobileCategoriesGrid({
   loading = false,
   title = "Shop by Categories",
 }: Props) {
-  // মোবাইলে শুধু ৮টা দেখাবো
+
   const items = Array.isArray(categories) ? categories.slice(0, 8) : [];
 
   return (
@@ -48,7 +48,7 @@ export default function MobileCategoriesGrid({
           ? Array.from({ length: 8 }).map((_, i) => (
               <div
                 key={`sk-${i}`}
-                className="mobile-category-card animate-pulse bg-gray-100 border border-gray-200"
+                className="mobile-category-card animate-pulse bg-gray-100 border border-gray-200 text-bold"
               >
                 <div className="mobile-category-card__image bg-gray-200" />
                 <p className="mobile-category-card__title w-16 h-3 bg-gray-200 rounded" />
@@ -78,7 +78,7 @@ export default function MobileCategoriesGrid({
             ))}
       </div>
 
-      {/* নিচে View More (যদি ৮টার বেশি থাকে) */}
+     
       {!loading && categories.length > 8 && (
         <div className="mt-3 flex justify-center">
           <Link

@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const CustomerInfoSchema = z.object({
   name: z.string().min(2, "Full name required"),
-  email: z.string().email("Valid email required"),
+ 
   phone: z
     .string()
     .regex(/^01[0-9]{9}$/, "Enter a valid Bangladeshi number (01XXXXXXXXX)"),

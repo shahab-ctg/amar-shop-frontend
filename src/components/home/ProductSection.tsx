@@ -86,11 +86,11 @@ function ProductSectionBase({
                   <div className="product-card__title">{p.title}</div>
                   <div className="product-card__price-group">
                     <div className="product-card__price">
-                      ${Number(p.price || 0).toFixed(0)}
+                      ৳{Number(p.price || 0).toFixed(0)}
                     </div>
                     {p.compareAtPrice && p.compareAtPrice > (p.price || 0) && (
                       <div className="product-card__compare-price">
-                        ${p.compareAtPrice}
+                        ৳{p.compareAtPrice}
                       </div>
                     )}
                   </div>

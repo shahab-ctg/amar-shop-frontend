@@ -13,7 +13,7 @@ export default function CustomerInfo({ order }: { order: Order }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
         {[
           ["Name", info.name],
-          ["Email", info.email],
+      
           ["Phone", info.phone],
           ["House / Village", info.houseOrVillage],
           ["Road / Post Office", info.roadOrPostOffice],

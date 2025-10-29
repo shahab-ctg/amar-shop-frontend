@@ -46,18 +46,7 @@ export default function CustomerInfoForm({
       </div>
 
       {/* Email */}
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1">
-          Email
-        </label>
-        <input
-          {...register("email")}
-          type="email"
-          placeholder="your@email.com"
-          className="input"
-        />
-        {errors.email && <p className="error">{errors.email.message}</p>}
-      </div>
+    
 
       {/* Phone */}
       <div>

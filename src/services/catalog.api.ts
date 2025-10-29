@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { fetchCategories, fetchProducts, ProductsQuery } from "./catalog"; // তোমার আগের ফাইল
+import { fetchCategories, fetchProducts, ProductsQuery } from "./catalog"; 
 import type { Product, Category } from "@/lib/schemas";
 
 export const catalogApi = createApi({

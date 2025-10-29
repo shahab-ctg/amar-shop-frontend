@@ -16,8 +16,8 @@ import { SiTiktok } from "react-icons/si"; // ✅ TikTok icon (react-icons)
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
-  const brand = process.env.NEXT_PUBLIC_BRAND || "AmarShopBD";
-  const hotline = process.env.NEXT_PUBLIC_HOTLINE || "01700000000";
+  const brand = process.env.NEXT_PUBLIC_BRAND || "Amaar Shop";
+  const hotline = process.env.NEXT_PUBLIC_HOTLINE || "+8801318319610";
 
   return (
     <footer

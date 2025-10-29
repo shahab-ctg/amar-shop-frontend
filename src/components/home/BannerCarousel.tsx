@@ -25,7 +25,7 @@ function BannerCarouselBase() {
   }, []);
 
   return (
-    <div className="relative w-full h-[160px] sm:h-[280px] lg:h-full overflow-hidden border border-red-200 bg-white shadow-sm">
+    <div className="relative w-full rounded-md h-[160px] sm:h-[280px] lg:h-full overflow-hidden border border-red-200 bg-white shadow-sm">
       <div className="relative w-full h-full">
         {BANNER_IMAGES.map((src, i) => (
           <Image

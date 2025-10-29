@@ -1,5 +1,5 @@
 // ---------------------------------------------------
-// 🧾 Order Types (Frontend + Backend Aligned)
+//  Order Types (Frontend + Backend Aligned)
 // ---------------------------------------------------
 
 export type OrderStatus =
@@ -9,10 +9,10 @@ export type OrderStatus =
   | "DELIVERED"
   | "CANCELLED";
 
-// ✅ Customer info structure (matches backend Zod schema)
+//  Customer info structure (matches backend Zod schema)
 export type OrderCustomer = {
   name: string;
-  email: string;
+ 
   phone: string;
   houseOrVillage: string;
   roadOrPostOffice: string;
@@ -20,7 +20,7 @@ export type OrderCustomer = {
   district: string;
 };
 
-// ✅ Individual line item in an order
+//  Individual line item in an order
 export type OrderLine = {
   productId: string;
   title: string;
@@ -29,7 +29,7 @@ export type OrderLine = {
   qty: number;
 };
 
-// ✅ Core order model (shared by backend + frontend)
+//  Core order model (shared by backend + frontend)
 export type Order = {
   _id: string;
   customer: OrderCustomer;
@@ -41,20 +41,20 @@ export type Order = {
   };
   status: OrderStatus;
   createdAt?: string;
-  updatedAt?: string; // ✅ fixed typo: updatedAT → updatedAt
+  updatedAt?: string; 
 };
 
 // ---------------------------------------------------
 // 📨 API DTOs (Data Transfer Objects)
 // ---------------------------------------------------
 
-// ✅ Client → Backend
+//  Client → Backend
 export type CreateOrderDTO = {
   customer: OrderCustomer;
   lines: { productId: string; qty: number }[];
 };
 
-// ✅ Backend → Client (after create)
+//  Backend → Client (after create)
 export type OrderCreateResult = {
   id: string;
   totals: {
@@ -65,7 +65,7 @@ export type OrderCreateResult = {
   status: OrderStatus;
 };
 
-// ✅ Common API wrappers
+//  Common API wrappers
 export type ApiOk<T> = { ok: true; data: T };
 
 export type Paginated<T> = {

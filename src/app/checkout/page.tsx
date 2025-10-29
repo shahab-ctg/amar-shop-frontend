@@ -13,7 +13,7 @@ import { createOrder } from "@/services/orders";
 import CustomerInfoForm from "@/components/checkout/CustomerInfoForm";
 import OrderSummaryCard from "@/components/checkout/OrderSummaryCard";
 
-const HOTLINE = process.env.NEXT_PUBLIC_HOTLINE || "01700-000000";
+const HOTLINE = process.env.NEXT_PUBLIC_HOTLINE || "+8801318319610";
 
 // helper
 const toNum = (v: unknown, f = 0) =>
@@ -40,11 +40,12 @@ export default function CheckoutPage() {
       toast.error("Your cart is empty. Please add products first.");
       return;
     }
+localStorage.setItem("customer_phone", data.phone);
 
     const payload = {
       customer: {
         name: data.name,
-        email: data.email,
+      
         phone: data.phone,
         houseOrVillage: data.houseOrVillage,
         roadOrPostOffice: data.roadOrPostOffice,
@@ -56,6 +57,7 @@ export default function CheckoutPage() {
         qty: Math.max(1, toNum(it.quantity, 1)),
       })),
     };
+    console.log(payload, "payload in checkout page")
 
     try {
       setIsSubmitting(true);

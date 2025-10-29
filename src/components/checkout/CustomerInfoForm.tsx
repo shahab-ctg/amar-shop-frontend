@@ -4,14 +4,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
-import { AlertCircle, Phone, User, MapPin } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { CheckCircle2 } from "lucide-react";
 
-// ✅ Validation Schema (aligned with backend DTO)
+//  Validation Schema (aligned with backend DTO)
 const CustomerSchema = z.object({
   name: z.string().min(2, "Full name is required"),
-  email: z.string().email("Enter a valid email"),
+
   phone: z
     .string()
     .regex(/^01[0-9]{9}$/, "Enter a valid Bangladeshi number (01XXXXXXXXX)"),
@@ -67,7 +67,7 @@ export default function CustomerInfoForm({ onSubmit, isSubmitting }: Props) {
           Full Name <span className="text-red-500">*</span>
         </label>
         <div className="relative">
-          {/* <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" /> */}
+         
           <input
             type="text"
             {...register("name")}
@@ -84,25 +84,7 @@ export default function CustomerInfoForm({ onSubmit, isSubmitting }: Props) {
         )}
       </div>
 
-      {/* Email */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Email <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="email"
-          {...register("email")}
-          placeholder="you@example.com"
-          className={inputClass(!!errors.email)}
-          autoComplete="email"
-        />
-        {errors.email && (
-          <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-            <AlertCircle className="w-4 h-4" />
-            {errors.email.message}
-          </p>
-        )}
-      </div>
+     
 
       {/* Phone */}
       <div>
