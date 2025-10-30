@@ -26,7 +26,9 @@ export default async function ProductDetailsPage({
 
   // images fallback
   const galleryImages =
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (Array.isArray((product as any)?.images)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ? ((product as any)?.images as string[]).filter(Boolean)
       : []) ?? [];
   const finalGallery = galleryImages.length

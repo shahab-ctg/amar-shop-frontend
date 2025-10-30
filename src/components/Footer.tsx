@@ -150,7 +150,7 @@ export default function Footer() {
                   className="hover:text-[#167389] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded"
                   title="Call hotline"
                 >
-                  +880 {hotline}
+                  {hotline}
                 </a>
               </li>
               <li className="flex items-center gap-3">
