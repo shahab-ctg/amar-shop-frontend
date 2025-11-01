@@ -64,7 +64,7 @@ export default async function ProductDetailsPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const hotline = process.env.NEXT_PUBLIC_HOTLINE;
+  const hotline = process.env.NEXT_PUBLIC_HOTLINE || "+8801318319610";
   const { slug } = await params;
 
   const res = await fetchProduct(slug).catch(() => null);
