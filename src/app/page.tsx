@@ -13,13 +13,13 @@ import {
   useGetProductsQuery,
 } from "@/services/catalog.api";
 import ErrorBoundary from "@/components/home/ErrorBoundary";
-import { useState, useEffect } from "react"; // useEffect add করেছি
+import { useState, useEffect } from "react"; 
 
 export default function HomePage() {
-  const [isMounted, setIsMounted] = useState(false); // নতুন state add করেছি
+  const [isMounted, setIsMounted] = useState(false); 
 
   useEffect(() => {
-    setIsMounted(true); // Component mount হওয়ার পর set করছি
+    setIsMounted(true);
   }, []);
 
   const { data: catRes, isLoading: catLoading } = useGetCategoriesQuery();
@@ -41,12 +41,12 @@ export default function HomePage() {
   const newArrivals = newRes?.data?.slice(0, 8) || [];
   const editorsPicks = pickRes?.data?.slice(0, 8) || [];
 
-  // শুধু এই line টি change করেছি - early return for safety
+  
   if (!isMounted) {
     return (
       <div className="min-h-screen bg-white overflow-hidden">
         <div className="max-w-[1600px] mx-auto lg:px-5 py-3 grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-3">
-          {/* Loading skeleton দেখাবে */}
+          {/* Loading skeleton */}
           <div className="hidden lg:block">
             <div className="desktop-sidebar h-full">
               <div className="desktop-sidebar__header">Categories</div>

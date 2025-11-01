@@ -70,7 +70,7 @@ function DesktopSidebarBase({ categories, loading }: Props) {
                         </div>
                       )}
                     </div>
-                    <div className="desktop-sidebar__card-title">{c.title}</div>
+                    <div className="desktop-sidebar__card-title font-bold text-[32px]">{c.title}</div>
                   </Link>
                 ))}
           </div>

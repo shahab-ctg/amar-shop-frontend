@@ -1390,3 +1390,132 @@ section.relative button[aria-label*="Scroll"] {
     font-size: 11px !important;
   }
 }
+
+
+/* === Product Card Image — Bigger & Clear View (Overrides) === */
+:root {
+  /* height variables for product card image (tweak as you like) */
+  --card-img-h-xs: 200px;  /* mobile */
+  --card-img-h-sm: 240px;  /* tablet ≥640px */
+  --card-img-h-lg: 280px;  /* desktop ≥1024px */
+}
+
+/* Image container: taller + breathing room for contain fit */
+.product-card__image {
+  position: relative;
+  height: var(--card-img-h-xs) !important;
+  background: #ffffff !important;           /* clean bg behind transparent PNGs */
+  padding: 8px !important;                   /* little gutter around the image */
+  border-bottom: 1px solid #f3f4f6;          /* optional subtle divider */
+}
+
+/* increase at breakpoints */
+@media (min-width: 640px) {
+  .product-card__image {
+    height: var(--card-img-h-sm) !important;
+  }
+}
+@media (min-width: 1024px) {
+  .product-card__image {
+    height: var(--card-img-h-lg) !important;
+  }
+}
+
+/* Actual <Image> (fill) behavior: see the whole image clearly */
+.product-card__img {
+  object-fit: contain !important;            /* show full image */
+  object-position: center center !important; /* center it nicely */
+  transition: transform 0.3s ease;           /* keep your hover scale smooth */
+}
+
+/* Optional: keep hover effect but not too aggressive on contain */
+.product-card:hover .product-card__img {
+  transform: scale(1.02); /* was 1.05 — contain এ বেশি দিলে edge touch লাগে */
+}
+
+/* Skeleton height bumped to match larger cards (prevents layout shift) */
+.product-section__skeleton {
+  height: 280px !important;  /* xs */
+}
+@media (min-width: 640px) {
+  .product-section__skeleton {
+    height: 320px !important; /* sm */
+  }
+}
+@media (min-width: 1024px) {
+  .product-section__skeleton {
+    height: 360px !important; /* lg */
+  }
+}
+/* === Uniform Product Card Image Height (all cards equal) === */
+:root { --card-aspect: 4 / 5; }  /* চাইলে 1/1 বা 3/4 দিন */
+
+.product-card__image {
+  position: relative;
+  aspect-ratio: var(--card-aspect); /* width অনুযায়ী height auto হবে */
+  height: auto !important;          /* আগের fixed height override */
+  overflow: hidden;
+  background: #f9fafb;              /* transparent PNG হলে পরিষ্কার ব্যাকগ্রাউন্ড */
+  border-bottom: 1px solid #f3f4f6; /* ঐচ্ছিক divider */
+}
+
+.product-card__img {
+  object-fit: cover !important;     /* ফুল ব্লিড, সমান উচ্চতা */
+  object-position: center center !important;
+  transition: transform .3s ease;
+}
+
+/* Hover ইফেক্ট হালকা রাখলে edge টানাটানি হয় না */
+.product-card:hover .product-card__img { transform: scale(1.03); }
+
+/* Skeleton-ও একই অনুপাত, যাতে লেআউট জাম্প না করে */
+.product-section__skeleton {
+  aspect-ratio: var(--card-aspect);
+  height: auto !important;
+}
+/* === CATEGORY (mobile grid) — final, conflict-free === */
+:root {
+  --cat-m-img: 72px;          /* mobile image size */
+  --cat-m-title-lines: 2;     /* keep 2 lines */
+}
+
+/* whole card = equal height */
+.cat-m-card{
+  height: 140px;                 /* all cards same height */
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fff;
+  transition: box-shadow .2s ease, border-color .2s ease;
+}
+.cat-m-card:hover{ border-color:#167389; box-shadow:0 1px 6px rgba(22,115,137,.12); }
+
+/* circular image box */
+.cat-m-img{
+  position: relative;
+  width: var(--cat-m-img);
+  height: var(--cat-m-img);
+  border-radius: 9999px;
+  overflow: hidden;
+  background:#f9fafb;
+}
+
+/* next/image fill normalization */
+.cat-m-img > span, .cat-m-img img{ position:absolute; inset:0; }
+.cat-m-img img{ object-fit: cover; object-position:center; }
+
+/* title = a bit larger + fixed 2 lines height so row height stays equal */
+.cat-m-title{
+  font-size: 13px;               /* bigger than before */
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--cat-m-title-lines);
+  overflow: hidden;
+  min-height: calc(1.25em * var(--cat-m-title-lines));
+}
+
+/* skeleton sizes to match */
+.cat-m-skel{ height:140px; border:1px solid #e5e7eb; border-radius:10px; }
+.cat-m-skel-img{ width:var(--cat-m-img); height:var(--cat-m-img); border-radius:9999px; }

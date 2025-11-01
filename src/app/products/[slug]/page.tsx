@@ -1,16 +1,63 @@
-// app/(shop)/p/[slug]/page.tsx  ← আপনার রুট অনুযায়ী path ঠিক করুন
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// app/(shop)/p/[slug]/page.tsx
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { fetchProduct, fetchProducts } from "@/services/catalog";
 import type { Product } from "@/types";
-import ProductCard from "@/components/ProductCard";
 import { Check, Phone, Truck, Shield, Sparkles } from "lucide-react";
 import ProductActions from "@/components/product/ProductActions";
 import ProductThumbs from "@/components/product/ProductThumbs";
 
 export const revalidate = 0;
 export const dynamic = "force-dynamic";
+
+/** ---------- Compact, uniform related card ---------- */
+function RelatedCard({ product }: { product: Product }) {
+  const img =
+    product.image ||
+    (Array.isArray(product.images) ? product.images[0] : "") ||
+    "/fallback.webp";
+
+  return (
+    <Link
+      href={`/products/${product.slug}`}
+      className="rel-card h-full flex flex-col rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition"
+    >
+      {/* ইমেজ অংশ — সব কার্ডে এক উচ্চতা */}
+      <div className="product-card__image">
+        <Image
+          src={img}
+          alt={product.title}
+          fill
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
+          className="product-card__img"
+          priority={false}
+        />
+      </div>
+
+      {/* কনটেন্ট — টাইটেল ২ লাইন ধরে, বাকি স্পেসে দাম */}
+      <div className="p-3 flex-1 flex flex-col">
+        <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 min-h-[2.75rem]">
+          {product.title}
+        </h3>
+
+        <div className="mt-auto pt-2 flex items-baseline gap-2">
+          <span className="text-pink-700 font-bold">
+            ৳{Number(product.price || 0).toFixed(0)}
+          </span>
+          {typeof product.compareAtPrice === "number" &&
+            product.compareAtPrice > (product.price || 0) && (
+              <span className="text-gray-400 line-through text-sm">
+                ৳{product.compareAtPrice}
+              </span>
+            )}
+        </div>
+      </div>
+    </Link>
+  );
+}
+/** --------------------------------------------------- */
 
 export default async function ProductDetailsPage({
   params,
@@ -26,9 +73,7 @@ export default async function ProductDetailsPage({
 
   // images fallback
   const galleryImages =
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (Array.isArray((product as any)?.images)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ? ((product as any)?.images as string[]).filter(Boolean)
       : []) ?? [];
   const finalGallery = galleryImages.length
@@ -67,7 +112,6 @@ export default async function ProductDetailsPage({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12">
           {/* LEFT: Image + Thumbs + Description */}
           <div className="bg-white rounded-2xl text-black sm:rounded-3xl shadow-md hover:shadow-xl transition-shadow duration-300 border border-pink-100 p-3 sm:p-4 md:p-6 lg:p-8 space-y-4">
-            {/* Main image */}
             <div
               id={`main-img-box-${product._id}`}
               className="relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-[#F5FDF8] via-[#F5FDF8] to-[#F5FDF8] shadow-inner"
@@ -88,7 +132,6 @@ export default async function ProductDetailsPage({
               )}
             </div>
 
-            {/* Thumbs */}
             <div className="[&_div]:mb-0">
               <ProductThumbs
                 title={product.title}
@@ -97,7 +140,6 @@ export default async function ProductDetailsPage({
               />
             </div>
 
-            {/* Description (always just below thumbs) */}
             <div className="mt-1">
               <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                 Description
@@ -125,7 +167,6 @@ export default async function ProductDetailsPage({
               {product.title}
             </h1>
 
-            {/* Price block */}
             <div className="mt-4 sm:mt-5 flex flex-wrap items-end gap-2.5 sm:gap-3">
               <div className="text-3xl sm:text-4xl md:text-4xl font-semibold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent">
                 ৳{product.price.toFixed(2)}
@@ -142,7 +183,6 @@ export default async function ProductDetailsPage({
               ) : null}
             </div>
 
-            {/* Small details */}
             <div className="mt-5 sm:mt-6 grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 text-sm sm:text-base">
               <div className="flex items-center gap-2 sm:gap-2.5 text-gray-700 bg-gradient-to-r from-pink-50 to-rose-50 rounded-lg sm:rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 border border-pink-200 shadow-sm">
                 <Check className="w-5 h-5 sm:w-5 sm:h-5 text-pink-600 flex-shrink-0" />
@@ -166,12 +206,10 @@ export default async function ProductDetailsPage({
               </div>
             </div>
 
-            {/* Actions */}
             <div className="mt-6 sm:mt-7">
               <ProductActions product={product} hotline={hotline} />
             </div>
 
-            {/* Extra info */}
             <div className="mt-6 sm:mt-7 p-4 sm:p-5 bg-gradient-to-r from-pink-50 via-rose-50 to-purple-50 rounded-xl sm:rounded-2xl border-2 border-pink-200 shadow-sm">
               <div className="flex items-start gap-2 sm:gap-3 mb-3">
                 <Sparkles className="w-5 h-5 text-[#167389] flex-shrink-0 mt-0.5" />
@@ -195,7 +233,6 @@ export default async function ProductDetailsPage({
               </div>
             </div>
 
-            {/* Hotline */}
             <div className="mt-6 sm:mt-7">
               <a
                 href={`tel:${hotline}`}
@@ -235,7 +272,6 @@ export default async function ProductDetailsPage({
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
-                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -246,13 +282,15 @@ export default async function ProductDetailsPage({
                 </svg>
               </Link>
             </div>
+
+            {/* সমান উচ্চতার গ্রিড: auto-rows-fr + কার্ড h-full */}
             <div
-              className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-5 lg:gap-6"
+              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 auto-rows-fr items-stretch gap-3 sm:gap-4 md:gap-5 lg:gap-6"
               aria-label="Related products"
             >
               {related.map((p) => (
-                <div key={p._id} className="min-w-0">
-                  <ProductCard product={p} />
+                <div key={p._id} className="min-w-0 h-full">
+                  <RelatedCard product={p} />
                 </div>
               ))}
             </div>

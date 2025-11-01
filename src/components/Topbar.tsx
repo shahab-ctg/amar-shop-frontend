@@ -249,7 +249,7 @@ export default function Topbar() {
               className="flex flex-col items-center text-xs"
               aria-label="Open categories"
             >
-              <Menu className="w-5 h-5" />
+              <Menu className="w-8 h-8" />
               <span className="font-semibold">Categories</span>
             </button>
           </div>
@@ -261,7 +261,7 @@ export default function Topbar() {
               className="flex flex-col items-center text-xs relative"
               aria-label="Cart"
             >
-              <ShoppingCart className="w-5 h-5" />
+              <ShoppingCart className="w-8 h-8" />
               <span className="font-semibold">Cart</span>
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] font-bold rounded-full px-1">
@@ -303,7 +303,7 @@ export default function Topbar() {
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 32 32"
                 fill="currentColor"
-                className="w-5 h-5"
+                className="w-8 h-8"
               >
                 <path d="M16.006 2.667C8.64 2.667 2.667 8.64 2.667 16.006c0 2.886.88 5.61 2.546 7.96L3.36 29.333l5.546-1.84a13.3 13.3 0 0 0 7.1 2.027c7.366 0 13.34-5.973 13.34-13.34 0-7.366-5.974-13.346-13.34-13.346Zm0 24.64c-2.4 0-4.747-.68-6.78-1.974l-.48-.294-3.293 1.08 1.08-3.294-.307-.48a11.06 11.06 0 0 1-1.68-5.8c0-6.12 4.973-11.093 11.093-11.093 6.113 0 11.093 4.973 11.093 11.093 0 6.113-4.98 11.093-11.093 11.093Zm6.213-8.286c-.334-.173-1.987-.973-2.293-1.093-.307-.107-.533-.16-.76.16-.227.32-.867 1.093-1.067 1.307-.187.213-.4.24-.734.08-.334-.173-1.4-.52-2.667-1.667a10.003 10.003 0 0 1-1.84-2.293c-.187-.32-.02-.493.147-.667.16-.16.334-.4.507-.6.173-.2.227-.347.334-.573.107-.227.053-.427-.027-.6-.08-.173-.76-1.827-1.04-2.493-.267-.64-.534-.547-.76-.56h-.653c-.227 0-.6.087-.92.427s-1.213 1.18-1.213 2.867 1.24 3.32 1.414 3.547c.173.227 2.44 3.733 5.907 5.227।827.36 1.467।573 1.967।733।827।267 1.573।227 2.167।147।667-.107 1.987-.813 2.273-1.6।28-.787।28-1.453।2-1.6-.067-.147-.28-.24-.614-.414Z" />
               </svg>
@@ -318,7 +318,7 @@ export default function Topbar() {
               className="flex flex-col items-center text-xs"
               aria-label="Call hotline"
             >
-              <Phone className="w-5 h-5" />
+              <Phone className="w-8 h-8" />
               <span className="font-semibold">Call</span>
             </a>
           </div>

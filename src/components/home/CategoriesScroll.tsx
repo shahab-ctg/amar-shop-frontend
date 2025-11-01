@@ -108,17 +108,17 @@ export default function CategoriesScroll({
         )}
       </div>
 
-      {/* ============ Mobile: 8 cards, 4×2 grid (<=sm) ============ */}
-      <div className="sm:hidden">
-        <div className="grid grid-cols-4 gap-2">
-          {(loading ? skeletonItems : categories.slice(0, 8)).map((item, i) => {
+      {/* ============ Mobile: 6 cards, 3×2 grid (<=sm) ============ */}
+      {/* <div className="sm:hidden">
+        <div className="grid grid-cols-3 gap-2">
+          {(loading ? skeletonItems : categories.slice(0, 6)).map((item, i) => {
             if (loading) {
               return (
                 <div
                   key={`sk-${i}`}
-                  className="flex flex-col items-center gap-1 rounded-lg border border-gray-200 bg-white p-2"
+                  className="flex flex-col items-center gap-1 rounded-md border border-gray-200 bg-white p-2"
                 >
-                  <div className="relative w-[60px] h-[60px] rounded-full bg-gray-100 animate-pulse" />
+                  <div className="relative w-[60px] h-[60px] rounded- bg-gray-100 animate-pulse" />
                   <div className="w-12 h-3 rounded bg-gray-100 animate-pulse" />
                 </div>
               );
@@ -152,7 +152,7 @@ export default function CategoriesScroll({
           })}
         </div>
 
-        {!loading && categories.length > 8 && (
+        {!loading && categories.length > 6 && (
           <div className="mt-3 flex justify-center">
             <Link
               href="/categories"
@@ -162,7 +162,7 @@ export default function CategoriesScroll({
             </Link>
           </div>
         )}
-      </div>
+      </div> */}
 
       {/* ============ Tablet+ / Desktop: Horizontal scroll (>=sm) ============ */}
       <div className="hidden sm:block relative isolate overflow-hidden">
@@ -185,7 +185,7 @@ export default function CategoriesScroll({
               onClick={() => scrollByOne("right")}
               aria-label="Scroll Right"
               className={`hidden lg:flex absolute top-1/2 -translate-y-1/2 right-2 z-10
-                   h-10 w-10 rounded-full bg-white border border-gray-300 shadow
+                   h-10 w-10 rounded-md bg-white border border-gray-300 shadow
                    hover:bg-gray-100 active:scale-95 items-center justify-center transition-opacity ${
                      (!inView || !canRight) && "opacity-0 pointer-events-none"
                    }`}
@@ -219,7 +219,7 @@ export default function CategoriesScroll({
                     href={`/c/${cat.slug}`}
                     className="w-[120px] shrink-0 rounded-xl border border-gray-200 bg-white hover:border-cyan-300 hover:shadow transition"
                   >
-                    <div className="relative w-full h-[72px] rounded-t-xl overflow-hidden bg-gray-50 flex items-center justify-center">
+                    <div className="relative w-full h-[72px] rounded-t-md overflow-hidden bg-gray-50 flex items-center justify-center">
                       {cat.image ? (
                         <Image
                           src={cat.image}
@@ -232,7 +232,7 @@ export default function CategoriesScroll({
                         <ShoppingBag className="text-[#167389]" size={24} />
                       )}
                     </div>
-                    <p className="px-2 py-2 text-center text-[12px] font-medium text-gray-700 line-clamp-2 leading-tight">
+                    <p className="px-2 py-2 text-center text-[12px] font-bold text-gray-700 line-clamp-2 leading-tight">
                       {cat.title}
                     </p>
                   </Link>

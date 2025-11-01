@@ -37,37 +37,15 @@ export default function ProductCard({
     >
       {/* Product Image */}
       <Link href={`/products/${product.slug}`}>
-        <div className="relative h-40 sm:h-48 bg-gradient-to-br from-pink-50 to-purple-50 overflow-hidden">
+        <div className="product-card__image product-card__image--bleed rounded-t-md relative overflow-hidden">
           <Image
-            src={img}
+            src={product.image ?? "/placeholder.png"}
             alt={product.title}
             fill
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover group-hover:scale-110 transition-transform duration-500"
+            sizes="(max-width:640px) 50vw, (max-width:1024px) 25vw, 20vw"
+            className="product-card__img product-card__img--cover"
+            priority={false}
           />
-
-          {/* Discount Badge */}
-          {showDiscount && discount > 0 && (
-            <motion.div
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: "spring", stiffness: 200 }}
-              className="absolute top-3 left-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg"
-            >
-              -{discount}%
-            </motion.div>
-          )}
-
-          {/* Out of Stock Overlay */}
-          {isOutOfStock && (
-            <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
-              <span className="bg-gray-900 text-white px-4 py-2 rounded-full font-semibold text-sm">
-                Out of Stock
-              </span>
-            </div>
-          )}
-
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300" />
         </div>
       </Link>
 
@@ -110,7 +88,7 @@ export default function ProductCard({
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="w-full bg-gradient-to-r from-[#167389] to-[#167389]  hover:from-cyan-200 hover:to-cyan-600 text-white py-2.5 sm:py-3 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale"
+            className="w-full bg-gradient-to-r from-[#167389] to-[#167389] hover:from-cyan-200 hover:to-cyan-600 text-white py-2.5 sm:py-3 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale"
             disabled={isOutOfStock}
           >
             <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -124,7 +102,7 @@ export default function ProductCard({
             <span className="text-red-500 font-semibold">Out of Stock</span>
           ) : stock < 10 ? (
             <span className="text-orange-500 font-semibold">
-              Only {stock}more left!
+              Only {stock} more left!
             </span>
           ) : (
             <span className="text-pink-600">In Stock</span>

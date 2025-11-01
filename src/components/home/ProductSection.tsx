@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ChevronRight } from "lucide-react";
 import type { Product } from "@/lib/schemas";
-import { memo, useState, useEffect } from "react"; // useEffect add করেছি
+import { memo, useState, useEffect } from "react";
 
 const FALLBACK = "/fallback.webp";
 
@@ -20,15 +20,15 @@ function ProductSectionBase({
   products: Product[];
   loading: boolean;
 }) {
-  const [isMounted, setIsMounted] = useState(false); // নতুন state add করেছি
+  const [isMounted, setIsMounted] = useState(false); 
 
   useEffect(() => {
-    setIsMounted(true); // Component mount হওয়ার পর set করছি
+    setIsMounted(true); 
   }, []);
 
   const pickImage = (p: Product) => p.image || p.images?.[0] || FALLBACK;
 
-  // শুধু এই line টি change করেছি - early return for safety
+  
   if (!isMounted) {
     return (
       <section className="product-section">

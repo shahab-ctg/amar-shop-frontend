@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import {
-  Sparkles,
+
   Mail,
   Phone,
   MapPin,
@@ -69,11 +69,11 @@ export default function Footer() {
             <ul className="space-y-2.5">
               <li>
                 <Link
-                  href="https://amar-shop-admin.vercel.app/login"
+                  href="/profile"
                   className="hover:text-[#167389] hover:pl-2 transition-all duration-200 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded"
                   title="Dashboard"
                 >
-                  Dashboard
+                  Profile
                 </Link>
               </li>
               <li>
@@ -163,7 +163,7 @@ export default function Footer() {
                   className="hover:text-[#167389] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-400 rounded break-words"
                   title="Email support"
                 >
-                  support@amarshop.com
+                  amarshop2026@gmail.com
                 </a>
               </li>
             </ul>
