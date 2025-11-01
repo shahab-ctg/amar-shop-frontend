@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -184,6 +185,7 @@ export default function ProfilePage() {
           new Date(a.createdAt || 0).getTime()
       );
       setOrders(arr);
+   
     } catch (e: any) {
       setErr(e?.message || "Failed to fetch orders.");
     } finally {
@@ -418,7 +420,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Helpful tips */}
-        <div className="rounded-2xl border border-cyan-200 bg-gradient-to-r from-cyan-50 via-white to-pink-50 p-4 text-sm text-gray-700">
+        {/* <div className="rounded-2xl border border-cyan-200 bg-gradient-to-r from-cyan-50 via-white to-pink-50 p-4 text-sm text-gray-700">
           <ul className="list-disc pl-5 space-y-1">
             <li>
               এই পেজে ফোন নম্বর দিয়ে আপনার অর্ডারগুলো দেখা যায়। Checkout সময় যে
@@ -433,7 +435,7 @@ export default function ProfilePage() {
               <code>?customerPhone=</code> ট্রাই করবে।
             </li>
           </ul>
-        </div>
+        </div> */}
       </div>
     </div>
   );

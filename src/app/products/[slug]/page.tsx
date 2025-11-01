@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// app/(shop)/p/[slug]/page.tsx
+
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 function RelatedCard({ product }: { product: Product }) {
   const img =
     product.image ||
-    (Array.isArray(product.images) ? product.images[0] : "") ||
+    (Array.isArray(product.image) ? product.image[0] : "") ||
     "/fallback.webp";
 
   return (
@@ -64,7 +64,7 @@ export default async function ProductDetailsPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const hotline = process.env.NEXT_PUBLIC_HOTLINE || "01700-000000";
+  const hotline = process.env.NEXT_PUBLIC_HOTLINE;
   const { slug } = await params;
 
   const res = await fetchProduct(slug).catch(() => null);
