@@ -1,4 +1,3 @@
-
 export type Banner = {
   _id: string;
   image: string;
@@ -7,7 +6,7 @@ export type Banner = {
   discount?: string;
   status: "ACTIVE" | "HIDDEN";
   sort: number;
-  position?: "hero" | "side";
+  position: "hero" | "side";
   createdAt?: string;
   updatedAt?: string;
 };

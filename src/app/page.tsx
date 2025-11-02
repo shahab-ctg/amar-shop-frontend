@@ -3,17 +3,21 @@
 import CategoriesScroll from "@/components/home/CategoriesScroll";
 import MobileCategoriesGrid from "@/components/home/MobileCategoriesGrid";
 import {
-  BannerCarousel,
+  // BannerCarousel,
   PromoCard,
   DesktopSidebar,
   ProductSection,
 } from "../components";
 import {
   useGetCategoriesQuery,
+  // useGetHeroBannersQuery,
   useGetProductsQuery,
 } from "@/services/catalog.api";
 import ErrorBoundary from "@/components/home/ErrorBoundary";
 import { useState, useEffect } from "react"; 
+
+import HeroBannerClient from "@/components/home/HeroBannerClient";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 export default function HomePage() {
   const [isMounted, setIsMounted] = useState(false); 
@@ -33,6 +37,10 @@ export default function HomePage() {
   const { data: pickRes, isLoading: pickLoading } = useGetProductsQuery({
     limit: 12,
   });
+
+  const isMobile = useIsMobile();
+
+  //  const { data: heroBanners = [] } = useGetHeroBannersQuery(6);
 
   const loading = catLoading || hotLoading || newLoading || pickLoading;
 
@@ -96,7 +104,7 @@ export default function HomePage() {
             {/* Large screen layout */}
             <div className="hidden lg:grid lg:grid-cols-[1fr_220px] gap-2 lg:h-[380px]">
               <div className="h-full">
-                <BannerCarousel />
+                <HeroBannerClient limit={6} heightClass="h-full" />
               </div>
               <div className="flex flex-col gap-2 h-full">
                 <PromoCard
@@ -113,7 +121,10 @@ export default function HomePage() {
             {/* Small screen layout */}
             <div className="lg:hidden flex flex-col gap-2">
               <div className="w-full">
-                <BannerCarousel />
+                <HeroBannerClient
+                  limit={6}
+                  heightClass="h-[160px] sm:h-[280px]"
+                />
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <PromoCard href="/products?category=surgical" />
@@ -122,16 +133,16 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* ===== Categories ===== */}
           {!loading && (
             <>
-              {/* Mobile: 8 Cards in 2 Rows (4x2 Grid) */}
-              <MobileCategoriesGrid categories={categories} loading={loading} />
-
-              {/* Desktop: Horizontal Scrolling */}
-              <div className="hidden lg:block">
+              {isMobile ? (
+                <MobileCategoriesGrid
+                  categories={categories}
+                  loading={loading}
+                />
+              ) : (
                 <CategoriesScroll categories={categories} />
-              </div>
+              )}
             </>
           )}
 

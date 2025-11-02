@@ -1,10 +1,12 @@
 "use client";
-import { useState, useEffect, memo } from "react";
+
+import { useEffect, useMemo, useState, memo } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import type { Banner } from "@/types/banner";
 import { ChevronRight } from "lucide-react";
 
-const BANNER_IMAGES = [
+const FALLBACK = [
   "/hero1.webp",
   "/hero2.webp",
   "/hero3.webp",
@@ -13,21 +15,37 @@ const BANNER_IMAGES = [
   "/hero7.webp",
 ];
 
-function BannerCarouselBase() {
+function BannerCarouselBase({
+  items,
+  autoMs = 3000,
+  heightClass = "h-[160px] sm:h-[280px] lg:h-full",
+}: {
+  items: Banner[]; // DB থেকে আসবে
+  autoMs?: number;
+  heightClass?: string;
+}) {
+  const sources = useMemo(() => {
+    // DB খালি হলে পুরনো স্ট্যাটিক fallback ই দেখাই
+    return items?.length ? items.map((b) => b.image) : FALLBACK;
+  }, [items]);
+
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
+    if (!sources.length) return;
     const t = setInterval(
-      () => setIndex((i) => (i + 1) % BANNER_IMAGES.length),
-      3000
+      () => setIndex((i) => (i + 1) % sources.length),
+      autoMs
     );
     return () => clearInterval(t);
-  }, []);
+  }, [sources.length, autoMs]);
 
   return (
-    <div className="relative w-full rounded-md h-[160px] sm:h-[280px] lg:h-full overflow-hidden border border-red-200 bg-white shadow-sm">
+    <div
+      className={`relative w-full rounded-md overflow-hidden border border-red-200 bg-white shadow-sm ${heightClass}`}
+    >
       <div className="relative w-full h-full">
-        {BANNER_IMAGES.map((src, i) => (
+        {sources.map((src, i) => (
           <Image
             key={i}
             src={src}
@@ -39,6 +57,7 @@ function BannerCarouselBase() {
                 ? "translate-x-0 opacity-100"
                 : "-translate-x-full opacity-0"
             }`}
+            sizes="100vw"
           />
         ))}
       </div>
@@ -55,7 +74,7 @@ function BannerCarouselBase() {
 
       {/* Dots */}
       <div className="absolute bottom-2 right-3 flex gap-1.5">
-        {BANNER_IMAGES.map((_, i) => (
+        {sources.map((_, i) => (
           <div
             key={i}
             className={`w-2 h-2 rounded-full transition ${
@@ -67,4 +86,5 @@ function BannerCarouselBase() {
     </div>
   );
 }
+
 export const BannerCarousel = memo(BannerCarouselBase);

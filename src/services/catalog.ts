@@ -318,3 +318,61 @@ export async function fetchProduct(slug: string) {
 //     return { ok: true as const, data: [] };
 //   }
 // }
+// ---- NEW: Banners ---------------------------------------------------------
+import type { Banner } from "@/types/banner"; // যেভাবে Banner টাইপ রাখেন সেভাবে import করুন
+
+type Query =
+  | Record<string, string | number | boolean | undefined | null>
+  | null
+  | undefined;
+
+// আগেই আছে: buildURL / getJSON / requestCache ইত্যাদি — সেগুলো অপরিবর্তিত রাখুন
+
+export async function fetchBanners(params?: {
+  position?: "hero" | "side";
+  status?: "ACTIVE" | "HIDDEN";
+  limit?: number; // backend ignore করলেও harmless
+}) {
+  try {
+    const q: Query = {
+      position: params?.position,
+      status: params?.status ?? "ACTIVE",
+      limit: params?.limit,
+    };
+
+    const raw = await getJSON<unknown>("/banners", q);
+
+    // raw থেকে array বের করি
+    let dataUnknown: unknown[] = [];
+    if (raw && typeof raw === "object" && "data" in (raw as Record<string, unknown>)) {
+      const obj = raw as { data?: unknown };
+      dataUnknown = Array.isArray(obj.data) ? obj.data : [];
+    } else if (Array.isArray(raw)) {
+      dataUnknown = raw as unknown[];
+    } else {
+      const arrLike =
+        raw && typeof raw === "object"
+          ? Object.values(raw as Record<string, unknown>).find((v) => Array.isArray(v))
+          : undefined;
+      dataUnknown = Array.isArray(arrLike) ? (arrLike as unknown[]) : [];
+    }
+
+    // শুধু ACTIVE ফিল্টার (সেফগার্ড: status না থাকলে ধরি ok)
+    const banners = dataUnknown.filter((b) => {
+      const st = (b as { status?: string })?.status;
+      return !st || st.toUpperCase() === "ACTIVE";
+    }) as Banner[];
+
+    // position match (যদি query পাঠানো হয়)
+    const filtered =
+      params?.position ? banners.filter((b) => b.position === params.position) : banners;
+
+    // (optional) limit
+    const final = params?.limit && params.limit > 0 ? filtered.slice(0, params.limit) : filtered;
+
+    return { ok: true as const, data: final };
+  } catch (error) {
+    console.error("Failed to fetch banners:", error);
+    return { ok: true as const, data: [] as Banner[] };
+  }
+}

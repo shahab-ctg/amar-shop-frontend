@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { fetchCategories, fetchProducts, ProductsQuery } from "./catalog"; 
+import { fetchBanners, fetchCategories, fetchProducts, ProductsQuery } from "./catalog"; 
 import type { Product, Category } from "@/lib/schemas";
+import { Banner } from "@/types/banner";
 
 export const catalogApi = createApi({
   reducerPath: "catalogApi",
@@ -33,7 +34,31 @@ export const catalogApi = createApi({
         },
       }
     ),
+
+    getHeroBanners: builder.query<Banner[], number | void>({
+      async queryFn(limit = 6) {
+        try {
+          const res = await fetchBanners({
+            position: "hero",
+            status: "ACTIVE",
+            limit,
+          });
+          return { data: res.data }; // সরাসরি array ফিরিয়ে দিচ্ছি
+        } catch (error) {
+          return { error: { status: 500, data: error } as any };
+        }
+      },
+      keepUnusedDataFor: 60,
+    }),
   }),
 });
 
-export const { useGetCategoriesQuery, useGetProductsQuery } = catalogApi;
+
+
+  
+  
+  
+
+
+export const { useGetCategoriesQuery, useGetProductsQuery, useGetHeroBannersQuery } =
+  catalogApi;

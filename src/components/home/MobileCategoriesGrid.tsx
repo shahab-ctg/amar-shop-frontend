@@ -20,12 +20,14 @@ export default function MobileCategoriesGrid({
   loading = false,
   title = "Shop by Categories",
 }: Props) {
+  // 3x2 গ্রিড: প্রথম ৬টা
   const items = Array.isArray(categories) ? categories.slice(0, 6) : [];
 
   return (
-    <section className="lg:hidden block bg-white rounded-2xl border border-gray-200 shadow-sm p-4">
+    // ❗️এই কম্পোনেন্ট নিজে থেকে lg:hidden দিচ্ছে না — parent (CategoriesScroll) কন্ডিশনাল রেন্ডার করবে
+    <section className="block bg-white rounded-2xl border border-gray-200 shadow-sm p-4">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Sparkles className="text-[#167389]" size={20} />
           <h2 className="text-lg font-bold text-[#167389]">{title}</h2>
@@ -35,7 +37,7 @@ export default function MobileCategoriesGrid({
           <Link
             href="/categories"
             aria-label="View all categories"
-            className="text-sm font-semibold text-[#167389] hover:text-rose-600 transition flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 rounded"
+            className="inline-flex items-center gap-1 text-sm font-semibold text-[#167389] hover:text-rose-600 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 rounded"
           >
             View All <ArrowRight size={16} />
           </Link>
@@ -48,35 +50,28 @@ export default function MobileCategoriesGrid({
           ? Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={`sk-${i}`}
-                className="mcg-card h-[156px] rounded-md border border-gray-200 bg-white p-3 flex flex-col items-center justify-start"
+                className="h-[156px] rounded-md border border-gray-200 bg-white p-3 flex flex-col items-center justify-start"
               >
-                <div className="mcg-img relative w-[76px] h-[76px] rounded-full bg-gray-100 animate-pulse" />
-                <div className="mt-2 w-20 h-3 rounded bg-gray-100 animate-pulse" />
+                <div className="relative w-full h-[80%] rounded-md bg-gray-100 animate-pulse" />
+                <div className="mt-2 h-3 w-20 rounded bg-gray-100 animate-pulse" />
               </div>
             ))
-          : items.map((cat, i) => (
+          : items.map((cat) => (
+              // MobileCategoriesGrid.tsx (শুধু এই ৩টা পরিবর্তন নিশ্চিত করো)
               <Link
-                key={cat._id || `cat-m-${i}`}
+                key={`cat-${cat._id ?? cat.slug}`} // ✅ stable key, index fallback নয়
                 href={`/c/${cat.slug}`}
-                aria-label={cat.title}
-                className="mcg-card group h-[156px] rounded-md border border-gray-200 bg-white p-1 flex flex-col items-center justify-start hover:shadow-md hover:border-cyan-300 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
+                className="mcg-card group h-[156px] rounded-md border border-gray-200 bg-white p-2
+             flex flex-col items-stretch justify-start hover:shadow-md hover:border-cyan-300
+             transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pink-500"
               >
-                <div className="mcg-img relative w-[80px] h-[76px] rounded-md overflow-hidden bg-gray-50 flex items-center justify-center">
-                  {cat.image ? (
-                    <Image
-                      src={cat.image}
-                      alt={cat.title}
-                      fill
-                      sizes="76px"
-                      className="object-cover"
-                      priority={i < 3}
-                    />
-                  ) : (
-                    <ShoppingBag className="text-[#167389]" size={26} />
-                  )}
+                <div className="mcg-img relative basis-[80%] rounded-md overflow-hidden bg-gray-50">
+                  {/* Image fill */}
                 </div>
-
-                <p className="mcg-title mt-2 text-[16px] font-bold text-gray-800 text-center leading-tight line-clamp-2 min-h-[36px] px-1">
+                <p
+                  className="basis-[20%] flex items-center justify-center text-[13px] font-extrabold
+                text-gray-800 text-center px-1 leading-tight line-clamp-2"
+                >
                   {cat.title}
                 </p>
               </Link>
