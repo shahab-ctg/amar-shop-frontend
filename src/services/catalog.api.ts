@@ -35,15 +35,19 @@ export const catalogApi = createApi({
       }
     ),
 
-    getHeroBanners: builder.query<Banner[], number | void>({
-      async queryFn(limit = 6) {
+    getHeroBanners: builder.query<Banner[], number | undefined>({
+      async queryFn(limitArg, _api, _extra, _baseQuery) {
         try {
+      
+          const limit = typeof limitArg === "number" ? limitArg : 6;
+
           const res = await fetchBanners({
             position: "hero",
             status: "ACTIVE",
-            limit,
+            limit, // এখানে limit এখন নিশ্চিতভাবেই number
           });
-          return { data: res.data }; // সরাসরি array ফিরিয়ে দিচ্ছি
+
+          return { data: res.data }; // Banner[] রিটার্ন
         } catch (error) {
           return { error: { status: 500, data: error } as any };
         }
