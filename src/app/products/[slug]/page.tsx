@@ -106,8 +106,8 @@ export default async function ProductDetailsPage({
   const looksHtml = /<\/?[a-z][\s\S]*>/i.test(safeDesc);
 
   return (
-    <div className="min-h-screen bg-[#F5FDF8]">
-      <div className="max-w-7xl mx-auto px-4 xs:px-5 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-10 lg:py-12">
+    <div className="min-h-screen bg-[#F5FDF8] mt-6">
+      <div className="max-w-7xl mx-auto px-4 xs:px-5 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-10 lg:py-12 pt-10">
         {/* Top layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12">
           {/* LEFT: Image + Thumbs + Description */}

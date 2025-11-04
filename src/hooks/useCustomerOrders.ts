@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // hooks/useCustomerOrders.ts
 import { useState, useEffect } from "react";
 import type { Order } from "@/types/order";

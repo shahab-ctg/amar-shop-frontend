@@ -20,10 +20,7 @@ if (!API) {
 }
 
 /* -------------------------- URL builder util ----------------------------- */
-type Query =
-  | Record<string, string | number | boolean | undefined | null>
-  | null
-  | undefined;
+
 
 function buildURL(path: string, params?: Query) {
   const usp = new URLSearchParams();

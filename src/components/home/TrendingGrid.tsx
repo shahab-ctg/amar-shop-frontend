@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import Image from "next/image";
 import Link from "next/link";
@@ -197,106 +198,149 @@ export default function TrendingGrid({
       isLowStock,
     } = productData;
     const loading = !!loadingIds[p._id];
+
     return (
       <div
         className={`
-        product-card group bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm
-        ${isOutOfStock ? "opacity-60 grayscale" : "hover:shadow-lg"}
-        transition-all duration-300 h-full flex flex-col
-      `}
+          group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm
+          ${isOutOfStock ? "opacity-60 grayscale" : "hover:shadow-md"}
+          transition-all duration-300 h-full flex flex-col
+        `}
       >
-        <div className="relative h-32 sm:h-40 bg-gray-50 flex-shrink-0">
+        {/* Fixed Image Container - 100% Consistent */}
+        <div className="relative w-full h-40 bg-gray-50 flex-shrink-0">
           <Link href={`/products/${p.slug}`} className="block w-full h-full">
             <Image
               src={image}
               alt={p.title}
               fill
               sizes="(max-width:640px) 50vw, (max-width:1024px) 33vw, 25vw"
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              className="object-contain p-3 transition-transform duration-500 group-hover:scale-105"
               loader={({ src }) => src}
+              priority
             />
           </Link>
+
+          {/* Badges */}
           {discount > 0 && (
-            <div className="absolute top-1.5 left-1.5 bg-gradient-to-r from-pink-600 to-rose-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow">
+            <div className="absolute top-2 left-2 bg-gradient-to-r from-pink-600 to-rose-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-sm">
               {discount}% OFF
             </div>
           )}
           {isOutOfStock ? (
-            <div className="absolute top-1.5 right-1.5 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow">
+            <div className="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-sm">
               Out
             </div>
           ) : (
             isLowStock && (
-              <div className="absolute top-1.5 right-1.5 bg-orange-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow">
+              <div className="absolute top-2 right-2 bg-orange-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-sm">
                 Low
               </div>
             )
           )}
         </div>
-        <div className="p-2 sm:p-3 flex flex-col flex-1">
-          <Link href={`/products/${p.slug}`} className="block mb-1.5">
-            <h3 className="text-xs sm:text-sm font-semibold text-gray-800 line-clamp-2 group-hover:text-pink-600 transition-colors leading-tight">
+
+        {/* Content - Consistent Padding & Spacing */}
+        <div className="p-3 flex flex-col flex-1">
+          <Link href={`/products/${p.slug}`} className="block mb-2">
+            <h3 className="text-sm font-semibold text-gray-800 line-clamp-2 group-hover:text-pink-600 transition-colors leading-tight">
               {p.title}
             </h3>
           </Link>
+
+          {/* Price + Stock */}
           <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-1">
-              <span className="text-sm sm:text-base font-bold text-gray-900">
+            <div className="flex items-center gap-1.5">
+              <span className="text-base font-bold text-gray-900">
                 {formatPrice(total)}
               </span>
               {discount > 0 && (
-                <span className="text-[10px] sm:text-xs text-gray-500 line-through">
+                <span className="text-xs text-gray-500 line-through">
                   {formatPrice(price * qty)}
                 </span>
               )}
             </div>
             {!isOutOfStock && stock < 20 && (
-              <div className="text-[10px] text-gray-600">{stock} left</div>
+              <div className="text-xs text-gray-600">{stock} left</div>
             )}
           </div>
-          <div className="space-y-2 mt-auto">
+
+          {/* Quantity & Buttons */}
+          <div className="mt-auto space-y-2.5">
+            {/* Quantity Selector */}
             <div className="flex items-center justify-between">
-              <span className="text-[10px] sm:text-xs text-gray-600">Qty:</span>
-              <div className="flex items-center gap-0.5 bg-gray-100 rounded-md p-0.5">
+              <span className="text-xs text-gray-600">Qty:</span>
+              <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
                 <button
                   onClick={() => decrement(p._id)}
                   disabled={qty <= 1 || loading || isOutOfStock}
-                  className="w-6 h-6 flex items-center justify-center rounded bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-xs"
+                  className="w-7 h-7 flex items-center justify-center rounded-md bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm font-medium"
                 >
                   −
                 </button>
-                <span className="w-6 text-center font-semibold text-gray-800 text-xs">
+                <span className="w-7 text-center font-bold text-gray-800 text-sm">
                   {qty}
                 </span>
                 <button
                   onClick={() => increment(p._id)}
                   disabled={loading || isOutOfStock || qty >= stock}
-                  className="w-6 h-6 flex items-center justify-center rounded bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-xs"
+                  className="w-7 h-7 flex items-center justify-center rounded-md bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm font-medium"
                 >
                   +
                 </button>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-1.5">
+
+            {/* Action Buttons */}
+            <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => handleAdd(productData)}
                 disabled={isOutOfStock || loading}
-                className="px-2 py-1.5 bg-[#167389] text-white text-[10px] sm:text-xs font-semibold rounded-md hover:bg-[#135a6b] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-1"
+                className="flex items-center justify-center gap-1.5 px-3 py-2 bg-[#167389] text-white text-xs font-semibold rounded-lg hover:bg-[#135a6b] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? (
                   <>
-                    <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     <span className="hidden sm:inline">Adding</span>
                   </>
                 ) : (
-                  `Add ${qty > 1 ? `(${qty})` : ""}`
+                  <>
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                      />
+                    </svg>
+                    Add {qty > 1 && `(${qty})`}
+                  </>
                 )}
               </button>
+
               <button
                 onClick={() => handleBuyNow(productData)}
                 disabled={isOutOfStock || loading}
-                className="px-2 py-1.5 bg-gradient-to-r from-pink-600 to-rose-600 text-white text-[10px] sm:text-xs font-semibold rounded-md hover:from-pink-700 hover:to-rose-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-2 bg-gradient-to-r from-pink-600 to-rose-600 text-white text-xs font-semibold rounded-lg hover:from-pink-700 hover:to-rose-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-1.5"
               >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
+                </svg>
                 Buy
               </button>
             </div>
@@ -333,26 +377,26 @@ export default function TrendingGrid({
           </Link>
         </div>
 
-        {/* Mobile: Only 2 cards + scroll if more */}
+        {/* Mobile: 2 Cards - Fixed Width */}
         <div className="lg:hidden relative">
           <div
             ref={scrollRef}
-            className="overflow-x-auto scrollbar-hide snap-x snap-mandatory -mx-3 px-3"
+            className="overflow-x-auto scrollbar-hide snap-x snap-mandatory -mx-4 px-4"
           >
-            <div className="flex gap-2.5 pb-2">
+            <div className="flex gap-3 pb-3">
               {!mounted
                 ? Array.from({ length: 2 }).map((_, i) => (
                     <div
                       key={i}
-                      className="flex-shrink-0 w-[calc(50%-5px)] min-w-[160px] max-w-[180px] snap-center"
+                      className="flex-shrink-0 w-[calc(50%-6px)] min-w-[170px] max-w-[190px] snap-center"
                     >
-                      <div className="product-section__skeleton h-64 rounded-xl" />
+                      <div className="h-64 bg-gray-200 rounded-2xl animate-pulse" />
                     </div>
                   ))
                 : mobileProducts.map((productData) => (
                     <div
                       key={productData.p._id}
-                      className="flex-shrink-0 w-[calc(50%-5px)] min-w-[160px] max-w-[180px] snap-center"
+                      className="flex-shrink-0 w-[calc(50%-6px)] min-w-[170px] max-w-[190px] snap-center"
                     >
                       <ProductCardTrending productData={productData} />
                     </div>
@@ -360,13 +404,13 @@ export default function TrendingGrid({
             </div>
           </div>
 
-          {/* Arrows - only if more than 2 */}
+          {/* Arrows */}
           {hasMore && (
             <>
               <button
                 onClick={scrollPrev}
                 aria-label="Previous"
-                className="absolute left-0 top-1/2 -translate-y-1/2 bg-white/90 rounded-full p-1.5 shadow-lg z-10"
+                className="absolute left-1 top-1/2 -translate-y-1/2 bg-white/90 rounded-full p-2 shadow-lg z-10"
               >
                 <svg
                   width="20"
@@ -387,7 +431,7 @@ export default function TrendingGrid({
               <button
                 onClick={scrollNext}
                 aria-label="Next"
-                className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/90 rounded-full p-1.5 shadow-lg z-10"
+                className="absolute right-1 top-1/2 -translate-y-1/2 bg-white/90 rounded-full p-2 shadow-lg z-10"
               >
                 <svg
                   width="20"
@@ -409,23 +453,26 @@ export default function TrendingGrid({
           )}
         </div>
 
-        {/* View All Button - Mobile */}
+        {/* View All - Mobile */}
         {hasMore && (
           <div className="lg:hidden flex justify-center mt-3">
             <Link
               href="/search?tag=trending"
-              className="px-4 py-2 bg-[#167389] text-white text-xs font-semibold rounded-md hover:bg-[#135a6b] transition-colors"
+              className="px-5 py-2.5 bg-[#167389] text-white text-sm font-semibold rounded-lg hover:bg-[#135a6b] transition-colors shadow-sm"
             >
-              View All ({computed.length})
+              View All 
             </Link>
           </div>
         )}
 
-        {/* Desktop: Show only 8 cards */}
-        <div className="hidden lg:grid product-section__grid">
+        {/* Desktop: 8 Cards in Grid */}
+        <div className="hidden lg:grid lg:grid-cols-4 gap-4">
           {!mounted
             ? Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="product-section__skeleton" />
+                <div
+                  key={i}
+                  className="h-64 bg-gray-200 rounded-2xl animate-pulse"
+                />
               ))
             : computed
                 .slice(0, 8)
@@ -437,12 +484,12 @@ export default function TrendingGrid({
                 ))}
         </div>
 
-        {/* View More - Desktop Only */}
+        {/* View More - Desktop */}
         {mounted && computed.length > 8 && (
-          <div className="hidden lg:flex justify-center mt-4">
+          <div className="hidden lg:flex justify-center mt-5">
             <Link
               href="/search?tag=trending"
-              className="px-5 py-2.5 bg-gradient-to-r from-[#167389] to-[#135a6b] text-white text-sm font-semibold rounded-lg hover:shadow-md transition-shadow"
+              className="px-6 py-3 bg-gradient-to-r from-[#167389] to-[#135a6b] text-white text-sm font-semibold rounded-xl hover:shadow-lg transition-all"
             >
               View More
             </Link>
