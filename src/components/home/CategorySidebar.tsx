@@ -2,72 +2,66 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingBag } from "lucide-react";
-import { Category } from "@/lib/schemas";
+import type { Category } from "@/lib/schemas";
 
-type Props = { categories: Category[] };
+type Props = { categories: Category[]; loading?: boolean };
 
-export default function CategorySidebar({ categories }: Props) {
+export default function DesktopSidebar({ categories = [], loading }: Props) {
   return (
-    <aside className="category-sidebar hidden lg:flex flex-col w-[260px] shrink-0 bg-transparent">
-      {/* Header */}
-      <div className="px-4 py-3">
-        <h3 className="font-semibold text-[#167389] text-lg">Categories</h3>
+    <aside className="desktop-sidebar">
+      <div className="desktop-sidebar__header">
+        <span>Categories</span>
       </div>
 
-      {/* Dynamic, full-height, no scrollbar */}
-      <div className="flex-1 px-4 pb-6">
-        <div className="grid grid-cols-2 gap-3 h-auto">
-          {categories.length > 0
-            ? categories.map((c) => (
-                <Link
-                  key={c._id}
-                  href={`/products?category=${encodeURIComponent(c.slug)}`}
-                  aria-label={`Browse ${c.title}`}
-                  className="group rounded-xl bg-white hover:bg-cyan-50 transition-all duration-200 p-2 flex items-center gap-2"
-                >
-                  <div className="relative h-10 w-10 rounded-lg overflow-hidden bg-cyan-50 flex-shrink-0">
-                    {c.image ? (
-                      <Image
-                        src={c.image}
-                        alt={c.title}
-                        fill
-                        sizes="40px"
-                        className="object-cover group-hover:scale-105 transition-transform"
-                      />
-                    ) : (
-                      <div className="h-full w-full grid place-items-center text-[#167389]">
-                        <ShoppingBag size={16} />
-                      </div>
-                    )}
-                  </div>
-                  <div className="text-xs font-medium text-gray-700 line-clamp-2 leading-tight">
-                    {c.title}
-                  </div>
-                </Link>
-              ))
-            : Array.from({ length: 8 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-[56px] rounded-xl bg-cyan-50/50 animate-pulse"
-                />
-              ))}
-        </div>
-      </div>
+      <div className="desktop-sidebar__content">
+        {/* সমান উচ্চতার কার্ড: 3/4 ইমেজ + 1/4 টাইটেল */}
+        {(loading ? Array.from({ length: 12 }) : categories).map(
+          (c: any, i: number) => {
+            const slug = c?.slug ?? "";
+            const title = c?.title ?? "";
+            const image = c?.image ?? "";
 
-      {/* Hard overrides so NO inner scrollbars or fixed heights leak in */}
-      <style jsx global>{`
-        .category-sidebar,
-        .category-sidebar * {
-          max-height: none !important;
-          overflow: visible !important;
-        }
-        /* Plain look: no border/shadow if any inherited */
-        .category-sidebar {
-          box-shadow: none !important;
-          border: 0 !important;
-        }
-      `}</style>
+            return loading ? (
+              <div
+                key={`sk-${i}`}
+                className="grid grid-rows-[3fr_1fr] rounded-lg bg-white"
+              >
+                <div className="rounded-md bg-gray-100 animate-pulse" />
+                <div className="h-3 mx-2 mt-1 rounded bg-gray-100 animate-pulse" />
+              </div>
+            ) : (
+              <Link
+                key={c._id ?? slug}
+                href={`/products?category=${encodeURIComponent(slug)}`}
+                className="group grid grid-rows-[3fr_1fr] rounded-md bg-white hover:bg-red-50/60 transition-colors p-1.5 border border-red-700"
+                aria-label={`Browse ${title}`}
+              >
+                {/* 3/4: ছবি ফুল-উইডথ/হাইট */}
+                <div className="relative w-full h-full overflow-hidden rounded-md">
+                  {image ? (
+                    <Image
+                      src={image}
+                      alt={title}
+                      fill
+                      sizes="(min-width:1024px) 120px, 100vw"
+                      className="object-cover object-center group-hover:scale-[1.03] transition-transform"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-100" />
+                  )}
+                </div>
+
+                {/* 1/4: বোল্ড টাইটেল */}
+                <div className="flex items-center justify-center px-1">
+                  <p className="text-[12px] font-semibold text-gray-800 text-center leading-tight line-clamp-2">
+                    {title}
+                  </p>
+                </div>
+              </Link>
+            );
+          }
+        )}
+      </div>
     </aside>
   );
 }

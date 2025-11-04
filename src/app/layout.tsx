@@ -6,7 +6,6 @@ import ToastProvider from "@/components/ToastProvider";
 import ReduxProvider from "../store/ReduxProvider";
 import ClientLayout from "@/components/ClientLayout";
 
-
 export const dynamic = "force-dynamic";
 
 const geistSans = Geist({
@@ -20,7 +19,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Amaar Shop",
-  description: "Medicine, Sugical, Beauty & Cosmetics Ecommerce",
+  description: "Medicine, Surgical, Beauty & Cosmetics Ecommerce",
 };
 
 export default function RootLayout({
@@ -33,8 +32,7 @@ export default function RootLayout({
       >
         <ReduxProvider>
           <ToastProvider />
-          <ClientLayout>{children}</ClientLayout>{" "}
-          {/* শুধু এই line change করেছি */}
+          <ClientLayout>{children}</ClientLayout>
         </ReduxProvider>
       </body>
     </html>

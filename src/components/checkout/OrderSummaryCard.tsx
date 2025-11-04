@@ -2,15 +2,13 @@
 
 import { ShoppingBag } from "lucide-react";
 import ItemRow from "./ItemRow";
-
-const money = (n: number) => `৳${Number(n).toFixed(2)}`;
+const money = (n: number) => `৳${Number(n || 0).toFixed(2)}`;
 
 export default function OrderSummaryCard({
   items,
   subtotal,
   total,
 }: {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   items: any[];
   subtotal: number;
   total: number;
@@ -18,13 +16,16 @@ export default function OrderSummaryCard({
   return (
     <div className="bg-white rounded-2xl shadow-lg p-5 border border-pink-100">
       <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-        <ShoppingBag className="w-5 h-5 text-pink-600" /> Order Summary
+        <ShoppingBag className="w-5 h-5 text-pink-600" aria-hidden />
+        <span>Order Summary</span>
       </h2>
-      <div className="space-y-3 max-h-[400px] overflow-y-auto">
+
+      <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
         {items.map((it) => (
           <ItemRow key={it._id} item={it} />
         ))}
       </div>
+
       <div className="mt-5 border-t border-pink-200 pt-3 text-gray-700">
         <div className="flex justify-between">
           <span>Subtotal</span>

@@ -2,9 +2,9 @@
 
 /* ─────────────────────────────────────────────────────────────
    THEME TOKENS
-   ─ Keep tokens stable; UI uses these via var(...)
 ────────────────────────────────────────────────────────────── */
 :root {
+  color-scheme: light dark; /* help UA pick correct form-control colors */
   --background: #fdf2f8;
   --foreground: #1f1019;
 
@@ -78,16 +78,16 @@ html { scroll-behavior: smooth; }
 /* Focus */
 *:focus-visible { outline: 2px solid var(--brand-pink); outline-offset: 2px; }
 
-/* Responsive base font (unchanged) */
+/* Responsive base font */
 @media (max-width: 640px) { body { font-size: 14px; } }
 @media (min-width: 641px) and (max-width: 1024px) { body { font-size: 15px; } }
 @media (min-width: 1025px) { body { font-size: 16px; } }
 
-/* Scrollbar utilities (opt-in with .scrollbar-hide) */
+/* Scrollbar utilities (opt-in) */
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 
-/* Beauty scrollbar (kept as-is, applies to webkit only) */
+/* Beauty scrollbar */
 ::-webkit-scrollbar { width: 12px; height: 12px; }
 ::-webkit-scrollbar-track { background: var(--accent-light); border-radius: 10px; }
 ::-webkit-scrollbar-thumb {
@@ -131,6 +131,19 @@ html { scroll-behavior: smooth; }
   animation: spin-beauty .8s linear infinite;
 }
 
+/* Respect reduced motion (prevents jank on low-end mobiles) */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-slide-up,
+  .animate-slide-in-left,
+  .animate-slide-in-right,
+  .animate-scale-in,
+  .animate-shimmer,
+  .spinner-beauty {
+    animation: none !important;
+  }
+}
+
 /* ─────────────────────────────────────────────────────────────
    GENERIC UTILITIES / TOKENS
 ────────────────────────────────────────────────────────────── */
@@ -146,7 +159,6 @@ html { scroll-behavior: smooth; }
   background: linear-gradient(135deg, var(--brand-pink), var(--brand-rose), var(--brand-purple));
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
 }
-
 .glass-effect {
   background: rgba(255,255,255,.7);
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
@@ -155,7 +167,6 @@ html { scroll-behavior: smooth; }
 @media (prefers-color-scheme: dark) {
   .glass-effect { background: rgba(26,10,20,.7); border-color: rgba(244,114,182,.2); }
 }
-
 .beauty-card {
   background: #fff; border-radius: var(--radius-xl);
   box-shadow: var(--shadow-md); border: 1px solid rgba(236,72,153,.1);
@@ -165,7 +176,6 @@ html { scroll-behavior: smooth; }
 @media (prefers-color-scheme: dark) {
   .beauty-card { background: rgba(39,39,42,.5); border-color: rgba(244,114,182,.2); }
 }
-
 .btn-beauty {
   background: linear-gradient(135deg, var(--brand-pink), var(--brand-rose), var(--brand-purple));
   color: #fff; border: none; padding: .75rem 2rem; border-radius: var(--radius-lg);
@@ -175,7 +185,7 @@ html { scroll-behavior: smooth; }
 .btn-beauty:active { transform: translateY(0); }
 
 /* ─────────────────────────────────────────────────────────────
-   HOMEPAGE: DESKTOP SIDEBAR / PROMO (kept intact)
+   HOMEPAGE: DESKTOP SIDEBAR / PROMO
 ────────────────────────────────────────────────────────────── */
 .desktop-sidebar {
   background: #fff; border-radius: 10px; border: 1px solid #e5e7eb;
@@ -233,7 +243,7 @@ html { scroll-behavior: smooth; }
 .promo-card__subtitle { font-size:10px; opacity:.9; margin-top:2px; }
 
 /* ─────────────────────────────────────────────────────────────
-   HOMEPAGE: MOBILE PROMO (kept intact)
+   HOMEPAGE: MOBILE PROMO
 ────────────────────────────────────────────────────────────── */
 .mobile-promo-card {
   position: relative; display:block; height:100px; border-radius:8px; overflow:hidden;
@@ -245,8 +255,7 @@ html { scroll-behavior: smooth; }
 .mobile-promo-card__subtitle { font-size:9px; opacity:.95; margin-top:1px; }
 
 /* ─────────────────────────────────────────────────────────────
-   CATEGORY CARDS
-   (kept your existing classes; no visual change)
+   CATEGORY CARDS (no global overrides)
 ────────────────────────────────────────────────────────────── */
 .mobile-category-card {
   display:flex; flex-direction:column; align-items:center; gap:4px;
@@ -263,8 +272,6 @@ html { scroll-behavior: smooth; }
   font-size:10px; color:#374151; text-align:center; line-height:1.2;
   overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; word-break: break-word;
 }
-
-/* Sizes */
 @media (max-width: 639px) {
   .mobile-category-card { width: calc((100vw - 50px) / 4); min-width:65px; padding:6px 4px; height:95px; }
   .mobile-category-card__image { width:45px; height:45px; }
@@ -295,12 +302,11 @@ html { scroll-behavior: smooth; }
 /* Categories horizontal scroller (scoped; avoids global overrides) */
 .cat-scroll { position: relative; }
 .cat-scroll .cat-track { overflow-x: auto; overflow-y: visible; }
-.cat-scroll .cat-fade-left, .cat-scroll .cat-fade-right { pointer-events: none; }
+.cat-scroll .cat-fade-left, .cat-fade-right { pointer-events: none; }
 @media (min-width: 1024px) {
   .cat-scroll .cat-arrow {
     position: absolute; top: 50%; transform: translateY(-50%);
-    display: flex; align-items:center; justify-content:center;
-    z-index: 10;
+    display: flex; align-items:center; justify-content:center; z-index: 10;
   }
   .cat-scroll .cat-arrow:first-of-type { left: 8px; }
   .cat-scroll .cat-arrow:last-of-type { right: 8px; }
@@ -332,7 +338,7 @@ html { scroll-behavior: smooth; }
 }
 
 /* ─────────────────────────────────────────────────────────────
-   PRODUCT SECTIONS (kept original behaviour)
+   PRODUCT SECTIONS
 ────────────────────────────────────────────────────────────── */
 .product-section {
   background:#fff; border-radius:10px; border:1px solid #e5e7eb; padding:12px; box-shadow:0 1px 2px rgba(0,0,0,.05);
@@ -357,7 +363,7 @@ html { scroll-behavior: smooth; }
   height:220px; background:#f9fafb; border-radius:10px; border:1px solid #e5e7eb; animation: pulse 1.5s ease-in-out infinite;
 }
 
-/* Product card (original fixed heights retained to avoid UI shift) */
+/* Product card */
 .product-card {
   display:block; border-radius:10px; border:1px solid #e5e7eb; background:#fff;
   box-shadow:0 1px 2px rgba(0,0,0,.05); overflow:hidden; transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
@@ -383,19 +389,285 @@ html { scroll-behavior: smooth; }
 .product-card__compare-price { font-size:11px; color:#9ca3af; text-decoration: line-through; }
 
 /* ─────────────────────────────────────────────────────────────
-   RESPONSIVE VISIBILITY (kept)
+   RESPONSIVE VISIBILITY
 ────────────────────────────────────────────────────────────── */
 @media (max-width: 1023px) { .desktop-sidebar, .desktop-promo { display: none; } }
 @media (min-width: 1024px) { .mobile-promo-card, .mobile-category-card { display: none; } }
 
 /* ─────────────────────────────────────────────────────────────
-   HOMEPAGE GRID (single, non-conflicting version)
+   HOMEPAGE GRID (stable)
 ────────────────────────────────────────────────────────────── */
 .homepage-grid-stable {
   display:grid; grid-template-columns: 1fr 200px; gap:12px; align-items:start;
 }
-.banner-area, .promo-area { height:100%; min-height:360px; }
+
 @media (max-width: 1023px) {
   .homepage-grid-stable { grid-template-columns: 1fr; }
-  .banner-area, .promo-area { min-height: auto; }
+
+}
+
+/* RESET: remove UA default spacing and ensure full-bleed */
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;        /* ← বাম/ডান পিঙ্ক গ্যাপ আর থাকবে না */
+  padding: 0;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+#root, #__next { min-height: 100%; }
+*, *::before, *::after { box-sizing: border-box; }
+/* 1) Sidebar ভেতরের পাতলা স্ক্রল-বার/বর্ডার গায়েব */
+.desktop-sidebar__content { scrollbar-width: none; }
+.desktop-sidebar__content::-webkit-scrollbar { width: 0; height: 0; }
+
+/* 2) Hero (banner) ব্লকের নিচে যে ১px দাগ দেখা যাচ্ছিল সেটা বন্ধ */
+.hero-area { position: relative; background:#fff; isolation:isolate; overflow:hidden; }
+.hero-area::after { content:""; position:absolute; inset:0; pointer-events:none; }
+
+/* ── Sidebar: plain look, no border/shadow/scroll ─────────────────── */
+.desktop-sidebar {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  max-height: none !important;       /* fixed height/overflow বাতিল */
+  overflow: visible !important;
+}
+.desktop-sidebar__header {
+  padding: 12px 16px;
+  border-bottom: 0 !important;
+}
+
+/* ভেতরের কন্টেন্টকে গ্রিড বানাই; কোনো স্ক্রলবার নয় */
+.desktop-sidebar__content {
+  padding: 0 16px 16px !important;
+  overflow: visible !important;
+  max-height: none !important;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+}
+
+/* প্রতিটি কার্ডকে পুরোপুরি প্লেইন করা */
+.desktop-sidebar__card {
+  height: auto !important;
+  padding: 8px !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  transition: none !important;       /* hover elevation বাদ */
+}
+
+/* ছবির র‍্যাপার ছোট/প্লেইন */
+.desktop-sidebar__card-image {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 8px !important;
+  background: #f3f4f6 !important;
+}
+
+/* টাইটেল একটু বড় ও র‍্যাপ-ফ্রেন্ডলি */
+.desktop-sidebar__card-title {
+  font-size: 12px !important;
+  line-height: 1.2 !important;
+  color: #374151 !important;
+}
+
+/* কোনো স্ক্রল UI দেখাবো না (Firefox/Chromium) */
+.desktop-sidebar__content { scrollbar-width: none; }
+.desktop-sidebar__content::-webkit-scrollbar { width: 0; height: 0; }
+/* ── Hairline/ghost line fix across homepage rows ───────────────── */
+.desktop-sidebar,
+.desktop-promo,
+.product-section,
+.promo-card,
+.banner-area { background-clip: padding-box; }
+
+/* একই সারিতে টপ/বটম বর্ডারকে ট্রান্সপ্যারেন্ট করে দিন যাতে জোড়া লাইন না হয় */
+.desktop-sidebar,
+.desktop-promo,
+.promo-card,
+.product-section {
+  border-top-color: transparent !important;
+  border-bottom-color: transparent !important;
+}
+
+/* Hover translate/উঠানামা বাদ দিন—এটাই Chrome-এ hairline বেশি করে */
+.product-card:hover,
+.promo-card:hover,
+.desktop-category-scroll-card:hover {
+  transform: none !important;
+}
+
+/* ভিতরের ইমেজ স্কেলে থাকলেও seam যেন না পড়ে */
+.promo-card,
+.product-card,
+.desktop-category-scroll-card,
+.desktop-sidebar,
+.banner-area {
+  backface-visibility: hidden;
+  transform: translateZ(0);       /* GPU layer ঠিকমত snap করে */
+  outline: 1px solid transparent; /* sub-pixel seam প্রতিরোধে সেফ ট্রিক */
+}
+
+/* যেকোনো ডিবাগ/সেপারেটর পসুডো-এলিমেন্ট থাকলে নিষ্ক্রিয় */
+.desktop-sidebar::before,
+.desktop-sidebar::after,
+.promo-card::before,
+.promo-card::after,
+.banner-area::before,
+.banner-area::after {
+  content: none !important;
+}
+
+.promo-card,
+.product-card,
+.desktop-category-scroll-card,
+.desktop-sidebar,
+.banner-area {
+  backface-visibility: hidden;
+  transform: translateZ(0);
+   /* transparent outline সরালাম — সাবপিক্সেল লাইন আর থাকবে না */
+}
+
+/* ইমেজ ইনলাইন-গ্যাপ এভয়েড (ব্যানার/প্রোমোতে) */
+.banner-area img,
+.promo-card img { display: block; }
+/* ─────────────────────────────────────────────────────────────
+   DESKTOP CATEGORY CARDS - FIXED DESIGN
+────────────────────────────────────────────────────────────── */
+
+/* Desktop Category Cards - Fixed Layout */
+.desktop-category-scroll-card {
+  flex-shrink: 0;
+  display: grid;
+  grid-template-rows: 3fr 1fr; /* Image: 3/4, Title: 1/4 */
+
+  height: 130px;
+  padding: 0;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  transition: border-color .2s ease, box-shadow .2s ease;
+  text-decoration: none;
+  overflow: hidden;
+}
+
+.desktop-category-scroll-card:hover {
+  border-color: #167389;
+  box-shadow: 0 2px 8px rgba(22, 115, 137, 0.15);
+}
+
+/* Image takes full width and 3/4 height */
+.desktop-category-scroll-card__image-wrapper {
+  position: relative;
+
+  height: 100%;
+  overflow: hidden;
+  background: #f9fafb;
+  border-radius: 10px 10px 0 0;
+}
+
+/* Title section - bottom 1/4 */
+.desktop-category-scroll-card__title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  font-size: 11px;
+  font-weight: 700; /* Bold title */
+  color: #374151;
+  text-align: center;
+  line-height: 1.3;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  background: #fff;
+  border-radius: 0 0 10px 10px;
+}
+
+/* Responsive adjustments */
+@media (min-width: 1280px) {
+  .desktop-category-scroll-card {
+    width: 250px;
+    height: 140px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .desktop-category-scroll-card {
+    width: 250px;
+    height: 120px;
+  }
+  
+  .desktop-category-scroll-card__title {
+    font-size: 10px;
+    padding: 6px 3px;
+  }
+}/* Global.css-এ যোগ করুন */
+img {
+  object-fit: cover;
+}
+
+/* Broken image fallback */
+img:before {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+}
+
+img:after {
+  content: "Image not found";
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}/* ─────────────────────────────────────────────────────────────
+   BANNER + PROMO LAYOUT FIX
+────────────────────────────────────────────────────────────── */
+
+
+/* Ensure banner doesn't overflow */
+.hidden.lg\:grid.lg\:grid-cols-\[1fr_220px\] > div:first-child {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+/* Fix for desktop category cards width */
+.desktop-category-scroll-card {
+  width: 110px !important; /* Fixed width */
+  height: 130px !important;
+}
+
+.desktop-category-scroll-card__image-wrapper {
+  width: 100% !important; /* Not 350% */
+  height: 100% !important;
+}
+
+/* Prevent horizontal scroll */
+main {
+  overflow-x: hidden !important;
+}
+
+/* Ensure grid layout stability */
+.grid.grid-cols-1.lg\:grid-cols-\[220px_1fr\] {
+  grid-template-columns: 1fr !important;
+}
+
+@media (min-width: 1024px) {
+  .grid.grid-cols-1.lg\:grid-cols-\[220px_1fr\] {
+    grid-template-columns: 220px 1fr !important;
+  }
 }
