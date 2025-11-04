@@ -268,7 +268,7 @@ export default function TrendingGrid({
           {/* Quantity & Buttons */}
           <div className="mt-auto space-y-2.5">
             {/* Quantity Selector */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between w-full">
               <span className="text-xs text-gray-600">Qty:</span>
               <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
                 <button
@@ -292,7 +292,7 @@ export default function TrendingGrid({
             </div>
 
             {/* Action Buttons */}
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
               <button
                 onClick={() => handleAdd(productData)}
                 disabled={isOutOfStock || loading}
