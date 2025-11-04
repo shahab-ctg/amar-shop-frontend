@@ -53,24 +53,24 @@ function DesktopSidebarBase({ categories, loading }: Props) {
                   <Link
                     key={c._id}
                     href={`/c/${c.slug}`}
-                    className="desktop-sidebar__card"
+                    className=" group h-[150px] rounded-md border border-gray-200 bg-white p-1 flex flex-col items-stretch justify-start hover:shadow-md hover:border-cyan-300 transition"
                   >
-                    <div className="desktop-sidebar__card-image">
-                      {c.image ? (
-                        <Image
-                          src={c.image}
-                          alt={c.title}
-                          fill
-                          sizes="50px"
-                          className="object-cover"
-                        />
-                      ) : (
-                        <div className="h-full w-full grid place-items-center text-[#167389]">
-                          <ShoppingBag size={18} />
-                        </div>
-                      )}
-                    </div>
-                    <div className="desktop-sidebar__card-title font-bold text-[32px]">{c.title}</div>
+                    <div className=" relative basis-[90%] rounded-md overflow-hidden bg-gray-50">
+                                      <Image
+                                        src={c.image || "/placeholder.png"}
+                                        alt={c.title}
+                                        fill
+                                        className="object-contain"
+                                        sizes="(max-width: 640px) 30vw, 20vw"
+                                        // FIX: Add error handling for broken images
+                                        onError={(e) => {
+                                          e.currentTarget.src = "/placeholder.png";
+                                        }}
+                                      />
+                                    </div>
+                                    <p className="basis-[10%] flex items-center justify-center text-[13px] font-semibold text-gray-800 text-center p-2  ">
+                                      {c.title}
+                                    </p>
                   </Link>
                 ))}
           </div>

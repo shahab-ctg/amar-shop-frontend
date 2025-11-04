@@ -107,8 +107,8 @@ localStorage.setItem("customer_phone", data.phone);
   }
 
   return (
-    <div className="bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 min-h-screen py-8 px-4 sm:px-6">
-      <div className="max-w-6xl mx-auto">
+    <div className="mt-6 bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 min-h-screen py-8 px-4 sm:px-6">
+      <div className="max-w-6xl mx-auto pt-10">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}

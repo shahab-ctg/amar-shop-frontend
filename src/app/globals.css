@@ -441,18 +441,18 @@ html, body {
 
 /* ভেতরের কন্টেন্টকে গ্রিড বানাই; কোনো স্ক্রলবার নয় */
 .desktop-sidebar__content {
-  padding: 0 16px 16px !important;
+  padding: 0 8px 8px !important;
   overflow: visible !important;
   max-height: none !important;
   display: grid !important;
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 12px !important;
+  gap: 8px !important;
 }
 
 /* প্রতিটি কার্ডকে পুরোপুরি প্লেইন করা */
 .desktop-sidebar__card {
-  height: auto !important;
-  padding: 8px !important;
+  height: auto;
+  padding: 1px ;
   border: 0 !important;
   box-shadow: none !important;
   background: transparent !important;
@@ -461,17 +461,17 @@ html, body {
 
 /* ছবির র‍্যাপার ছোট/প্লেইন */
 .desktop-sidebar__card-image {
-  width: 40px !important;
-  height: 40px !important;
-  border-radius: 8px !important;
-  background: #f3f4f6 !important;
+  width: 40px;
+  height: 30px;
+  border-radius: 6px;
+  background: #f3f4f6;
 }
 
 /* টাইটেল একটু বড় ও র‍্যাপ-ফ্রেন্ডলি */
 .desktop-sidebar__card-title {
-  font-size: 12px !important;
-  line-height: 1.2 !important;
-  color: #374151 !important;
+  font-size: 8px ;
+ 
+  color: #374151 ;
 }
 
 /* কোনো স্ক্রল UI দেখাবো না (Firefox/Chromium) */
