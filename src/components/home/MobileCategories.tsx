@@ -34,41 +34,26 @@ function MobileCategoriesBase({ categories }: Props) {
         <div className="flex min-w-max gap-2.5 pb-1">
           {categories.map((cat, i) => (
             <Link
-              key={cat._id || `mcat-${i}`}
+              key={cat._id}
               href={`/c/${cat.slug}`}
-              aria-label={cat.title}
-              /* ✅ fixed same size card; no old class names => no conflicts */
-              className="
-                shrink-0 rounded-xl border border-gray-200 bg-white shadow-sm
-                w-[108px] h-[160px] p-2 flex flex-col
-                max-[374px]:w-[96px] max-[374px]:h-[150px]
-                hover:border-cyan-300 hover:shadow transition
-              "
+              className=" group h-[150px] rounded-md border border-gray-200 bg-white p-1 flex flex-col items-stretch justify-start hover:shadow-md hover:border-cyan-300 transition"
             >
-              {/* ✅ image = 80% of card height, full width */}
-              <div className="relative w-full h-[80%] rounded-lg overflow-hidden bg-gray-50">
-                {cat.image ? (
-                  <Image
-                    src={cat.image}
-                    alt={cat.title}
-                    fill
-                    sizes="108px"
-                    className="object-cover"
-                    priority={i < 6}
-                  />
-                ) : (
-                  <div className="grid h-full w-full place-items-center">
-                    <ShoppingBag className="text-[#167389]" size={22} />
-                  </div>
-                )}
+              <div className=" relative basis-[90%] rounded-md overflow-hidden bg-gray-50">
+                <Image
+                  src={cat.image || "/placeholder.png"}
+                  alt={cat.title}
+                  fill
+                  className="object-contain"
+                  sizes="(max-width: 640px) 30vw, 20vw"
+                  // FIX: Add error handling for broken images
+                  onError={(e) => {
+                    e.currentTarget.src = "/placeholder.png";
+                  }}
+                />
               </div>
-
-              {/* ✅ title = 20% area, bold */}
-              <div className="h-[20%] flex items-center justify-center px-1">
-                <p className="text-[12px] font-extrabold leading-tight text-gray-800 text-center line-clamp-2">
-                  {cat.title}
-                </p>
-              </div>
+              <p className="basis-[10%] flex items-center justify-center text-[13px] font-semibold text-gray-800 text-center p-2  ">
+                {cat.title}
+              </p>
             </Link>
           ))}
         </div>

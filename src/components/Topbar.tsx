@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image"; 
+import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -16,11 +16,8 @@ import {
   Sparkles,
   User,
   Link2,
-  
 } from "lucide-react";
 import { Category } from "@/lib/schemas";
-
-
 
 export default function Topbar() {
   const router = useRouter();
@@ -75,7 +72,7 @@ export default function Topbar() {
           throw new Error(`Failed to load categories (${res.status})`);
         const json = await res.json();
         setCategories((json?.data ?? []) as Category[]);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         if (err.name !== "AbortError") {
           setCategoriesError(err.message || "Failed to fetch categories");
@@ -353,22 +350,22 @@ export default function Topbar() {
                   key={cat._id}
                   href={`/products?category=${cat.slug}`}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex flex-col items-center justify-start gap-2 bg-white border border-gray-200 rounded-lg p-3 hover:border-[#167389] hover:shadow-md transition"
+                  className=" group h-[150px] rounded-md border border-gray-200 bg-white p-1 flex flex-col items-stretch justify-start hover:shadow-md hover:border-cyan-300 transition"
                 >
-                  <div className="relative w-[70px] h-[70px] rounded-full overflow-hidden bg-gray-50 flex items-center justify-center">
-                    {cat.image ? (
-                      <Image
-                        src={cat?.image}
-                        alt={cat.title}
-                        fill
-                        sizes="90px"
-                        className="object-cover"
-                      />
-                    ) : (
-                      <ShoppingCart className="text-[#167389]" size={28} />
-                    )}
+                  <div className=" relative basis-[90%] rounded-md overflow-hidden bg-gray-50">
+                    <Image
+                      src={cat.image || "/placeholder.png"}
+                      alt={cat.title}
+                      fill
+                      className="object-contain"
+                      sizes="(max-width: 640px) 30vw, 20vw"
+                      // FIX: Add error handling for broken images
+                      onError={(e) => {
+                        e.currentTarget.src = "/placeholder.png";
+                      }}
+                    />
                   </div>
-                  <p className="text-[11px] sm:text-sm font-medium text-gray-700 text-center line-clamp-2 leading-tight">
+                  <p className="basis-[10%] flex items-center justify-center text-[13px] font-semibold text-gray-800 text-center p-2  ">
                     {cat.title}
                   </p>
                 </Link>
