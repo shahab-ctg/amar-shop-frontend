@@ -70,7 +70,7 @@ export default async function ProductsPage({
 
   return (
     <div className="min-h-screen  bg-white">
-      <div className="mx-auto max-w-7xl px-4 xs:px-5 sm:px-6 lg:px-8 py-8 md:py-12 pt-10">
+      <div className="mx-auto max-w-7xl px-4 xs:px-5 sm:px-6 lg:px-8 py-8 md:py-12 pt-20">
         {/* Header */}
         <div className="mb-6 md:mb-10">
           <div className="flex items-center gap-3">

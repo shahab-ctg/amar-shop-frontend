@@ -1,10 +1,11 @@
+/* store/cartStore.ts */
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 export interface CartItem {
   _id: string;
   title: string;
-  slug: string;
+  slug?: string;
   price: number;
   image?: string;
   quantity: number;
@@ -12,9 +13,7 @@ export interface CartItem {
 
 interface CartStore {
   items: CartItem[];
-  // ✅ Consistent method names
   addItem: (item: CartItem) => void;
-  addToCart: (item: CartItem) => void; // Alternative name for compatibility
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -27,70 +26,51 @@ export const useCartStore = create<CartStore>()(
     (set, get) => ({
       items: [],
 
-      // ✅ Main add item method
-      addItem: (newItem: CartItem) => {
+      addItem: (newItem) => {
         set((state) => {
-          const existingItem = state.items.find(
-            (item) => item._id === newItem._id
-          );
-
-          if (existingItem) {
-            // Update quantity if item exists
-            const updatedItems = state.items.map((item) =>
-              item._id === newItem._id
-                ? { ...item, quantity: item.quantity + newItem.quantity }
-                : item
-            );
-            return { items: updatedItems };
+          const existing = state.items.find((i) => i._id === newItem._id);
+          if (existing) {
+            return {
+              items: state.items.map((i) =>
+                i._id === newItem._id
+                  ? { ...i, quantity: i.quantity + newItem.quantity }
+                  : i
+              ),
+            };
           } else {
-            // Add new item to cart
             return { items: [...state.items, newItem] };
           }
         });
       },
 
-      // ✅ Alternative method name for compatibility
-      addToCart: (item: CartItem) => {
-        get().addItem(item);
+      removeItem: (id) => {
+        set((state) => ({ items: state.items.filter((i) => i._id !== id) }));
       },
 
-      removeItem: (id: string) => {
-        set((state) => ({
-          items: state.items.filter((item) => item._id !== id),
-        }));
-      },
-
-      updateQuantity: (id: string, quantity: number) => {
+      updateQuantity: (id, quantity) => {
         if (quantity <= 0) {
           get().removeItem(id);
           return;
         }
-
         set((state) => ({
-          items: state.items.map((item) =>
-            item._id === id ? { ...item, quantity } : item
+          items: state.items.map((i) =>
+            i._id === id ? { ...i, quantity } : i
           ),
         }));
       },
 
-      clearCart: () => {
-        set({ items: [] });
-      },
+      clearCart: () => set({ items: [] }),
 
       getTotalPrice: () => {
         const state = get();
-        return state.items.reduce((total, item) => {
-          return total + item.price * item.quantity;
-        }, 0);
+        return state.items.reduce((s, it) => s + it.price * it.quantity, 0);
       },
 
       getTotalItems: () => {
         const state = get();
-        return state.items.reduce((total, item) => total + item.quantity, 0);
+        return state.items.reduce((s, it) => s + it.quantity, 0);
       },
     }),
-    {
-      name: "cart-storage",
-    }
+    { name: "cart-storage" }
   )
 );

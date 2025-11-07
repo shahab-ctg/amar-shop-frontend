@@ -1,4 +1,6 @@
+/* lib/fetchProducts.ts */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 import {
   ZCategoriesResponse,
   ZProductsResponse,
@@ -6,6 +8,7 @@ import {
   ZProduct,
   ZCategory,
 } from "@/lib/schemas";
+import type { Banner } from "@/types/banner";
 
 /* ----------------------------- API Base Setup ---------------------------- */
 const API =
@@ -16,12 +19,28 @@ const API =
 const API_BASE = API || "https://amar-shop-backend.vercel.app";
 
 if (!API) {
-  console.warn("⚠️ API URL missing — using fallback");
+  console.warn("⚠️ API URL missing — using fallback", API_BASE);
 }
 
+/* ------------------------------ Types ----------------------------------- */
+export type ProductsQuery = {
+  q?: string;
+  category?: string;
+  discounted?: "true" | "false";
+  featured?: "true" | "false";
+  limit?: number;
+  page?: number;
+  status?: "ACTIVE" | "DRAFT" | "HIDDEN";
+  sort?: string;
+  tag?: string;
+};
+
+type Query =
+  | Record<string, string | number | boolean | undefined | null>
+  | null
+  | undefined;
+
 /* -------------------------- URL builder util ----------------------------- */
-
-
 function buildURL(path: string, params?: Query) {
   const usp = new URLSearchParams();
   if (params) {
@@ -35,21 +54,19 @@ function buildURL(path: string, params?: Query) {
 }
 
 /* -------------------------------------------------------------------------- */
-/* ⚙️ OPTIMIZED FETCH: global in-memory cache + request deduplication + retry */
+/* ⚙️ OPTIMIZED FETCH: in-memory cache + dedupe + small retry                  */
 /* -------------------------------------------------------------------------- */
 
 const requestCache = new Map<string, Promise<any>>();
-const cacheTTL = 5000; // 5 sec short-term memory to prevent bursts
+const cacheTTL = 5000; // short-term cache to avoid duplicate bursts
 
 async function getJSON<T>(path: string, params?: Query): Promise<T> {
   const url = buildURL(path, params);
 
-  // Avoid duplicate calls instantly
   if (requestCache.has(url)) {
     return requestCache.get(url)!;
   }
 
-  // Actual network request
   const fetchPromise = (async () => {
     let attempt = 0;
     while (attempt < 2) {
@@ -58,7 +75,7 @@ async function getJSON<T>(path: string, params?: Query): Promise<T> {
           method: "GET",
           headers: { "content-type": "application/json" },
           cache: "no-store",
-          next: { revalidate: 0 },
+          // next: { revalidate: 0 }, // keep if you use Next fetch flags; commented to avoid TS issues in plain env
         });
 
         if (!res.ok) {
@@ -72,10 +89,9 @@ async function getJSON<T>(path: string, params?: Query): Promise<T> {
       } catch (err) {
         attempt++;
         if (attempt >= 2) {
-          console.error(`Network Error: ${url}`, err);
+          console.error(`Network Error after retries: ${url}`, err);
           throw err;
         }
-        // small retry delay
         await new Promise((r) => setTimeout(r, 300));
       }
     }
@@ -83,14 +99,12 @@ async function getJSON<T>(path: string, params?: Query): Promise<T> {
   })();
 
   requestCache.set(url, fetchPromise);
-
-  // Auto-expire cache after TTL
   setTimeout(() => requestCache.delete(url), cacheTTL);
-
   return fetchPromise;
 }
 
-/* --------------------------- Normalizers (untouched) --------------------------- */
+/* --------------------------- Normalizers --------------------------------- */
+
 function normalizeProductsShape(raw: unknown): {
   arr: unknown[];
   pageInfo?: unknown;
@@ -169,20 +183,12 @@ export async function fetchCategories() {
     }
   } catch (error) {
     console.error("Failed to fetch categories:", error);
-    return { ok: true as const, data: [] };
+    return {
+      ok: true as const,
+      data: [] as ReturnType<typeof ZCategory.parse>[],
+    };
   }
 }
-
-export type ProductsQuery = {
-  q?: string;
-  category?: string;
-  discounted?: "true" | "false";
-  featured?: "true" | "false";
-  limit?: number;
-  page?: number;
-  status?: "ACTIVE" | "DRAFT" | "HIDDEN";
-  sort?: string;
-};
 
 export async function fetchProducts(query?: ProductsQuery) {
   try {
@@ -241,6 +247,7 @@ export async function fetchProducts(query?: ProductsQuery) {
       );
     }
 
+    // if no explicit sort requested, keep new-first
     if (!query?.sort && data.length > 0 && "createdAt" in data[0]) {
       data = [...data].sort((a, b) => {
         const aDate = (a as { createdAt?: string }).createdAt ?? "";
@@ -251,6 +258,7 @@ export async function fetchProducts(query?: ProductsQuery) {
 
     if (limit && data.length > limit) data = data.slice(0, limit);
 
+    // normalize cover image to `image` property
     data = data.map((p) => {
       const cover =
         p.image ?? (Array.isArray(p.images) ? p.images[0] : undefined);
@@ -260,13 +268,17 @@ export async function fetchProducts(query?: ProductsQuery) {
     return { ok: true as const, data, pageInfo };
   } catch (error) {
     console.error("Failed to fetch products:", error);
-    return { ok: true as const, data: [], pageInfo: undefined };
+    return {
+      ok: true as const,
+      data: [] as ReturnType<typeof ZProduct.parse>[],
+      pageInfo: undefined,
+    };
   }
 }
 
 export async function fetchProduct(slug: string) {
   try {
-    const raw = await getJSON<unknown>(`/products/${slug}`);
+    const raw = await getJSON<unknown>(`/products/${encodeURIComponent(slug)}`);
     const parsed = ZOkProduct.parse(raw);
     const p = parsed.data;
     const cover =
@@ -278,57 +290,11 @@ export async function fetchProduct(slug: string) {
   }
 }
 
-// export async function fetchBanners(position?: "hero" | "side") {
-//   try {
-//     const params: Query = position ? { position } : {};
-//     const raw = await getJSON<unknown>("/banners", params);
-
-//     let dataUnknown: unknown[] = [];
-//     if (
-//       raw &&
-//       typeof raw === "object" &&
-//       "data" in (raw as Record<string, unknown>)
-//     ) {
-//       const obj = raw as { data?: unknown };
-//       dataUnknown = Array.isArray(obj.data) ? obj.data : [];
-//     } else if (Array.isArray(raw)) {
-//       dataUnknown = raw as unknown[];
-//     } else {
-//       const arrLike =
-//         raw && typeof raw === "object"
-//           ? Object.values(raw as Record<string, unknown>).find((v) =>
-//               Array.isArray(v)
-//             )
-//           : undefined;
-//       dataUnknown = Array.isArray(arrLike) ? (arrLike as unknown[]) : [];
-//     }
-
-//     type BannerLoose = { status?: string };
-//     const banners = dataUnknown.filter((b) => {
-//       const status = (b as BannerLoose)?.status;
-//       return !status || status.toUpperCase() === "ACTIVE";
-//     });
-
-//     return { ok: true as const, data: banners };
-//   } catch (error) {
-//     console.error("Failed to fetch banners:", error);
-//     return { ok: true as const, data: [] };
-//   }
-// }
-// ---- NEW: Banners ---------------------------------------------------------
-import type { Banner } from "@/types/banner"; // যেভাবে Banner টাইপ রাখেন সেভাবে import করুন
-
-type Query =
-  | Record<string, string | number | boolean | undefined | null>
-  | null
-  | undefined;
-
-// আগেই আছে: buildURL / getJSON / requestCache ইত্যাদি — সেগুলো অপরিবর্তিত রাখুন
-
+/* ------------------------------ Banners ---------------------------------- */
 export async function fetchBanners(params?: {
   position?: "hero" | "side";
   status?: "ACTIVE" | "HIDDEN";
-  limit?: number; // backend ignore করলেও harmless
+  limit?: number;
 }) {
   try {
     const q: Query = {
@@ -339,9 +305,13 @@ export async function fetchBanners(params?: {
 
     const raw = await getJSON<unknown>("/banners", q);
 
-    // raw থেকে array বের করি
+    // extract array from many possible shapes
     let dataUnknown: unknown[] = [];
-    if (raw && typeof raw === "object" && "data" in (raw as Record<string, unknown>)) {
+    if (
+      raw &&
+      typeof raw === "object" &&
+      "data" in (raw as Record<string, unknown>)
+    ) {
       const obj = raw as { data?: unknown };
       dataUnknown = Array.isArray(obj.data) ? obj.data : [];
     } else if (Array.isArray(raw)) {
@@ -349,23 +319,26 @@ export async function fetchBanners(params?: {
     } else {
       const arrLike =
         raw && typeof raw === "object"
-          ? Object.values(raw as Record<string, unknown>).find((v) => Array.isArray(v))
+          ? Object.values(raw as Record<string, unknown>).find((v) =>
+              Array.isArray(v)
+            )
           : undefined;
       dataUnknown = Array.isArray(arrLike) ? (arrLike as unknown[]) : [];
     }
 
-    // শুধু ACTIVE ফিল্টার (সেফগার্ড: status না থাকলে ধরি ok)
     const banners = dataUnknown.filter((b) => {
       const st = (b as { status?: string })?.status;
       return !st || st.toUpperCase() === "ACTIVE";
     }) as Banner[];
 
-    // position match (যদি query পাঠানো হয়)
-    const filtered =
-      params?.position ? banners.filter((b) => b.position === params.position) : banners;
+    const filtered = params?.position
+      ? banners.filter((b) => b.position === params.position)
+      : banners;
 
-    // (optional) limit
-    const final = params?.limit && params.limit > 0 ? filtered.slice(0, params.limit) : filtered;
+    const final =
+      params?.limit && params.limit > 0
+        ? filtered.slice(0, params.limit)
+        : filtered;
 
     return { ok: true as const, data: final };
   } catch (error) {

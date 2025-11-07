@@ -1,3 +1,4 @@
+/* app/(or pages)/search/page.tsx or pages/search.tsx depending on your router */
 "use client";
 
 import { useSearchParams } from "next/navigation";
@@ -10,41 +11,36 @@ import { ZProduct, type Product } from "@/lib/schemas";
 const FALLBACK_IMG =
   "data:image/svg+xml;utf8," +
   encodeURIComponent(
-    `<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600'>
-      <rect width='100%' height='100%' fill='#fdf2f8'/>
-      <text x='50%' y='50%' text-anchor='middle' fill='#ec4899' font-size='20' font-family='Arial'>✨ Product</text>
-    </svg>`
+    `<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600'><rect width='100%' height='100%' fill='#fdf2f8'/><text x='50%' y='50%' text-anchor='middle' fill='#ec4899' font-size='20' font-family='Arial'>✨ Product</text></svg>`
   );
 
 export default function SearchPage() {
   const sp = useSearchParams();
 
-  // URL → query args mapping (stable key-এর জন্য primitive values রাখছি)
   const queryArg = useMemo(() => {
     const discounted = sp.get("discounted") === "true" ? "true" : undefined;
     const featured = sp.get("tag") === "featured" ? "true" : undefined;
-
-    // /search?sort=new অথবা /search?sort=createdAt:desc — দুটোই new হিসেবে ধরছি
+    const trending = sp.get("tag") === "trending" ? "true" : undefined;
     const sortParam = sp.get("sort");
     const sort =
       sortParam === "new" || sortParam === "createdAt:desc"
         ? "createdAt:desc"
         : undefined;
 
+    // If your backend expects tag string instead of boolean flag, map accordingly:
+    // return trending ? { tag: 'trending', limit: 24 } : {...}
     return {
       discounted,
       featured,
+      trending,
       sort,
       limit: 24,
     };
   }, [sp]);
 
-  // ✅ RTK Query hook — ক্যাশ/ডিডুপ/স্টেট হ্যান্ডলিং অটো
   const { data, isLoading } = useGetProductsQuery(queryArg);
-
   const products: Product[] = useMemo(() => {
     const arr = data?.data ?? [];
-    // client-side এ আবার validate করে নেই (টাইপ সেফ রাখার জন্য)
     return arr.map((p) => ZProduct.parse(p));
   }, [data]);
 
@@ -53,12 +49,14 @@ export default function SearchPage() {
       ? "Hot Deals"
       : queryArg.featured === "true"
         ? "Featured Products"
-        : queryArg.sort === "createdAt:desc"
-          ? "New Arrivals"
-          : "All Products";
+        : queryArg.trending === "true"
+          ? "Trending Products"
+          : queryArg.sort === "createdAt:desc"
+            ? "New Arrivals"
+            : "All Products";
 
   return (
-    <main className="py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <main className="py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mt-10">
       <div className="mb-8 text-center">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
           {title}
@@ -84,12 +82,10 @@ export default function SearchPage() {
               p.image ??
               (Array.isArray(p.images) ? p.images[0] : undefined) ??
               FALLBACK_IMG;
-
             const showCompare =
               p.compareAtPrice &&
               p.price &&
               Number(p.compareAtPrice) > Number(p.price);
-
             const discount = showCompare
               ? Math.round(
                   ((Number(p.compareAtPrice) - Number(p.price)) /
@@ -124,11 +120,11 @@ export default function SearchPage() {
                   </h3>
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-lg sm:text-xl font-bold text-gray-900">
-                      ৳{p.price.toLocaleString()}
+                      ৳{Number(p.price).toLocaleString()}
                     </span>
                     {showCompare && (
                       <span className="text-sm text-gray-400 line-through">
-                        ৳{p.compareAtPrice?.toLocaleString()}
+                        ৳{Number(p.compareAtPrice).toLocaleString()}
                       </span>
                     )}
                   </div>

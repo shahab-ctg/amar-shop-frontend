@@ -11,3 +11,4 @@ interface ReduxProviderProps {
 export default function ReduxProvider({ children }: ReduxProviderProps) {
   return <Provider store={store}>{children}</Provider>;
 }
+
