@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // frontend/app/invoices/guest/[token]/page.tsx  (client component or server fetch)
 "use client";
 import React, { useEffect, useState } from "react";

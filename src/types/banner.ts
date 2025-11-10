@@ -9,4 +9,5 @@ export type Banner = {
   position: "hero" | "side";
   createdAt?: string;
   updatedAt?: string;
+  category?: string | { _id: string; slug?: string; title?: string };
 };

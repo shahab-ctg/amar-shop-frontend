@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // frontend/src/components/category/CategoryView.tsx
 import React from "react";
 import Image from "next/image";

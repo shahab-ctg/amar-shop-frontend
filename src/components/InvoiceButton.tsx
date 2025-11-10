@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // frontend/src/components/InvoiceButton.tsx
 import React from "react";
 import { customerDownloadInvoicePdf } from "@/services/invoiceService";

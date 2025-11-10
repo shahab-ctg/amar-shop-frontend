@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // frontend/src/components/PromoHero.tsx
 import Image from "next/image";
 import React from "react";

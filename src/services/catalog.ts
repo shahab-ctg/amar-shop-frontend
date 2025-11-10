@@ -9,6 +9,10 @@ import {
   ZCategory,
 } from "@/lib/schemas";
 import type { Banner } from "@/types/banner";
+import type { Paginated } from "@/types/index"; // তোমার Paginated টাইপ কোথায় আছে সেটা adjust করো
+
+export type BannerPosition = "hero" | "side";
+export type BannerStatus = "ACTIVE" | "HIDDEN";
 
 /* ----------------------------- API Base Setup ---------------------------- */
 const API =
@@ -290,17 +294,22 @@ export async function fetchProduct(slug: string) {
   }
 }
 
-/* ------------------------------ Banners ---------------------------------- */
+//* ------------------------------ Banners ---------------------------------- */
 export async function fetchBanners(params?: {
   position?: "hero" | "side";
   status?: "ACTIVE" | "HIDDEN";
   limit?: number;
+  skip?: number;
+  category?: string;
 }) {
   try {
+    // build query including category & skip if provided
     const q: Query = {
       position: params?.position,
       status: params?.status ?? "ACTIVE",
       limit: params?.limit,
+      skip: params?.skip,
+      category: params?.category,
     };
 
     const raw = await getJSON<unknown>("/banners", q);
@@ -335,10 +344,28 @@ export async function fetchBanners(params?: {
       ? banners.filter((b) => b.position === params.position)
       : banners;
 
+    // if category provided, also filter client-side as fallback (server might ignore)
+    const categoryFiltered = params?.category
+      ? filtered.filter((b) => {
+          const cat = (b as { category?: any })?.category;
+          if (!cat) return false;
+          // category in banner may be string id or populated object with slug
+          if (typeof cat === "string") return cat === params.category;
+          if (typeof cat === "object" && cat !== null) {
+            return (
+              (cat as { _id?: string; slug?: string }).slug ===
+                params.category ||
+              (cat as { _id?: string; slug?: string })._id === params.category
+            );
+          }
+          return false;
+        })
+      : filtered;
+
     const final =
       params?.limit && params.limit > 0
-        ? filtered.slice(0, params.limit)
-        : filtered;
+        ? categoryFiltered.slice(0, params.limit)
+        : categoryFiltered;
 
     return { ok: true as const, data: final };
   } catch (error) {
@@ -346,3 +373,4 @@ export async function fetchBanners(params?: {
     return { ok: true as const, data: [] as Banner[] };
   }
 }
+
