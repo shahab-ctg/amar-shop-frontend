@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 
 import CategoryView from "@/components/category/CategoryView";
+import ProductsGridClient from "@/components/product/ProductsGridClient";
 import { fetchProducts, fetchCategories } from "@/services/catalog";
-import ProductCard from "@/components/ProductCard";
 import type { Product, Category } from "@/types";
 import { Grid3x3, Search } from "lucide-react";
 import Link from "next/link";
@@ -9,14 +11,12 @@ import Link from "next/link";
 export const revalidate = 30;
 
 interface ProductsPageProps {
-  
   searchParams: Promise<{ category?: string; q?: string }>;
 }
 
 export default async function ProductsPage({
   searchParams,
 }: ProductsPageProps) {
-
   const params = await searchParams;
   const { category, q } = params;
 
@@ -24,21 +24,74 @@ export default async function ProductsPage({
     return <CategoryView slug={decodeURIComponent(category)} />;
   }
 
-  // All products (limit ≤ 60)
+  const initialLimit = 20;
+
+  // server fetch first page only
   const [productsRes, categoriesRes] = await Promise.all([
     fetchProducts({
-      limit: 60,
+      page: 1,
+      limit: initialLimit,
       category: category,
       q: q,
     }),
     fetchCategories(),
   ]);
 
-  const products: Product[] = productsRes.data ?? [];
-  const categories: Category[] = categoriesRes.data ?? [];
+  // --- Runtime type guards to support two shapes:
+  // 1) productsRes.data === Product[] (older helper)
+  // 2) productsRes.data === { items: Product[], total, page, limit, pages }
+  const rawData: any = productsRes?.data;
+
+  let products: Product[] = [];
+  const defaultMeta = {
+    total: 0,
+    page: 1,
+    limit: initialLimit,
+    pages: 1,
+  };
+  let initialMeta = { ...defaultMeta };
+
+  if (Array.isArray(rawData)) {
+    // case: rawData is an array of products
+    products = rawData as Product[];
+    initialMeta = {
+      total: products.length,
+      page: 1,
+      limit: products.length || initialLimit,
+      pages: 1,
+    };
+  } else if (rawData && typeof rawData === "object") {
+    // case: rawData is an object, possibly with items + meta
+    const items = Array.isArray(rawData.items)
+      ? (rawData.items as Product[])
+      : [];
+    products = items.length ? items : (rawData as Product[]); // fallback
+
+    initialMeta = {
+      total:
+        typeof rawData.total === "number" ? rawData.total : products.length,
+      page: typeof rawData.page === "number" ? rawData.page : 1,
+      limit: typeof rawData.limit === "number" ? rawData.limit : initialLimit,
+      pages:
+        typeof rawData.pages === "number"
+          ? rawData.pages
+          : Math.max(
+              1,
+              Math.ceil(
+                (rawData.total ?? products.length) /
+                  (rawData.limit ?? initialLimit)
+              )
+            ),
+    };
+  } else {
+    // unknown shape -> keep empty defaults
+    products = [];
+    initialMeta = { total: 0, page: 1, limit: initialLimit, pages: 1 };
+  }
+
+  const categories: Category[] = categoriesRes?.data ?? [];
   const activeCategory = categories.find((c) => c.slug === category);
 
-  // Empty state
   if (products.length === 0) {
     return (
       <div className="min-h-[60vh] bg-gradient-to-b from[#F5FDF8] to-[#F5FDF8]">
@@ -53,7 +106,7 @@ export default async function ProductsPage({
             <p className="text-gray-600 mb-6 sm:mb-8">
               {q
                 ? `No results found for "${q}"`
-                : "New organic products will be added soon"}
+                : "New products will be added soon"}
             </p>
             <Link
               href="/products"
@@ -69,45 +122,31 @@ export default async function ProductsPage({
   }
 
   return (
-    <div className="min-h-screen  bg-white">
+    <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-7xl px-4 xs:px-5 sm:px-6 lg:px-8 py-8 md:py-12 pt-20">
-        {/* Header */}
         <div className="mb-6 md:mb-10">
           <div className="flex items-center gap-3">
             <div className="p-2.5 bg-[#167389] text-white rounded-xl">
-              <Grid3x3 className="w-6 h-6 bg-[]" aria-hidden="true" />
+              <Grid3x3 className="w-6 h-6" aria-hidden="true" />
             </div>
             <div className="min-w-0">
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 truncate">
                 {activeCategory?.title || "All Products"}
               </h1>
               <p className="text-sm text-gray-600 mt-1">
-                {products.length} fresh original products
+                {initialMeta.total} fresh original products
               </p>
             </div>
           </div>
         </div>
 
-        {/* Products Grid */}
-        <div
-          className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6"
-          aria-label="Products"
-        >
-          {products.map((product) => (
-            <div key={product._id} className="min-w-0">
-              <ProductCard product={product} />
-            </div>
-          ))}
-        </div>
+        <ProductsGridClient
+          initialItems={products}
+          initialMeta={initialMeta}
+          category={category}
+          q={q}
+        />
       </div>
     </div>
   );
 }
-
-/* -------- Optional type-only fix (চাইলে নিন) --------
-interface ProductsPageProps { searchParams: { category?: string; q?: string }; }
-export default async function ProductsPage({ searchParams }: ProductsPageProps) {
-  const { category, q } = searchParams;
-  ...
-}
------------------------------------------------------- */

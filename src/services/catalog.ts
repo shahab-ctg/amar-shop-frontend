@@ -1,5 +1,5 @@
-/* lib/fetchProducts.ts */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* lib/fetchProducts.ts */
 
 import {
   ZCategoriesResponse,
@@ -9,7 +9,7 @@ import {
   ZCategory,
 } from "@/lib/schemas";
 import type { Banner } from "@/types/banner";
-import type { Paginated } from "@/types/index"; // তোমার Paginated টাইপ কোথায় আছে সেটা adjust করো
+import type { Paginated } from "@/types/index"; // adjust if needed
 
 export type BannerPosition = "hero" | "side";
 export type BannerStatus = "ACTIVE" | "HIDDEN";
@@ -79,7 +79,6 @@ async function getJSON<T>(path: string, params?: Query): Promise<T> {
           method: "GET",
           headers: { "content-type": "application/json" },
           cache: "no-store",
-          // next: { revalidate: 0 }, // keep if you use Next fetch flags; commented to avoid TS issues in plain env
         });
 
         if (!res.ok) {
@@ -109,7 +108,7 @@ async function getJSON<T>(path: string, params?: Query): Promise<T> {
 
 /* --------------------------- Normalizers --------------------------------- */
 
-function normalizeProductsShape(raw: unknown): {
+function __normalizeProductsShape(raw: unknown): {
   arr: unknown[];
   pageInfo?: unknown;
 } {
@@ -194,8 +193,11 @@ export async function fetchCategories() {
   }
 }
 
+/* -------------------------- UPDATED fetchProducts (fixed) ------------------------ */
+
 export async function fetchProducts(query?: ProductsQuery) {
   try {
+    // normalize requested limit
     let limit = query?.limit;
     if (typeof limit === "number") {
       if (!Number.isFinite(limit) || limit <= 0) limit = undefined;
@@ -208,6 +210,7 @@ export async function fetchProducts(query?: ProductsQuery) {
       status: query?.status ?? "ACTIVE",
     };
 
+    // fetch raw response
     let raw: unknown;
     try {
       raw = await getJSON<unknown>("/products", params);
@@ -223,26 +226,68 @@ export async function fetchProducts(query?: ProductsQuery) {
       }
     }
 
+    // extract array + page info robustly
     let arr: unknown[] = [];
-    let pageInfo: unknown | undefined;
-    try {
-      const parsed = ZProductsResponse.parse(raw);
-      arr = parsed.data;
-      pageInfo = parsed.pageInfo;
-    } catch {
-      const norm = normalizeProductsShape(raw);
-      arr = norm.arr;
-      pageInfo = norm.pageInfo;
+    // make pageInfo permissive so assignments like {} or { total: ... } are fine
+    let pageInfo: Record<string, any> | undefined = undefined;
+
+    const maybeObj = raw as Record<string, unknown> | unknown[];
+
+    if (maybeObj && typeof maybeObj === "object" && "data" in (maybeObj as any)) {
+      const boxed = (maybeObj as any).data;
+      if (Array.isArray(boxed)) {
+        arr = boxed;
+        pageInfo = (maybeObj as any).pageInfo ?? (maybeObj as any).meta ?? undefined;
+      } else if (boxed && typeof boxed === "object") {
+        arr =
+          (boxed.items as unknown[]) ??
+          (boxed.docs as unknown[]) ??
+          (boxed.results as unknown[]) ??
+          (boxed.data as unknown[]) ??
+          [];
+        pageInfo =
+          (boxed as Record<string, unknown>)?.pageInfo ??
+          (boxed as Record<string, unknown>)?.meta ??
+          {
+            total: (boxed as any).total,
+            page: (boxed as any).page,
+            limit: (boxed as any).limit,
+            pages: (boxed as any).pages,
+          };
+      }
+    } else {
+      if (Array.isArray(raw)) {
+        arr = raw as unknown[];
+      } else if (raw && typeof raw === "object") {
+        const firstArr = Object.values(raw as Record<string, unknown>).find((v) =>
+          Array.isArray(v)
+        );
+        arr = Array.isArray(firstArr) ? (firstArr as unknown[]) : [];
+        pageInfo =
+          (raw as Record<string, unknown>)?.pageInfo ??
+          (raw as Record<string, unknown>)?.meta ??
+          {
+            total: (raw as any).total,
+            page: (raw as any).page,
+            limit: (raw as any).limit,
+            pages: (raw as any).pages,
+          };
+      }
     }
 
+    if (!Array.isArray(arr)) arr = [];
+
+    // validate items with ZProduct
     const validated: Array<ReturnType<typeof ZProduct.parse>> = [];
     for (const item of arr) {
       const res = ZProduct.safeParse(item);
       if (res.success) validated.push(res.data);
     }
 
+    // default filter active
     let data = validated.filter((p) => p.status === "ACTIVE");
 
+    // discounted filter client-side fallback
     if (query?.discounted === "true") {
       data = data.filter(
         (p) =>
@@ -251,7 +296,7 @@ export async function fetchProducts(query?: ProductsQuery) {
       );
     }
 
-    // if no explicit sort requested, keep new-first
+    // default sort (new-first) when createdAt present
     if (!query?.sort && data.length > 0 && "createdAt" in data[0]) {
       data = [...data].sort((a, b) => {
         const aDate = (a as { createdAt?: string }).createdAt ?? "";
@@ -260,25 +305,66 @@ export async function fetchProducts(query?: ProductsQuery) {
       });
     }
 
-    if (limit && data.length > limit) data = data.slice(0, limit);
+    // client-side slicing fallback if backend didn't respect limit
+    const usedLimit = typeof params.limit === "number" ? params.limit : undefined;
+    if (usedLimit && data.length > usedLimit) data = data.slice(0, usedLimit);
 
-    // normalize cover image to `image` property
+    // normalize cover image to `image`
     data = data.map((p) => {
       const cover =
         p.image ?? (Array.isArray(p.images) ? p.images[0] : undefined);
       return cover ? { ...p, image: cover } : p;
     });
 
-    return { ok: true as const, data, pageInfo };
+    // derive canonical paging values
+    const totalFromPageInfo =
+      typeof (pageInfo as any)?.total === "number"
+        ? (pageInfo as any).total
+        : typeof (maybeObj as any)?.total === "number"
+        ? (maybeObj as any).total
+        : undefined;
+
+    const pageFromPageInfo =
+      typeof (pageInfo as any)?.page === "number"
+        ? (pageInfo as any).page
+        : typeof (maybeObj as any)?.page === "number"
+        ? (maybeObj as any).page
+        : 1;
+
+    const limitFromPageInfo =
+      typeof (pageInfo as any)?.limit === "number"
+        ? (pageInfo as any).limit
+        : typeof (maybeObj as any)?.limit === "number"
+        ? (maybeObj as any).limit
+        : usedLimit ?? data.length;
+
+    const pagesFromPageInfo =
+      typeof (pageInfo as any)?.pages === "number"
+        ? (pageInfo as any).pages
+        : totalFromPageInfo && limitFromPageInfo
+        ? Math.max(1, Math.ceil(Number(totalFromPageInfo) / Number(limitFromPageInfo)))
+        : 1;
+
+    const normalized = {
+      items: data,
+      total: typeof totalFromPageInfo === "number" ? totalFromPageInfo : data.length,
+      page: Number(pageFromPageInfo || 1),
+      limit: Number(limitFromPageInfo || (usedLimit ?? data.length)),
+      pages: Number(pagesFromPageInfo || 1),
+    };
+
+    return { ok: true as const, data: normalized };
   } catch (error) {
     console.error("Failed to fetch products:", error);
     return {
       ok: true as const,
-      data: [] as ReturnType<typeof ZProduct.parse>[],
-      pageInfo: undefined,
+      data: { items: [] as ReturnType<typeof ZProduct.parse>[], total: 0, page: 1, limit: 0, pages: 0 },
     };
   }
 }
+
+
+/* ------------------------------ fetchProduct ----------------------------- */
 
 export async function fetchProduct(slug: string) {
   try {
@@ -294,7 +380,7 @@ export async function fetchProduct(slug: string) {
   }
 }
 
-//* ------------------------------ Banners ---------------------------------- */
+/* ------------------------------ Banners ---------------------------------- */
 export async function fetchBanners(params?: {
   position?: "hero" | "side";
   status?: "ACTIVE" | "HIDDEN";
@@ -303,7 +389,6 @@ export async function fetchBanners(params?: {
   category?: string;
 }) {
   try {
-    // build query including category & skip if provided
     const q: Query = {
       position: params?.position,
       status: params?.status ?? "ACTIVE",
@@ -314,7 +399,6 @@ export async function fetchBanners(params?: {
 
     const raw = await getJSON<unknown>("/banners", q);
 
-    // extract array from many possible shapes
     let dataUnknown: unknown[] = [];
     if (
       raw &&
@@ -344,12 +428,10 @@ export async function fetchBanners(params?: {
       ? banners.filter((b) => b.position === params.position)
       : banners;
 
-    // if category provided, also filter client-side as fallback (server might ignore)
     const categoryFiltered = params?.category
       ? filtered.filter((b) => {
           const cat = (b as { category?: any })?.category;
           if (!cat) return false;
-          // category in banner may be string id or populated object with slug
           if (typeof cat === "string") return cat === params.category;
           if (typeof cat === "object" && cat !== null) {
             return (
@@ -373,4 +455,3 @@ export async function fetchBanners(params?: {
     return { ok: true as const, data: [] as Banner[] };
   }
 }
-
