@@ -1,0 +1,17 @@
+
+export type AppProduct = {
+  _id: string;
+  title: string;
+  slug: string;
+  price: number;
+  status?: "ACTIVE" | "DRAFT" | "HIDDEN";
+  description?: string;
+  image?: string; // primary image url
+  images?: string[]; // gallery
+  compareAtPrice?: number;
+  stock?: number; // available stock count
+  sku?: string;
+  vendor?: string;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
+};

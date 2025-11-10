@@ -1,8 +1,8 @@
 import Link from "next/link";
-import type { Product } from "@/types";
+import type { AppProduct } from "@/types/product";
 import Image from "next/image";
 
-export default function ProductCardCompact({ p }: { p: Product }) {
+export default function ProductCardCompact({ p }: { p: AppProduct }) {
   const discount =
     p.compareAtPrice && p.compareAtPrice > p.price
       ? Math.round(((p.compareAtPrice - p.price) / p.compareAtPrice) * 100)
@@ -40,7 +40,7 @@ export default function ProductCardCompact({ p }: { p: Product }) {
         </div>
         <Link
           href={`/products/${p.slug}`}
-          className="block text-center rounded-xl bg-gradient-to-r from-[#167389] to-[#167389] text-white px-3 py-2 sm:py-2.5 text-sm   font-semibold hover:from-cyan-200 hover:to-cyan-600 transition-all shadow-sm hover:shadow-md"
+          className="block text-center rounded-xl bg-gradient-to-r from-[#167389] to-[#167389] text-white px-3 py-2 sm:py-2.5 text-sm font-semibold hover:from-cyan-200 hover:to-cyan-600 transition-all shadow-sm hover:shadow-md"
         >
           View details
         </Link>

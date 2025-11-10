@@ -1,114 +1,218 @@
 "use client";
 
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Eye, Star } from "lucide-react";
-import type { Product } from "@/types";
+import { Eye } from "lucide-react";
+import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
-interface ProductCardProps {
-  product: Product;
+// Adjust type import path to your project
+import type { AppProduct } from "@/types/product";
+import { useCartStore } from "@/store/cartStore";
+
+/**
+ * Props:
+ *  - product: product object from backend (supports .stock, .images/.image, .compareAtPrice, .slug, .title)
+ *  - showDiscount?: boolean - show % badge
+ *  - compact?: boolean - smaller variant (optional)
+ *  - onAddToCart?: (product, qty) => void (optional override)
+ */
+type Props = {
+  product: AppProduct | any;
   showDiscount?: boolean;
-}
+  compact?: boolean;
+  onAddToCart?: (p: any, qty?: number) => void;
+};
+
+const formatPrice = (v?: number) =>
+  `৳${Number(v ?? 0).toLocaleString("en-BD")}`;
 
 export default function ProductCard({
   product,
-  showDiscount = false,
-}: ProductCardProps) {
-  const img =
-    product.image ?? "https://via.placeholder.com/600x400?text=Product";
-  const stock = product.stock ?? 0;
+  showDiscount = true,
+  compact = false,
+  onAddToCart,
+}: Props) {
+  const router = useRouter();
+  const addItem = useCartStore((s) => s.addItem);
+  const cartItems = useCartStore((s) => s.items);
 
+  // compute base fields with safe fallbacks
+  const title = String(product?.title ?? product?.name ?? "Untitled");
+  const slug = String(product?.slug ?? product?._id ?? "");
+  const images = Array.isArray(product?.images)
+    ? product.images
+    : product?.image
+      ? [product.image]
+      : [];
+  const image = images.length ? images[0] : "/images/placeholder.png";
+  const price = Number(product?.price ?? 0);
+  const compare = Number(product?.compareAtPrice ?? 0);
   const discount =
-    product.compareAtPrice && product.compareAtPrice > product.price
-      ? Math.round(
-          ((product.compareAtPrice - product.price) / product.compareAtPrice) *
-            100
-        )
+    compare > price && price > 0
+      ? Math.round(((compare - price) / compare) * 100)
       : 0;
 
-  const isOutOfStock = stock === 0;
+  // available stock considers reserved qty in cart (frontend reserved map)
+  const reservedQty = useMemo(() => {
+    const found = cartItems.find((c) => String(c._id) === String(product._id));
+    return found?.quantity ?? 0;
+  }, [cartItems, product._id]);
+
+  const rawStock = Number(product?.availableStock ?? product?.stock ?? 0);
+  const available = Math.max(0, rawStock - reservedQty);
+  const isOut = available <= 0;
+  const isLow = !isOut && available <= 5;
+
+  const [adding, setAdding] = useState(false);
+
+  const handleAdd = async (qty = 1) => {
+    if (isOut) {
+      toast.error("Out of stock");
+      return;
+    }
+    if (qty > available) {
+      toast.error(`Only ${available} left`);
+      return;
+    }
+
+    try {
+      setAdding(true);
+      // allow override
+      if (onAddToCart) {
+        await Promise.resolve(onAddToCart(product, qty));
+      } else {
+        addItem({
+          _id: String(product._id),
+          title,
+          slug,
+          price,
+          image,
+          quantity: qty,
+        });
+      }
+      toast.success(`${qty} × ${title} added to cart`);
+    } catch (e) {
+      console.error("Add to cart failed", e);
+      toast.error("Failed to add to cart");
+    } finally {
+      setTimeout(() => setAdding(false), 300); // slight UX delay
+    }
+  };
+
+  const handleBuyNow = async () => {
+    if (isOut) {
+      toast.error("Out of stock");
+      return;
+    }
+    try {
+      await handleAdd(1);
+      // navigate to checkout (you may want to clear/adjust cart logic)
+      router.push("/checkout");
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   return (
-    <motion.div
-      whileHover={{ y: -5 }}
-      transition={{ duration: 0.3 }}
-      className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group relative border border-gray-100"
+    <motion.article
+      whileHover={{ y: -6 }}
+      transition={{ duration: 0.25 }}
+      className={`group bg-white rounded-2xl shadow-sm transition-shadow overflow-hidden border border-gray-100 flex flex-col ${
+        compact ? "p-3" : ""
+      }`}
     >
-      {/* Product Image */}
-      <Link href={`/products/${product.slug}`}>
-        <div className="product-card__image product-card__image--bleed rounded-t-md relative overflow-hidden">
-          <Image
-            src={product.image ?? "/placeholder.png"}
-            alt={product.title}
-            fill
-            sizes="(max-width:640px) 50vw, (max-width:1024px) 25vw, 20vw"
-            className="product-card__img product-card__img--cover"
-            priority={false}
-          />
+      {/* IMAGE */}
+      <Link
+        href={`/products/${slug}`}
+        className="relative w-full h-44 sm:h-52 md:h-64 bg-white flex items-center justify-center overflow-hidden"
+        aria-label={`View ${title}`}
+      >
+        <Image
+          src={image}
+          alt={title}
+          fill
+          sizes="(max-width:640px) 50vw, (max-width:1024px) 33vw, 25vw"
+          className="object-contain transition-transform duration-500 group-hover:scale-105"
+          priority={false}
+        />
+        {/* badges */}
+        <div className="absolute top-3 left-3 flex gap-2 pointer-events-none">
+          {showDiscount && discount > 0 && (
+            <span className="bg-gradient-to-r from-pink-600 to-rose-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+              -{discount}%
+            </span>
+          )}
+          {isOut ? (
+            <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+              Out
+            </span>
+          ) : isLow ? (
+            <span className="bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm">
+              Low
+            </span>
+          ) : null}
         </div>
       </Link>
 
-      {/* Info */}
-      <div className="p-4 sm:p-5">
-        <Link href={`/products/${product.slug}`}>
-          <h3 className="font-bold text-base sm:text-lg text-gray-800 mb-2 line-clamp-2 group-hover:text-pink-600 transition-colors min-h-[3rem]">
-            {product.title}
+      {/* CONTENT */}
+      <div className="p-3 flex flex-col flex-1">
+        <Link href={`/products/${slug}`} className="mb-2">
+          <h3 className="text-sm sm:text-base font-semibold text-gray-800 line-clamp-2 min-h-[2.5rem]">
+            {title}
           </h3>
         </Link>
 
-        {/* Mock Rating */}
-        <div className="flex items-center gap-1 mb-3">
-          {[...Array(5)].map((_, i) => (
-            <Star
-              key={i}
-              size={14}
-              className={
-                i < 4 ? "text-pink-400 fill-pink-400" : "text-gray-300"
-              }
-            />
-          ))}
-          <span className="text-xs text-gray-500 ml-1">(4.0)</span>
+        <div className="flex items-baseline justify-between mb-3">
+          <div>
+            <div className="text-lg sm:text-xl font-bold text-gray-900">
+              {formatPrice(price)}
+            </div>
+            {compare > price && (
+              <div className="text-sm text-gray-400 line-through">
+                {formatPrice(compare)}
+              </div>
+            )}
+          </div>
+
+          <div className="text-xs text-gray-600">
+            {isOut ? (
+              <span className="text-red-600 font-semibold">Out of Stock</span>
+            ) : isLow ? (
+              <span className="text-orange-500 font-semibold">
+                Only {available} left
+              </span>
+            ) : (
+              <span className="text-green-600 font-semibold">In Stock</span>
+            )}
+          </div>
         </div>
 
-        {/* Price */}
-        <div className="flex items-baseline gap-2 mb-4">
-          <span className="text-xl sm:text-2xl font-bold text-gray-900">
-            ৳{product.price}
-          </span>
-          {product.compareAtPrice && product.compareAtPrice > product.price && (
-            <span className="text-sm text-gray-400 line-through">
-              ৳{product.compareAtPrice}
-            </span>
-          )}
-        </div>
-
-        {/* View Details */}
-        <Link href={`/products/${product.slug}`}>
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="w-full bg-gradient-to-r from-[#167389] to-[#167389] hover:from-cyan-200 hover:to-cyan-600 text-white py-2.5 sm:py-3 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale"
-            disabled={isOutOfStock}
+        {/* actions */}
+        <div className="mt-auto grid grid-cols-2 gap-2">
+          <button
+            onClick={() => handleAdd(1)}
+            disabled={isOut || adding}
+            className="px-3 py-2 rounded-lg bg-[#167389] text-white text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
+            aria-disabled={isOut || adding}
           >
-            <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
-            <span className="text-sm sm:text-base">See Details</span>
-          </motion.button>
-        </Link>
-
-        {/* Stock Info */}
-        <p className="text-xs text-gray-500 mt-2 text-center">
-          {isOutOfStock ? (
-            <span className="text-red-500 font-semibold">Out of Stock</span>
-          ) : stock < 10 ? (
-            <span className="text-orange-500 font-semibold">
-              Only {stock} more left!
+            {adding ? "Adding..." : "Add"}
+          </button>
+          <button
+            onClick={handleBuyNow}
+            disabled={isOut}
+            className="px-3 py-2 rounded-lg bg-gradient-to-r from-pink-600 to-rose-600 text-white text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
+            aria-disabled={isOut}
+          >
+            <span className="inline-flex items-center gap-2">
+              <Eye className="w-4 h-4" />
+              <span>Buy</span>
             </span>
-          ) : (
-            <span className="text-pink-600">In Stock</span>
-          )}
-        </p>
+          </button>
+        </div>
       </div>
-    </motion.div>
+    </motion.article>
   );
 }

@@ -13,6 +13,7 @@ import { useState, useEffect } from "react";
 import HeroBannerClient from "@/components/home/HeroBannerClient";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import TrendingGrid from "@/components/home/TrendingGrid";
+import ManufacturerBannerSlider from "@/components/ManufacturerBannerSlider";
 
 export default function HomePage() {
   const [isMounted, setIsMounted] = useState(false);
@@ -120,6 +121,11 @@ export default function HomePage() {
               products={hotDeals} 
               className="mt-2"
             />
+          </ErrorBoundary>
+
+
+          <ErrorBoundary>
+            <ManufacturerBannerSlider></ManufacturerBannerSlider>
           </ErrorBoundary>
 
           <ErrorBoundary>

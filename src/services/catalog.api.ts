@@ -1,12 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* services/catalog.api.ts */
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import {
   fetchBanners,
   fetchCategories,
   fetchProducts,
-  fetchProduct,
+  
   type ProductsQuery,
-} from "@/services/catalog"; // <-- তোমার merged fetch file path
+} from "@/services/catalog"; 
 import type { Product, Category } from "@/lib/schemas";
 import type { Banner } from "@/types/banner";
 

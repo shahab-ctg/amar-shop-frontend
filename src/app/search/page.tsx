@@ -1,12 +1,13 @@
-/* app/(or pages)/search/page.tsx or pages/search.tsx depending on your router */
-"use client";
 
+"use client";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useMemo } from "react";
 import { useGetProductsQuery } from "@/services/catalog.api";
 import { ZProduct, type Product } from "@/lib/schemas";
+import { ProductsQuery } from "@/services/catalog";
+
 
 const FALLBACK_IMG =
   "data:image/svg+xml;utf8," +
@@ -17,28 +18,37 @@ const FALLBACK_IMG =
 export default function SearchPage() {
   const sp = useSearchParams();
 
-  const queryArg = useMemo(() => {
-    const discounted = sp.get("discounted") === "true" ? "true" : undefined;
-    const featured = sp.get("tag") === "featured" ? "true" : undefined;
-    const trending = sp.get("tag") === "trending" ? "true" : undefined;
+  // --- build a ProductsQuery typed object ---
+  const queryArg = useMemo<ProductsQuery>(() => {
+    // explicitly type the literal flagged values so TS treats them as "true" | undefined
+    const discounted: "true" | undefined =
+      sp.get("discounted") === "true" ? "true" : undefined;
+    const featured: "true" | undefined =
+      sp.get("tag") === "featured" ? "true" : undefined;
+
+    // NOTE: `ProductsQuery` in our lib expects `tag?: string` for tag-based filtering.
+    // For `?tag=trending` we should pass { tag: "trending" } instead of `trending: "true"`.
+    const tag = sp.get("tag") ?? undefined; // 'trending' | 'featured' | undefined
+
     const sortParam = sp.get("sort");
     const sort =
       sortParam === "new" || sortParam === "createdAt:desc"
         ? "createdAt:desc"
         : undefined;
 
-    // If your backend expects tag string instead of boolean flag, map accordingly:
-    // return trending ? { tag: 'trending', limit: 24 } : {...}
     return {
+      // ProductsQuery: discounted?: "true" | "false"; featured?: "true" | "false"; tag?: string; limit?: number; sort?: string
       discounted,
       featured,
-      trending,
+      tag,
       sort,
       limit: 24,
-    };
+    } as ProductsQuery;
   }, [sp]);
 
+  // pass the typed queryArg (or undefined) to RTK Query
   const { data, isLoading } = useGetProductsQuery(queryArg);
+
   const products: Product[] = useMemo(() => {
     const arr = data?.data ?? [];
     return arr.map((p) => ZProduct.parse(p));
@@ -49,7 +59,7 @@ export default function SearchPage() {
       ? "Hot Deals"
       : queryArg.featured === "true"
         ? "Featured Products"
-        : queryArg.trending === "true"
+        : queryArg.tag === "trending"
           ? "Trending Products"
           : queryArg.sort === "createdAt:desc"
             ? "New Arrivals"

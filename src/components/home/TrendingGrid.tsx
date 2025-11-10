@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* components/TrendingGrid.tsx */
 "use client";
 
@@ -6,19 +7,19 @@ import Link from "next/link";
 import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cartStore";
-import type { Product } from "@/lib/schemas";
 import { toast } from "react-hot-toast";
 import { useConfirmOrderMutation } from "@/services/catalog.api";
+import type { AppProduct } from "@/types/product"; // <-- use shared type
 
 interface TrendingGridProps {
   title?: string;
   subtitle?: string;
-  products: Product[];
+  products: AppProduct[]; // <-- strict AppProduct
   className?: string;
 }
 
 interface ComputedProduct {
-  p: Product;
+  p: AppProduct;
   image: string;
   price: number;
   compare: number;

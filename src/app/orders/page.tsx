@@ -1,22 +1,95 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { AlertCircle, Search, Sparkles, Package } from "lucide-react";
 import OrderCard from "@/components/orders/OrderCard";
 import { useCustomerOrders } from "@/hooks/useCustomerOrders";
 import type { Order, OrderStatus } from "@/types/order";
+import Link from "next/link";
+
+/**
+ * IMPORTANT:
+ * This UI expects a public backend endpoint:
+ * GET  /api/v1/invoices/by-order/:orderId
+ * which returns invoice doc or 404 if none. The invoice doc should include:
+ * { _id, invoiceNumber, pdfUrl?, guestToken? }
+ *
+ * If you don't have that endpoint yet, add it in backend (I provided snippet below).
+ */
 
 export default function MyOrdersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "">("");
-
   const { orders, isLoading, error } = useCustomerOrders();
 
+  // local state for invoice checks keyed by orderId
+  const [invoiceCache, setInvoiceCache] = useState<Record<string, any | null>>(
+    {}
+  );
+  const [loadingInvoice, setLoadingInvoice] = useState<Record<string, boolean>>(
+    {}
+  );
+
+  const fetchInvoiceForOrder = useCallback(
+    async (orderId: string) => {
+      // avoid duplicate requests
+      if (invoiceCache[orderId] !== undefined) return invoiceCache[orderId];
+      setLoadingInvoice((s) => ({ ...s, [orderId]: true }));
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/invoices/by-order/${orderId}`
+        );
+        if (res.status === 404) {
+          setInvoiceCache((s) => ({ ...s, [orderId]: null }));
+          return null;
+        }
+        if (!res.ok) {
+          throw new Error(`Server ${res.status}`);
+        }
+        const invoice = await res.json();
+        setInvoiceCache((s) => ({ ...s, [orderId]: invoice }));
+        return invoice;
+      } catch (err) {
+        console.error("fetchInvoiceForOrder", err);
+        setInvoiceCache((s) => ({ ...s, [orderId]: null })); // mark as none to avoid retry storm
+        return null;
+      } finally {
+        setLoadingInvoice((s) => ({ ...s, [orderId]: false }));
+      }
+    },
+    [invoiceCache]
+  );
+
+  const handleOpenInvoice = async (order: Order) => {
+    const invoice = await fetchInvoiceForOrder(order._id);
+    if (!invoice) {
+      alert(
+        "No invoice found for this order. Please contact support if you need one."
+      );
+      return;
+    }
+    // Prefer direct PDF if available
+    if (invoice.pdfUrl) {
+      window.open(invoice.pdfUrl, "_blank");
+      return;
+    }
+    // Otherwise if guestToken available open public guest view
+    if (invoice.guestToken) {
+      const guestUrl = `${process.env.NEXT_PUBLIC_APP_ORIGIN || ""}/invoices/guest/${invoice.guestToken}`;
+      window.open(guestUrl, "_blank");
+      return;
+    }
+    alert("Invoice exists but PDF is not ready yet. Please try again later.");
+  };
+
+  // Filtering
   const filteredOrders =
     orders?.filter((order) => {
       const matchesSearch =
         order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.customer.name.toLowerCase().includes(searchTerm.toLowerCase());
+        (order.customer?.name ?? "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase());
       const matchesStatus = !statusFilter || order.status === statusFilter;
       return matchesSearch && matchesStatus;
     }) || [];
@@ -63,6 +136,7 @@ export default function MyOrdersPage() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-12 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#167389] focus:border-[#167389] text-gray-700"
+                aria-label="Search orders"
               />
             </div>
             <select
@@ -71,6 +145,7 @@ export default function MyOrdersPage() {
                 setStatusFilter(e.target.value as OrderStatus | "")
               }
               className="px-4 py-3 border rounded-xl focus:ring-2 focus:ring-[#167389] text-gray-700"
+              aria-label="Filter by status"
             >
               <option value="">All Status</option>
               <option value="PENDING">Pending</option>
@@ -85,7 +160,50 @@ export default function MyOrdersPage() {
         <div className="space-y-6">
           {filteredOrders.length > 0 ? (
             filteredOrders.map((order: Order) => (
-              <OrderCard key={order._id} order={order} />
+              <div
+                key={order._id}
+                className="bg-white border border-gray-200 rounded-2xl shadow-sm p-4 sm:p-6"
+              >
+                {/* Use your existing OrderCard for main content */}
+                <OrderCard order={order} />
+
+                {/* Invoice action bar */}
+                <div className="mt-4 border-t pt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div className="text-sm text-gray-600">
+                    {order._id && (
+                      <span className="font-medium">Order ID:</span>
+                    )}{" "}
+                    <span className="ml-1">{order._id}</span>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    {/* Check invoice existence on demand */}
+                    <button
+                      onClick={() => handleOpenInvoice(order)}
+                      className="inline-flex items-center gap-2 px-3 py-2 bg-[#167389] hover:bg-[#145a65] text-white rounded-lg text-sm"
+                    >
+                      View / Print Invoice
+                    </button>
+
+                    {/* If invoice is not present, suggest contact support */}
+                    <button
+                      onClick={() => {
+                        // open mailto or contact page
+                        const subject = encodeURIComponent(
+                          `Invoice request for order ${order._id}`
+                        );
+                        const body = encodeURIComponent(
+                          `Hello,\n\nI would like to request an invoice for my order ${order._id}.\n\nThank you.`
+                        );
+                        window.location.href = `mailto:support@yourshop.com?subject=${subject}&body=${body}`;
+                      }}
+                      className="inline-flex items-center gap-2 px-3 py-2 border rounded-lg text-sm text-gray-700 hover:bg-gray-50"
+                    >
+                      Request / Contact Support
+                    </button>
+                  </div>
+                </div>
+              </div>
             ))
           ) : (
             <div className="text-center py-20">
