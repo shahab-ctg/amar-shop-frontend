@@ -40,19 +40,54 @@ export const catalogApi = createApi({
           : [{ type: "Category" as const, id: "LIST" }],
     }),
 
-    getProducts: builder.query<{ data: Product[] }, ProductsQuery | void>({
+    // services/catalog.api.ts -> only replace getProducts builder.query with this version
+    getProducts: builder.query<
+  
+      {
+        items: Product[];
+        total: number;
+        page: number;
+        limit: number;
+        pages: number;
+      },
+      ProductsQuery | void
+    >({
       async queryFn(arg = {}, _api, _extra, _baseQuery) {
         try {
           const res = await fetchProducts(arg as ProductsQuery);
-          return { data: { data: res.data } };
+          // fetchProducts() (our helper) returns: { ok:true, data: { items, total, page, limit, pages } } in our earlier normalizer
+          const boxed =
+            res && (res as any).data && typeof (res as any).data === "object"
+              ? (res as any).data
+              : {
+                  items: Array.isArray((res as any)?.data)
+                    ? (res as any).data
+                    : [],
+                  total: 0,
+                  page: 1,
+                  limit: arg?.limit ?? 20,
+                  pages: 1,
+                };
+
+          // ensure fields exist
+          const items = Array.isArray(boxed.items) ? boxed.items : [];
+          const total = Number(boxed.total ?? items.length);
+          const page = Number(boxed.page ?? arg?.page ?? 1);
+          const limit = Number(boxed.limit ?? arg?.limit ?? items.length);
+          const pages = Number(
+            boxed.pages ??
+              (limit > 0 ? Math.max(1, Math.ceil(total / limit)) : 1)
+          );
+
+          return { data: { items, total, page, limit, pages } };
         } catch (error) {
           return { error: { status: 500, data: error } as any };
         }
       },
       providesTags: (result) =>
-        result
+        result && Array.isArray(result.items)
           ? [
-              ...result.data.map((p) => ({
+              ...result.items.map((p: any) => ({
                 type: "Product" as const,
                 id: p._id,
               })),

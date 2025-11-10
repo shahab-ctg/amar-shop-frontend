@@ -5,13 +5,40 @@ import React, { useEffect, useState } from "react";
 import ProductCard from "@/components/ProductCard";
 import type { Product } from "@/types";
 
+/**
+ * Helper: normalize different backend response shapes into Product[]
+ * Accepts:
+ *  - array: [...]
+ *  - { data: [...] } or { data: { items: [...] } }
+ *  - { items: [...] } or { results: [...] }
+ *  - { ok: true, data: { items: [...] } }
+ */
+function extractItemsFromResponse(res: any): Product[] {
+  if (!res) return [];
+  // direct array
+  if (Array.isArray(res)) return res;
+  // common patterns
+  if (Array.isArray(res.data)) return res.data;
+  if (res.data && Array.isArray(res.data.items)) return res.data.items;
+  if (Array.isArray(res.items)) return res.items;
+  if (Array.isArray(res.results)) return res.results;
+  // if server returns ok:true and data is array or object with items
+  if (res.ok && Array.isArray(res.data)) return res.data;
+  if (res.ok && res.data && Array.isArray(res.data.items))
+    return res.data.items;
+  // try to find first array value in object (fallback)
+  const firstArr = Object.values(res).find((v) => Array.isArray(v));
+  if (Array.isArray(firstArr)) return firstArr as Product[];
+  return [];
+}
+
 const API =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
   process.env.NEXT_PUBLIC_API_URL ||
   "http://localhost:5000/api/v1";
 
 type Props = {
-  initialProducts: Product[]; // first batch (8)
+  initialProducts: Product[] | any; // accept flexible shapes
   categorySlug: string;
 };
 
@@ -20,42 +47,44 @@ export default function CategoryProducts({
   categorySlug,
 }: Props) {
   const PAGE_SIZE = 8;
-  const [items, setItems] = useState<Product[]>(initialProducts || []);
+
+  // normalize initialProducts into array
+  const normalizedInitial: Product[] =
+    extractItemsFromResponse(initialProducts);
+
+  const [items, setItems] = useState<Product[]>(normalizedInitial || []);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(
-    (initialProducts?.length || 0) >= PAGE_SIZE
+    (normalizedInitial?.length || 0) >= PAGE_SIZE
   );
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // if category changed, reset list
-    setItems(initialProducts || []);
-    setHasMore((initialProducts?.length || 0) >= PAGE_SIZE);
+    // if category changed, reset list with normalized incoming data
+    const arr = extractItemsFromResponse(initialProducts);
+    setItems(arr);
+    setHasMore((arr?.length || 0) >= PAGE_SIZE);
     setError(null);
-  }, [categorySlug, initialProducts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categorySlug, JSON.stringify(initialProducts ?? null)]); // stringify to detect payload changes
 
   async function loadMore() {
     if (loading) return;
     setLoading(true);
     setError(null);
     try {
-      const skip = items.length;
+      const page = Math.floor(items.length / PAGE_SIZE) + 1; // next page (1-based)
       const url = new URL(`${API}/products`);
       url.searchParams.set("category", categorySlug);
       url.searchParams.set("limit", String(PAGE_SIZE));
-      url.searchParams.set("page", String(Math.floor(skip / PAGE_SIZE) + 1));
-      // your backend may support skip/limit or page/limit; adjust if needed:
-      // we attempt page param; if backend expects skip, change accordingly.
+      url.searchParams.set("page", String(page + 1)); // because server pages are 1-based and we already have page items
+      // Note: If your backend uses skip/limit instead of page/limit, change accordingly:
+      // url.searchParams.set("skip", String(items.length));
 
       const res = await fetch(url.toString(), { cache: "no-store" });
       if (!res.ok) throw new Error(`Fetch failed (${res.status})`);
       const json = await res.json().catch(() => ({}));
-      // backend shape may be { data: [...] } or direct array
-      const nextItems: Product[] = Array.isArray(json?.data)
-        ? json.data
-        : Array.isArray(json)
-          ? json
-          : json?.results || json?.items || [];
+      const nextItems: Product[] = extractItemsFromResponse(json);
 
       if (!nextItems || nextItems.length === 0) {
         setHasMore(false);
@@ -75,11 +104,17 @@ export default function CategoryProducts({
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6">
-        {items.map((p) => (
-          <div key={p._id} className="min-w-0">
-            <ProductCard product={p} />
+        {Array.isArray(items) && items.length > 0 ? (
+          items.map((p) => (
+            <div key={p._id} className="min-w-0">
+              <ProductCard product={p} />
+            </div>
+          ))
+        ) : (
+          <div className="col-span-full text-center text-gray-500 py-8">
+            No products found
           </div>
-        ))}
+        )}
       </div>
 
       {error && <div className="text-sm text-red-600">{error}</div>}

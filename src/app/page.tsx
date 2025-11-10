@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import CategoriesScroll from "@/components/home/CategoriesScroll";
@@ -14,6 +15,35 @@ import HeroBannerClient from "@/components/home/HeroBannerClient";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import TrendingGrid from "@/components/home/TrendingGrid";
 import ManufacturerBannerSlider from "@/components/ManufacturerBannerSlider";
+import type { Product, Category } from "@/lib/schemas";
+
+/**
+ * Utility: normalize various response shapes into an array of items
+ * Accepts:
+ *  - Product[] (direct array)
+ *  - { items: Product[], total, ... }
+ *  - { data: Product[] } or { data: { items: Product[] } }
+ */
+function extractItems<T = any>(res: unknown): T[] {
+  if (!res) return [];
+  // direct array
+  if (Array.isArray(res)) return res as T[];
+  if (typeof res !== "object") return [];
+  const obj = res as Record<string, any>;
+
+  // common boxed variations
+  if (Array.isArray(obj.items)) return obj.items as T[];
+  if (Array.isArray(obj.data)) return obj.data as T[];
+  // nested: data.items
+  if (obj.data && typeof obj.data === "object" && Array.isArray(obj.data.items))
+    return obj.data.items as T[];
+
+  // try to find first array in object values (fallback)
+  const firstArr = Object.values(obj).find((v) => Array.isArray(v));
+  if (Array.isArray(firstArr)) return firstArr as T[];
+
+  return [];
+}
 
 export default function HomePage() {
   const [isMounted, setIsMounted] = useState(false);
@@ -23,6 +53,7 @@ export default function HomePage() {
     setIsMounted(true);
   }, []);
 
+  // APIs (RTK hooks)
   const { data: catRes, isLoading: catLoading } = useGetCategoriesQuery();
   const { data: hotRes, isLoading: hotLoading } = useGetProductsQuery({
     discounted: "true",
@@ -37,10 +68,25 @@ export default function HomePage() {
 
   const loading = catLoading || hotLoading || newLoading || pickLoading;
 
-  const categories = catRes?.data || [];
-  const hotDeals = hotRes?.data?.slice(0, 8) || [];
-  const newArrivals = newRes?.data?.slice(0, 8) || [];
-  const editorsPicks = pickRes?.data?.slice(0, 8) || [];
+  // Normalize categories:
+  // catRes might already be Category[] (as our catalog.api returns),
+  // or occasionally boxed. Use extractItems to be safe.
+  const categories: Category[] = Array.isArray(catRes)
+    ? (catRes as Category[])
+    : extractItems<Category>(catRes);
+
+  // Normalize product sections
+  const hotDealsAll = extractItems<Product>(hotRes);
+  const newArrivalsAll = extractItems<Product>(newRes);
+  const editorsPicksAll = extractItems<Product>(pickRes);
+
+  // Only show in-stock items (business requirement)
+  const filterInStock = (arr: Product[]) =>
+    arr.filter((p) => Number(p?.stock ?? p?.availableStock ?? 0) > 0);
+
+  const hotDeals = filterInStock(hotDealsAll).slice(0, 8);
+  const newArrivals = filterInStock(newArrivalsAll).slice(0, 8);
+  const editorsPicks = filterInStock(editorsPicksAll).slice(0, 8);
 
   if (!isMounted) {
     return (
@@ -118,14 +164,13 @@ export default function HomePage() {
             <TrendingGrid
               title="📈 Trending"
               subtitle="Choose Your Best Deals with Best price"
-              products={hotDeals} 
+              products={hotDeals}
               className="mt-2"
             />
           </ErrorBoundary>
 
-
           <ErrorBoundary>
-            <ManufacturerBannerSlider></ManufacturerBannerSlider>
+            <ManufacturerBannerSlider />
           </ErrorBoundary>
 
           <ErrorBoundary>

@@ -1,30 +1,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Eye } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
-
-// Adjust type import path to your project
 import type { AppProduct } from "@/types/product";
 import { useCartStore } from "@/store/cartStore";
 
-/**
- * Props:
- *  - product: product object from backend (supports .stock, .images/.image, .compareAtPrice, .slug, .title)
- *  - showDiscount?: boolean - show % badge
- *  - compact?: boolean - smaller variant (optional)
- *  - onAddToCart?: (product, qty) => void (optional override)
- */
 type Props = {
   product: AppProduct | any;
   showDiscount?: boolean;
   compact?: boolean;
   onAddToCart?: (p: any, qty?: number) => void;
+  onLocalStockChange?: (id: string, newStock: number) => void;
 };
 
 const formatPrice = (v?: number) =>
@@ -35,12 +27,12 @@ export default function ProductCard({
   showDiscount = true,
   compact = false,
   onAddToCart,
+  onLocalStockChange,
 }: Props) {
   const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
   const cartItems = useCartStore((s) => s.items);
 
-  // compute base fields with safe fallbacks
   const title = String(product?.title ?? product?.name ?? "Untitled");
   const slug = String(product?.slug ?? product?._id ?? "");
   const images = Array.isArray(product?.images)
@@ -56,14 +48,30 @@ export default function ProductCard({
       ? Math.round(((compare - price) / compare) * 100)
       : 0;
 
-  // available stock considers reserved qty in cart (frontend reserved map)
   const reservedQty = useMemo(() => {
     const found = cartItems.find((c) => String(c._id) === String(product._id));
     return found?.quantity ?? 0;
   }, [cartItems, product._id]);
 
   const rawStock = Number(product?.availableStock ?? product?.stock ?? 0);
-  const available = Math.max(0, rawStock - reservedQty);
+  const [localStock, setLocalStock] = useState<number>(rawStock);
+
+  useEffect(() => {
+    setLocalStock(rawStock);
+  }, [rawStock]);
+
+  const notifyLocalStock = (newStock: number) => {
+    setLocalStock(newStock);
+    try {
+      if (typeof onLocalStockChange === "function") {
+        onLocalStockChange(String(product._id), newStock);
+      }
+    } catch (e) {
+      console.error("onLocalStockChange callback error", e);
+    }
+  };
+
+  const available = Math.max(0, localStock - reservedQty);
   const isOut = available <= 0;
   const isLow = !isOut && available <= 5;
 
@@ -79,9 +87,14 @@ export default function ProductCard({
       return;
     }
 
+    const prevStock = localStock;
+    const nextStock = Math.max(0, prevStock - qty);
+
     try {
       setAdding(true);
-      // allow override
+      // optimistic update
+      notifyLocalStock(nextStock);
+
       if (onAddToCart) {
         await Promise.resolve(onAddToCart(product, qty));
       } else {
@@ -94,12 +107,15 @@ export default function ProductCard({
           quantity: qty,
         });
       }
+
       toast.success(`${qty} × ${title} added to cart`);
     } catch (e) {
       console.error("Add to cart failed", e);
       toast.error("Failed to add to cart");
+      // rollback
+      notifyLocalStock(prevStock);
     } finally {
-      setTimeout(() => setAdding(false), 300); // slight UX delay
+      setTimeout(() => setAdding(false), 300);
     }
   };
 
@@ -110,7 +126,6 @@ export default function ProductCard({
     }
     try {
       await handleAdd(1);
-      // navigate to checkout (you may want to clear/adjust cart logic)
       router.push("/checkout");
     } catch (e) {
       console.error(e);
@@ -125,7 +140,6 @@ export default function ProductCard({
         compact ? "p-3" : ""
       }`}
     >
-      {/* IMAGE */}
       <Link
         href={`/products/${slug}`}
         className="relative w-full h-44 sm:h-52 md:h-64 bg-white flex items-center justify-center overflow-hidden"
@@ -139,7 +153,6 @@ export default function ProductCard({
           className="object-contain transition-transform duration-500 group-hover:scale-105"
           priority={false}
         />
-        {/* badges */}
         <div className="absolute top-3 left-3 flex gap-2 pointer-events-none">
           {showDiscount && discount > 0 && (
             <span className="bg-gradient-to-r from-pink-600 to-rose-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm">
@@ -156,9 +169,12 @@ export default function ProductCard({
             </span>
           ) : null}
         </div>
+
+        <div className="absolute top-3 right-3 bg-white/80 text-gray-800 text-xs px-2 py-1 rounded-full shadow">
+          Stock: {available}
+        </div>
       </Link>
 
-      {/* CONTENT */}
       <div className="p-3 flex flex-col flex-1">
         <Link href={`/products/${slug}`} className="mb-2">
           <h3 className="text-sm sm:text-base font-semibold text-gray-800 line-clamp-2 min-h-[2.5rem]">
@@ -191,7 +207,6 @@ export default function ProductCard({
           </div>
         </div>
 
-        {/* actions */}
         <div className="mt-auto grid grid-cols-2 gap-2">
           <button
             onClick={() => handleAdd(1)}
