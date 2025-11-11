@@ -22,7 +22,7 @@ export type Product = {
   tagSlugs?: string[];
   status: "ACTIVE" | "DRAFT" | "HIDDEN";
   description?: string;
-  //  Add any missing fields that might be needed
+  availableStock?: number;
   createdAt?: string;
   updatedAt?: string;
 };

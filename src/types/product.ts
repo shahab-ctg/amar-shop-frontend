@@ -9,7 +9,8 @@ export type AppProduct = {
   image?: string; // primary image url
   images?: string[]; // gallery
   compareAtPrice?: number;
-  stock?: number; // available stock count
+  stock?: number;
+  availableStock?: number;
   sku?: string;
   vendor?: string;
   createdAt?: string | Date;

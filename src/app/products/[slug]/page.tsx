@@ -12,11 +12,39 @@ import ProductThumbs from "@/components/product/ProductThumbs";
 export const revalidate = 0;
 export const dynamic = "force-dynamic";
 
-/** ---------- Compact, uniform related card ---------- */
+/**
+ * Normalize fetchProducts response into Product[]
+ * Accepts shapes:
+ *  - Product[]
+ *  - { items: Product[], total, page, ... }
+ *  - { data: Product[] } or { data: { items: Product[] } }
+ *  - { ok: true, data: ... }
+ */
+function normalizeProducts(resp: unknown): Product[] {
+  if (!resp) return [];
+  // if it's the boxed wrapper from fetchProducts (res.data)
+  if (Array.isArray(resp)) return resp as Product[];
+  if (typeof resp !== "object") return [];
+
+  const obj = resp as Record<string, any>;
+  if (Array.isArray(obj.items)) return obj.items as Product[];
+  if (Array.isArray(obj.data)) return obj.data as Product[];
+  if (obj.data && Array.isArray(obj.data.items))
+    return obj.data.items as Product[];
+  if (Array.isArray(obj.results)) return obj.results as Product[];
+
+  // fallback: find first array value
+  const firstArr = Object.values(obj).find((v) => Array.isArray(v));
+  if (Array.isArray(firstArr)) return firstArr as Product[];
+
+  return [];
+}
+
+/** ---------- Related product small card (uniform) ---------- */
 function RelatedCard({ product }: { product: Product }) {
   const img =
     product.image ||
-    (Array.isArray(product.image) ? product.image[0] : "") ||
+    (Array.isArray(product.images) ? product.images[0] : "") ||
     "/fallback.webp";
 
   return (
@@ -24,19 +52,17 @@ function RelatedCard({ product }: { product: Product }) {
       href={`/products/${product.slug}`}
       className="rel-card h-full flex flex-col rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition"
     >
-      {/* ইমেজ অংশ — সব কার্ডে এক উচ্চতা */}
-      <div className="product-card__image">
+      <div className="relative aspect-square rounded-xl overflow-hidden bg-gradient-to-br from-[#F5FDF8] to-[#F5FDF8]">
         <Image
           src={img}
           alt={product.title}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
-          className="product-card__img"
+          className="object-contain transition-transform duration-300 group-hover:scale-105"
           priority={false}
         />
       </div>
 
-      {/* কনটেন্ট — টাইটেল ২ লাইন ধরে, বাকি স্পেসে দাম */}
       <div className="p-3 flex-1 flex flex-col">
         <h3 className="text-sm font-semibold text-gray-900 line-clamp-2 min-h-[2.75rem]">
           {product.title}
@@ -57,7 +83,7 @@ function RelatedCard({ product }: { product: Product }) {
     </Link>
   );
 }
-/** --------------------------------------------------- */
+/** --------------------------------------------------------- */
 
 export default async function ProductDetailsPage({
   params,
@@ -67,30 +93,39 @@ export default async function ProductDetailsPage({
   const hotline = process.env.NEXT_PUBLIC_HOTLINE || "+8801318319610";
   const { slug } = await params;
 
+  // use your existing fetchProduct (returns { ok, data })
   const res = await fetchProduct(slug).catch(() => null);
+
+  // if product not found -> Next.js notFound (preserves behavior)
   if (!res?.data) return notFound();
+
   const product = res.data as Product;
 
   // images fallback
   const galleryImages =
-    (Array.isArray((product as any)?.images)
-      ? ((product as any)?.images as string[]).filter(Boolean)
-      : []) ?? [];
+    Array.isArray((product as any)?.images) && (product as any).images.length
+      ? (product as any).images.filter(Boolean)
+      : [];
   const finalGallery = galleryImages.length
     ? galleryImages
     : product.image
       ? [product.image]
       : [];
 
-  // related
+  // Related: call fetchProducts and normalize shape safely
   let related: Product[] = [];
   if (product.categorySlug) {
-    const rel = await fetchProducts({
+    const raw = await fetchProducts({
       category: product.categorySlug,
-      limit: 8,
+      limit: 12,
       sort: "-createdAt",
-    }).catch(() => ({ data: [] as Product[] }));
-    related = (rel?.data || []).filter((p) => p.slug !== product.slug);
+    }).catch(() => null);
+
+    // fetchProducts might return { ok:true, data: { items: [...] } } or { items: [...] } or direct [...]
+    // Try common keys in order: raw?.data, raw
+    const candidate = raw?.data ?? raw;
+    const arr = normalizeProducts(candidate);
+    related = arr.filter((p) => p.slug !== product.slug).slice(0, 8);
   }
 
   const hasDiscount =
@@ -98,7 +133,7 @@ export default async function ProductDetailsPage({
     (typeof product.compareAtPrice === "number" &&
       product.compareAtPrice > product.price);
 
-  // sanitize description (basic)
+  // sanitize description
   const rawDesc =
     typeof product.description === "string" ? product.description : "";
   const hasDesc = /\S/.test(rawDesc);
@@ -114,7 +149,7 @@ export default async function ProductDetailsPage({
           <div className="bg-white rounded-2xl text-black sm:rounded-3xl shadow-md hover:shadow-xl transition-shadow duration-300 border border-pink-100 p-3 sm:p-4 md:p-6 lg:p-8 space-y-4">
             <div
               id={`main-img-box-${product._id}`}
-              className="relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-[#F5FDF8] via-[#F5FDF8] to-[#F5FDF8] shadow-inner"
+              className="relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-[#F5FDF8] to-[#F5FDF8] shadow-inner"
             >
               {finalGallery[0] ? (
                 <Image
@@ -283,7 +318,6 @@ export default async function ProductDetailsPage({
               </Link>
             </div>
 
-            {/* সমান উচ্চতার গ্রিড: auto-rows-fr + কার্ড h-full */}
             <div
               className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 auto-rows-fr items-stretch gap-3 sm:gap-4 md:gap-5 lg:gap-6"
               aria-label="Related products"

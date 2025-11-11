@@ -41,6 +41,8 @@ export async function createOrder(
   const json = (await res
     .json()
     .catch(() => ({}))) as ApiResp<OrderCreateResult>;
+    
+    console.log("createOrder response status:", res.status, "body:", json);
 
   if (!res.ok || (json as ApiErr)?.ok === false) {
     const err = json as ApiErr;
