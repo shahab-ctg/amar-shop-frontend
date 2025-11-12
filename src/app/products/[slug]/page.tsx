@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { fetchProduct, fetchProducts } from "@/services/catalog";
-import type { Product } from "@/types";
+import type { Product } from "@/types"; // তোমার প্রোজেক্টে থাকা টাইপ
 import { Check, Phone, Truck, Shield, Sparkles } from "lucide-react";
 import ProductActions from "@/components/product/ProductActions";
 import ProductThumbs from "@/components/product/ProductThumbs";
@@ -22,7 +22,6 @@ export const dynamic = "force-dynamic";
  */
 function normalizeProducts(resp: unknown): Product[] {
   if (!resp) return [];
-  // if it's the boxed wrapper from fetchProducts (res.data)
   if (Array.isArray(resp)) return resp as Product[];
   if (typeof resp !== "object") return [];
 
@@ -33,7 +32,6 @@ function normalizeProducts(resp: unknown): Product[] {
     return obj.data.items as Product[];
   if (Array.isArray(obj.results)) return obj.results as Product[];
 
-  // fallback: find first array value
   const firstArr = Object.values(obj).find((v) => Array.isArray(v));
   if (Array.isArray(firstArr)) return firstArr as Product[];
 
@@ -41,11 +39,17 @@ function normalizeProducts(resp: unknown): Product[] {
 }
 
 /** ---------- Related product small card (uniform) ---------- */
-function RelatedCard({ product }: { product: Product }) {
+/**
+ * NOTE:
+ * - product may come from different shapes (sometimes has `images[]`, sometimes only `image`).
+ * - we use safe casting `(product as any).images` when checking `images` to avoid TS errors.
+ */
+function RelatedCard({ product }: { product: Product | any }) {
+  const maybeImages = Array.isArray((product as any)?.images)
+    ? (product as any).images
+    : undefined;
   const img =
-    product.image ||
-    (Array.isArray(product.images) ? product.images[0] : "") ||
-    "/fallback.webp";
+    product.image || (maybeImages ? maybeImages[0] : "") || "/fallback.webp";
 
   return (
     <Link
@@ -101,7 +105,7 @@ export default async function ProductDetailsPage({
 
   const product = res.data as Product;
 
-  // images fallback
+  // images fallback (use safe any-casting where necessary)
   const galleryImages =
     Array.isArray((product as any)?.images) && (product as any).images.length
       ? (product as any).images.filter(Boolean)
@@ -122,7 +126,6 @@ export default async function ProductDetailsPage({
     }).catch(() => null);
 
     // fetchProducts might return { ok:true, data: { items: [...] } } or { items: [...] } or direct [...]
-    // Try common keys in order: raw?.data, raw
     const candidate = raw?.data ?? raw;
     const arr = normalizeProducts(candidate);
     related = arr.filter((p) => p.slug !== product.slug).slice(0, 8);

@@ -1,104 +1,116 @@
+/* src/components/ProductSection.tsx */
 "use client";
+
+import React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { ChevronRight } from "lucide-react";
-import type { Product } from "@/lib/schemas";
-import { memo, useState, useEffect } from "react";
+import type { AppProduct } from "@/types/product";
+import ProductCard from "../ProductCard";
 
-const FALLBACK = "/fallback.webp";
 
-function ProductSectionBase({
+interface ProductSectionProps {
+  title: string;
+  subtitle?: string;
+  href: string;
+  products: AppProduct[];
+  loading?: boolean;
+  variant?: "default" | "compact";
+  showViewAll?: boolean;
+}
+
+export default function ProductSection({
   title,
   subtitle,
   href,
   products,
-  loading,
-}: {
-  title: string;
-  subtitle?: string;
-  href: string;
-  products: Product[];
-  loading: boolean;
-}) {
-  const [isMounted, setIsMounted] = useState(false); 
-
-  useEffect(() => {
-    setIsMounted(true); 
-  }, []);
-
-  const pickImage = (p: Product) => p.image || p.images?.[0] || FALLBACK;
-
-  
-  if (!isMounted) {
+  loading = false,
+  variant = "default",
+  showViewAll = true,
+}: ProductSectionProps) {
+  // Loading skeleton
+  if (loading) {
     return (
-      <section className="product-section">
-        <div className="product-section__header">
-          <div>
-            <h2 className="product-section__title">{title}</h2>
-            {subtitle && (
-              <p className="product-section__subtitle">{subtitle}</p>
-            )}
+      <section className="py-8 lg:py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header Skeleton */}
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <div className="h-8 w-48 bg-gray-200 rounded-lg animate-pulse mb-2"></div>
+              <div className="h-4 w-64 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+            <div className="h-10 w-32 bg-gray-200 rounded-lg animate-pulse"></div>
           </div>
-          <div className="product-section__link">
-            View more <ChevronRight size={16} />
+          
+          {/* Products Grid Skeleton */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 sm:gap-6">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <div
+                key={index}
+                className="bg-gray-200 rounded-2xl animate-pulse aspect-[3/4]"
+              />
+            ))}
           </div>
-        </div>
-        <div className="product-section__grid">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="product-section__skeleton" />
-          ))}
         </div>
       </section>
     );
   }
 
+  if (!products?.length) {
+    return null;
+  }
+
   return (
-    <section className="product-section">
-      <div className="product-section__header">
-        <div>
-          <h2 className="product-section__title">{title}</h2>
-          {subtitle && <p className="product-section__subtitle">{subtitle}</p>}
+    <section className="py-8 lg:py-12 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Header */}
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+          <div className="flex-1">
+            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+              {title}
+            </h2>
+            {subtitle && (
+              <p className="text-lg text-gray-600 max-w-2xl">
+                {subtitle}
+              </p>
+            )}
+          </div>
+          
+          {showViewAll && (
+            <Link
+              href={href}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-900 to-gray-700 text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:gap-3 group"
+            >
+              View All
+              <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+            </Link>
+          )}
         </div>
-        <Link href={href} className="product-section__link">
-          View more <ChevronRight size={16} />
-        </Link>
-      </div>
-      <div className="product-section__grid">
-        {loading
-          ? Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="product-section__skeleton" />
-            ))
-          : products.map((p) => (
-              <Link
-                key={p._id}
-                href={`/products/${p.slug}`}
-                className="product-card"
-              >
-                <div className="product-card__image">
-                  <Image
-                    src={pickImage(p)}
-                    alt={p.title}
-                    fill
-                    className="product-card__img"
-                  />
-                </div>
-                <div className="product-card__content">
-                  <div className="product-card__title">{p.title}</div>
-                  <div className="product-card__price-group">
-                    <div className="product-card__price">
-                      ৳{Number(p.price || 0).toFixed(0)}
-                    </div>
-                    {p.compareAtPrice && p.compareAtPrice > (p.price || 0) && (
-                      <div className="product-card__compare-price">
-                        ৳{p.compareAtPrice}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </Link>
-            ))}
+
+        {/* Products Grid */}
+        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 sm:gap-6">
+          {products.map((product, index) => (
+            <ProductCard
+              key={product._id || `product-${index}`} 
+              product={product}
+              variant={variant} 
+              compact={variant === "compact"}
+              showDiscount={true}
+            />
+          ))}
+        </div>
+
+        {/* Mobile View All Button */}
+        {showViewAll && (
+          <div className="flex justify-center mt-8 lg:hidden">
+            <Link
+              href={href}
+              className="w-full max-w-sm px-6 py-3 bg-gray-900 text-white rounded-xl font-semibold text-center hover:bg-gray-800 transition-colors"
+            >
+              View All Products
+            </Link>
+          </div>
+        )}
       </div>
     </section>
   );
 }
-export const ProductSection = memo(ProductSectionBase);

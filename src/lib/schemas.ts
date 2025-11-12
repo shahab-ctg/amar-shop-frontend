@@ -21,6 +21,7 @@ export const ZProduct = z.object({
   isDiscounted: z.boolean().optional(),
   featured: z.boolean().optional(), // ⭐
   stock: z.number().optional(),
+   availableStock: z.number().optional(),
   categorySlug: z.string().optional(),
   tagSlugs: z.array(z.string()).optional(),
   status: z.enum(["ACTIVE", "DRAFT", "HIDDEN"]),

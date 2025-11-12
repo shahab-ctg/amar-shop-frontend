@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* src/components/ProductCard.tsx */
 "use client";
 
 import React, { useMemo, useState, useEffect } from "react";
@@ -15,8 +16,9 @@ type Props = {
   product: AppProduct | any;
   showDiscount?: boolean;
   compact?: boolean;
-  onAddToCart?: (p: any, qty?: number) => void;
+  onAddToCart?: (p: any, qty?: number) => Promise<void> | void;
   onLocalStockChange?: (id: string, newStock: number) => void;
+  variant?: "default" | "compact";
 };
 
 const formatPrice = (v?: number) =>
@@ -48,18 +50,25 @@ export default function ProductCard({
       ? Math.round(((compare - price) / compare) * 100)
       : 0;
 
+  // reserved quantity from cart (items already in cart)
   const reservedQty = useMemo(() => {
     const found = cartItems.find((c) => String(c._id) === String(product._id));
     return found?.quantity ?? 0;
   }, [cartItems, product._id]);
 
-  const rawStock = Number(product?.availableStock ?? product?.stock ?? 0);
-  const [localStock, setLocalStock] = useState<number>(rawStock);
+  // source-of-truth stock: prefer availableStock then stock then 0
+  const sourceStock = Number(
+    product?.availableStock ?? product?.stock ?? product?.inventory ?? 0
+  );
 
+  // local optimistic stock (starts from sourceStock)
+  const [localStock, setLocalStock] = useState<number>(sourceStock);
   useEffect(() => {
-    setLocalStock(rawStock);
-  }, [rawStock]);
+    // if server/props change, sync localStock (but preserve local optimistic delta only when ids match)
+    setLocalStock(sourceStock);
+  }, [sourceStock, product._id]);
 
+  // helper: notify parent/shelf about local stock change
   const notifyLocalStock = (newStock: number) => {
     setLocalStock(newStock);
     try {
@@ -71,53 +80,52 @@ export default function ProductCard({
     }
   };
 
+  // available (after reserved by cart)
   const available = Math.max(0, localStock - reservedQty);
   const isOut = available <= 0;
   const isLow = !isOut && available <= 5;
 
   const [adding, setAdding] = useState(false);
 
-  const handleAdd = async (qty = 1) => {
-    if (isOut) {
-      toast.error("Out of stock");
-      return;
-    }
-    if (qty > available) {
-      toast.error(`Only ${available} left`);
-      return;
-    }
-
-    const prevStock = localStock;
-    const nextStock = Math.max(0, prevStock - qty);
-
-    try {
-      setAdding(true);
-      // optimistic update
-      notifyLocalStock(nextStock);
-
-      if (onAddToCart) {
-        await Promise.resolve(onAddToCart(product, qty));
-      } else {
-        addItem({
-          _id: String(product._id),
-          title,
-          slug,
-          price,
-          image,
-          quantity: qty,
-        });
+    const handleAdd = async (qty = 1) => {
+      if (isOut) {
+        toast.error("Out of stock");
+        return;
+      }
+      if (qty > available) {
+        toast.error(`Only ${available} left`);
+        return;
       }
 
-      toast.success(`${qty} × ${title} added to cart`);
-    } catch (e) {
-      console.error("Add to cart failed", e);
-      toast.error("Failed to add to cart");
-      // rollback
-      notifyLocalStock(prevStock);
-    } finally {
-      setTimeout(() => setAdding(false), 300);
-    }
-  };
+      try {
+        setAdding(true);
+
+        // **DO NOT** optimistic decrease localStock here.
+        // Instead rely on cart store update which will change reservedQty,
+        // and since available = localStock - reservedQty, UI will reflect the change.
+
+        if (onAddToCart) {
+          await Promise.resolve(onAddToCart(product, qty));
+        } else {
+          addItem({
+            _id: String(product._id),
+            title,
+            slug,
+            price,
+            image,
+            quantity: qty,
+          });
+        }
+
+        toast.success(`${qty} × ${title} added to cart`);
+      } catch (e) {
+        console.error("Add to cart failed", e);
+        toast.error("Failed to add to cart");
+      } finally {
+        setTimeout(() => setAdding(false), 250);
+      }
+    };
+
 
   const handleBuyNow = async () => {
     if (isOut) {
@@ -153,6 +161,8 @@ export default function ProductCard({
           className="object-contain transition-transform duration-500 group-hover:scale-105"
           priority={false}
         />
+
+        {/* TOP LEFT: discount / low / out badge */}
         <div className="absolute top-3 left-3 flex gap-2 pointer-events-none">
           {showDiscount && discount > 0 && (
             <span className="bg-gradient-to-r from-pink-600 to-rose-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-sm">
@@ -170,8 +180,21 @@ export default function ProductCard({
           ) : null}
         </div>
 
-        <div className="absolute top-3 right-3 bg-white/80 text-gray-800 text-xs px-2 py-1 rounded-full shadow">
-          Stock: {available}
+        {/* TOP RIGHT: small reserved indicator */}
+        <div className="absolute top-3 right-3 bg-white/90 text-gray-800 text-xs px-2 py-1 rounded-full shadow">
+          {reservedQty > 0 ? `In cart: ${reservedQty}` : "Available"}
+        </div>
+
+        {/* BOTTOM LEFT: prominent Stock badge (visible) */}
+        <div className="absolute bottom-3 left-3 pointer-events-none">
+          <div
+            className={`text-xs px-2 py-1 rounded-full shadow-sm font-semibold ${
+              isOut ? "bg-red-600 text-white" : "bg-white/95 text-gray-800"
+            }`}
+            aria-hidden
+          >
+            {isOut ? "Out of stock" : `Stock: ${available}`}
+          </div>
         </div>
       </Link>
 
@@ -207,20 +230,23 @@ export default function ProductCard({
           </div>
         </div>
 
-        <div className="mt-auto grid grid-cols-2 gap-2">
+        <div className="mt-auto flex flex-col sm:flex-row gap-2">
+          {/* Add button */}
           <button
             onClick={() => handleAdd(1)}
             disabled={isOut || adding}
-            className="px-3 py-2 rounded-lg bg-[#167389] text-white text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
             aria-disabled={isOut || adding}
+            className="flex-1 px-3 py-2 rounded-lg bg-[#167389] text-white text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {adding ? "Adding..." : "Add"}
           </button>
+
+          {/* Buy Now: on small screens this will be below (flex-col), on larger side-by-side */}
           <button
             onClick={handleBuyNow}
-            disabled={isOut}
-            className="px-3 py-2 rounded-lg bg-gradient-to-r from-pink-600 to-rose-600 text-white text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
-            aria-disabled={isOut}
+            disabled={isOut || adding}
+            aria-disabled={isOut || adding}
+            className="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-pink-600 to-rose-600 text-white text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <span className="inline-flex items-center gap-2">
               <Eye className="w-4 h-4" />

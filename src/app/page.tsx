@@ -3,42 +3,37 @@
 
 import CategoriesScroll from "@/components/home/CategoriesScroll";
 import MobileCategoriesGrid from "@/components/home/MobileCategoriesGrid";
-import { PromoCard, DesktopSidebar, ProductSection } from "../components";
+import { PromoCard, DesktopSidebar } from "../components";
 import {
   useGetCategoriesQuery,
   useGetProductsQuery,
 } from "@/services/catalog.api";
 import ErrorBoundary from "@/components/home/ErrorBoundary";
-import { useState, useEffect } from "react";
-
+import { useState, useEffect, useMemo } from "react";
 import HeroBannerClient from "@/components/home/HeroBannerClient";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import TrendingGrid from "@/components/home/TrendingGrid";
 import ManufacturerBannerSlider from "@/components/ManufacturerBannerSlider";
+
 import type { Product, Category } from "@/lib/schemas";
+import { ChevronRight } from "lucide-react";
+import Link from "next/link";
+import ProductSection from "@/components/home/ProductSection";
 
 /**
  * Utility: normalize various response shapes into an array of items
- * Accepts:
- *  - Product[] (direct array)
- *  - { items: Product[], total, ... }
- *  - { data: Product[] } or { data: { items: Product[] } }
  */
 function extractItems<T = any>(res: unknown): T[] {
   if (!res) return [];
-  // direct array
   if (Array.isArray(res)) return res as T[];
   if (typeof res !== "object") return [];
   const obj = res as Record<string, any>;
 
-  // common boxed variations
   if (Array.isArray(obj.items)) return obj.items as T[];
   if (Array.isArray(obj.data)) return obj.data as T[];
-  // nested: data.items
   if (obj.data && typeof obj.data === "object" && Array.isArray(obj.data.items))
     return obj.data.items as T[];
 
-  // try to find first array in object values (fallback)
   const firstArr = Object.values(obj).find((v) => Array.isArray(v));
   if (Array.isArray(firstArr)) return firstArr as T[];
 
@@ -57,36 +52,53 @@ export default function HomePage() {
   const { data: catRes, isLoading: catLoading } = useGetCategoriesQuery();
   const { data: hotRes, isLoading: hotLoading } = useGetProductsQuery({
     discounted: "true",
-    limit: 12,
+    limit: 16,
   });
   const { data: newRes, isLoading: newLoading } = useGetProductsQuery({
-    limit: 12,
+    limit: 16,
+    sort: "new",
   });
   const { data: pickRes, isLoading: pickLoading } = useGetProductsQuery({
-    limit: 12,
+    limit: 16,
+    tag: "featured",
   });
 
   const loading = catLoading || hotLoading || newLoading || pickLoading;
 
-  // Normalize categories:
-  // catRes might already be Category[] (as our catalog.api returns),
-  // or occasionally boxed. Use extractItems to be safe.
+  // Normalize categories
   const categories: Category[] = Array.isArray(catRes)
     ? (catRes as Category[])
     : extractItems<Category>(catRes);
 
-  // Normalize product sections
-  const hotDealsAll = extractItems<Product>(hotRes);
-  const newArrivalsAll = extractItems<Product>(newRes);
-  const editorsPicksAll = extractItems<Product>(pickRes);
+  // Normalize product sections with useMemo for performance
+  const hotDealsAll = useMemo(() => extractItems<Product>(hotRes), [hotRes]);
+  const newArrivalsAll = useMemo(() => extractItems<Product>(newRes), [newRes]);
+  const editorsPicksAll = useMemo(
+    () => extractItems<Product>(pickRes),
+    [pickRes]
+  );
 
-  // Only show in-stock items (business requirement)
-  const filterInStock = (arr: Product[]) =>
-    arr.filter((p) => Number(p?.stock ?? p?.availableStock ?? 0) > 0);
+  // Filter in-stock items with useMemo
+  const filterInStock = useMemo(
+    () => (arr: Product[]) =>
+      arr.filter((p) => Number(p?.stock ?? p?.availableStock ?? 0) > 0),
+    []
+  );
 
-  const hotDeals = filterInStock(hotDealsAll).slice(0, 8);
-  const newArrivals = filterInStock(newArrivalsAll).slice(0, 8);
-  const editorsPicks = filterInStock(editorsPicksAll).slice(0, 8);
+  const hotDeals = useMemo(
+    () => filterInStock(hotDealsAll).slice(0, 8),
+    [hotDealsAll, filterInStock]
+  );
+
+  const newArrivals = useMemo(
+    () => filterInStock(newArrivalsAll).slice(0, 8),
+    [newArrivalsAll, filterInStock]
+  );
+
+  const editorsPicks = useMemo(
+    () => filterInStock(editorsPicksAll).slice(0, 8),
+    [editorsPicksAll, filterInStock]
+  );
 
   if (!isMounted) {
     return (
@@ -109,17 +121,13 @@ export default function HomePage() {
         </div>
 
         {/* Main content */}
-        <main className="space-y-4 lg:space-y-5">
+        <main className="space-y-6 lg:space-y-8">
           {/* ===== Banner + Promo ===== */}
           <div className="w-full">
-            {/* Large screen layout - Banner + Promo side by side */}
             <div className="hidden lg:grid lg:grid-cols-[1fr_220px] gap-2 lg:h-[380px]">
-              {/* Banner - Takes 1fr space */}
               <div className="h-full">
                 <HeroBannerClient limit={6} heightClass="h-full" />
               </div>
-
-              {/* Promo Cards - Takes 220px space */}
               <div className="flex flex-col gap-2 h-full">
                 <PromoCard
                   href="/products?category=surgical"
@@ -132,17 +140,13 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Small screen layout - Banner at top, Promo cards below */}
             <div className="lg:hidden flex flex-col gap-4 pt-10">
-              {/* Banner - Full width on mobile */}
               <div className="w-full">
                 <HeroBannerClient
                   limit={6}
                   heightClass="h-[160px] sm:h-[280px]"
                 />
               </div>
-
-              {/* Promo Cards - Below banner on mobile */}
               <div className="grid grid-cols-2 gap-3">
                 <PromoCard href="/products?category=surgical" />
                 <PromoCard href="/products?category=medicine" />
@@ -159,38 +163,66 @@ export default function HomePage() {
             )}
           </ErrorBoundary>
 
-          {/* ===== Product Sections ===== */}
+          {/* ===== Trending Products ===== */}
           <ErrorBoundary>
             <TrendingGrid
-              title="📈 Trending"
-              subtitle="Choose Your Best Deals with Best price"
+              title="📈 Trending Now"
+              subtitle="Most popular products with amazing deals"
               products={hotDeals}
-              className="mt-2"
+              className="mt-4"
             />
           </ErrorBoundary>
 
+          {/* ===== Manufacturer Banner ===== */}
           <ErrorBoundary>
             <ManufacturerBannerSlider />
           </ErrorBoundary>
 
+          {/* ===== New Arrivals Section ===== */}
           <ErrorBoundary>
             <ProductSection
-              title="✨ New Arrivals"
-              subtitle="Fresh drops in makeup & skincare"
-              href="/search?sort=new"
+              title="🆕 New Arrivals"
+              subtitle="Discover our latest products and fresh collections"
+              href="/search?sort=new&availability=in_stock"
               products={newArrivals}
-              loading={loading}
+              loading={newLoading}
+              variant="default"
+              showViewAll={true}
             />
           </ErrorBoundary>
 
+          {/* ===== Editor's Picks Section ===== */}
           <ErrorBoundary>
             <ProductSection
-              title="💎 Editor's Picks"
-              subtitle="Curated by our beauty editors"
-              href="/search?tag=featured"
+              title="⭐ Editor's Picks"
+              subtitle="Handpicked by our experts for exceptional quality"
+              href="/search?tag=featured&availability=in_stock"
               products={editorsPicks}
-              loading={loading}
+              loading={pickLoading}
+              variant="default"
+              showViewAll={true}
             />
+          </ErrorBoundary>
+
+          {/* ===== Additional Promotional Section ===== */}
+          <ErrorBoundary>
+            <section className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 lg:p-8 mt-8">
+              <div className="text-center max-w-2xl mx-auto">
+                <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">
+                  Cant Find What You are Looking For?
+                </h2>
+                <p className="text-gray-600 mb-6 text-lg">
+                  Explore our complete catalog with thousands of products
+                </p>
+                <Link
+                  href="/search"
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold text-lg hover:shadow-xl transition-all duration-300 hover:gap-4"
+                >
+                  Browse All Products
+                  <ChevronRight className="w-5 h-5" />
+                </Link>
+              </div>
+            </section>
           </ErrorBoundary>
         </main>
       </div>
