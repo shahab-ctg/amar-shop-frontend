@@ -1,8 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Package } from "lucide-react";
 import Image from "next/image";
 import type { Order } from "@/types/order";
+
+/**
+ * OrderItemsList — defensive: supports different order line shapes.
+ * Uses qty || quantity fallback and title/name fallback.
+ */
 
 const money = (n: number) => `৳${Number(n || 0).toFixed(2)}`;
 
@@ -15,18 +21,31 @@ export default function OrderItemsList({ order }: { order: Order }) {
       </h4>
 
       <div className="space-y-4">
-        {order.lines.map((item, i) => {
-          const lineTotal = (item.price || 0) * (item.qty || 0);
+        {order.lines.map((rawItem, i) => {
+          // defensive normalization:
+          // prefer qty, fallback to quantity, then 0
+          const qty: number =
+            (rawItem as any).qty ?? (rawItem as any).quantity ?? 0;
+
+          const price: number = (rawItem as any).price ?? 0;
+
+          const title: string =
+            (rawItem as any).title ?? (rawItem as any).name ?? "Untitled";
+
+          const image: string | undefined = (rawItem as any).image;
+
+          const lineTotal = price * qty;
+
           return (
             <div
               key={i}
               className="flex items-center gap-4 p-4 bg-white rounded-xl border border-pink-100 shadow-sm hover:shadow-md transition-shadow"
             >
               <div className="relative flex-shrink-0">
-                {item.image ? (
+                {image ? (
                   <Image
-                    src={item.image}
-                    alt={item.title}
+                    src={image}
+                    alt={title}
                     width={80}
                     height={80}
                     className="w-16 h-16 sm:w-20 sm:h-20 object-contain bg-pink-50 rounded-lg border border-pink-200 p-1"
@@ -38,18 +57,16 @@ export default function OrderItemsList({ order }: { order: Order }) {
                 )}
 
                 <div className="absolute -top-1 -right-1 w-6 h-6 bg-[#167389] rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">
-                    {item.qty}
-                  </span>
+                  <span className="text-white text-xs font-bold">{qty}</span>
                 </div>
               </div>
 
               <div className="flex-1 min-w-0">
                 <h5 className="font-semibold text-gray-900 text-base sm:text-lg mb-1 line-clamp-2">
-                  {item.title}
+                  {title}
                 </h5>
                 <p className="text-gray-600 text-sm sm:text-base">
-                  {money(item.price)} × {item.qty}
+                  {money(price)} × {qty}
                 </p>
               </div>
 

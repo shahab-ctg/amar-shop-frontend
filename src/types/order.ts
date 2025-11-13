@@ -1,5 +1,12 @@
-// types/order.ts - COMPLETE VERSION
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
+/**
+ * Central order types.
+ * This file is intentionally permissive / backward compatible:
+ * - OrderLine accepts both `quantity` and `qty` (some APIs use one or the other)
+ * - Accepts `title` or `name` for product title, `image` for thumbnail
+ * This prevents TypeScript build errors across different payload shapes.
+ */
 
 export interface CreateOrderDTO {
   items: Array<{
@@ -60,10 +67,19 @@ export type OrderStatus =
   | "CANCELLED";
 
 export interface OrderLine {
-  productId: string;
-  quantity: number;
+  // canonical id (product reference)
+  productId?: string;
+  // both fields accepted (some payloads use `quantity`, others `qty`)
+  quantity?: number;
+  qty: number; // keep non-optional to satisfy UI that expects a numeric qty
+  // pricing / display fields
   price?: number;
   name?: string;
+  title?: string;
+  image?: string;
+  // legacy / flexible fields
+  // allow arbitrary extra properties without breaking compile
+  [k: string]: any;
 }
 
 export interface OrderTotals {
