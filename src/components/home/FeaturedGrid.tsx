@@ -24,7 +24,11 @@ export default async function FeaturedGrid({
     limit,
     sort: "createdAt:desc",
   });
-  const items = res.data.map((p) => ZProduct.parse(p)) as Product[];
+  const items = Array.isArray(res)
+    ? (res.map((p) => ZProduct.parse(p)) as Product[])
+    : Array.isArray(res.data)
+      ? (res.data.map((p) => ZProduct.parse(p)) as Product[])
+      : [];
 
   return (
     <section className="py-8 md:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">

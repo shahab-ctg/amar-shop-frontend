@@ -95,7 +95,7 @@ export const catalogApi = createApi({
                         ? (raw as any).data.length
                         : 24)
                   ),
-                  pages: Number((raw as any)?.pages ?? undefined ?? 1),
+                  pages: Number((raw as any)?.pages ?? 1),
                 };
 
           const items = Array.isArray(boxed.items) ? boxed.items : [];

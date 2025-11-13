@@ -2,11 +2,11 @@
 /* src/components/ProductCard.tsx */
 "use client";
 
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Eye } from "lucide-react";
+import { Eye, Plus, Minus } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import type { AppProduct } from "@/types/product";
@@ -30,6 +30,7 @@ export default function ProductCard({
   compact = false,
   onAddToCart,
   onLocalStockChange,
+  variant = "default",
 }: Props) {
   const router = useRouter();
   const addItem = useCartStore((s) => s.addItem);
@@ -63,94 +64,124 @@ export default function ProductCard({
 
   // local optimistic stock (starts from sourceStock)
   const [localStock, setLocalStock] = useState<number>(sourceStock);
+  const [quantity, setQuantity] = useState<number>(1);
+  const [adding, setAdding] = useState(false);
+  const [buying, setBuying] = useState(false);
+
   useEffect(() => {
-    // if server/props change, sync localStock (but preserve local optimistic delta only when ids match)
     setLocalStock(sourceStock);
   }, [sourceStock, product._id]);
 
   // helper: notify parent/shelf about local stock change
-  const notifyLocalStock = (newStock: number) => {
-    setLocalStock(newStock);
-    try {
-      if (typeof onLocalStockChange === "function") {
-        onLocalStockChange(String(product._id), newStock);
+  const notifyLocalStock = useCallback(
+    (newStock: number) => {
+      setLocalStock(newStock);
+      try {
+        if (typeof onLocalStockChange === "function") {
+          onLocalStockChange(String(product._id), newStock);
+        }
+      } catch (e) {
+        console.error("onLocalStockChange callback error", e);
       }
-    } catch (e) {
-      console.error("onLocalStockChange callback error", e);
-    }
-  };
+    },
+    [onLocalStockChange, product._id]
+  );
 
   // available (after reserved by cart)
   const available = Math.max(0, localStock - reservedQty);
   const isOut = available <= 0;
   const isLow = !isOut && available <= 5;
 
-  const [adding, setAdding] = useState(false);
+  // Quantity handlers - TrendingGrid-এর মতোই
+  const updateQuantity = useCallback(
+    (newQty: number) => {
+      const safeQty = Math.max(
+        1,
+        Math.min(newQty, Math.max(1, available || 1))
+      );
+      setQuantity(safeQty);
+    },
+    [available]
+  );
 
-    const handleAdd = async (qty = 1) => {
-      if (isOut) {
-        toast.error("Out of stock");
-        return;
+  const incrementQuantity = useCallback(() => {
+    updateQuantity(quantity + 1);
+  }, [quantity, updateQuantity]);
+
+  const decrementQuantity = useCallback(() => {
+    updateQuantity(quantity - 1);
+  }, [quantity, updateQuantity]);
+
+  const handleAdd = async () => {
+    if (isOut) {
+      toast.error("Out of stock");
+      return;
+    }
+    if (quantity > available) {
+      toast.error(`Only ${available} items available in stock`);
+      return;
+    }
+
+    try {
+      setAdding(true);
+
+      if (onAddToCart) {
+        await Promise.resolve(onAddToCart(product, quantity));
+      } else {
+        addItem({
+          _id: String(product._id),
+          title,
+          slug,
+          price,
+          image,
+          quantity: quantity,
+        });
       }
-      if (qty > available) {
-        toast.error(`Only ${available} left`);
-        return;
-      }
 
-      try {
-        setAdding(true);
+      toast.success(`${quantity} × ${title} added to cart`);
 
-        // **DO NOT** optimistic decrease localStock here.
-        // Instead rely on cart store update which will change reservedQty,
-        // and since available = localStock - reservedQty, UI will reflect the change.
-
-        if (onAddToCart) {
-          await Promise.resolve(onAddToCart(product, qty));
-        } else {
-          addItem({
-            _id: String(product._id),
-            title,
-            slug,
-            price,
-            image,
-            quantity: qty,
-          });
-        }
-
-        toast.success(`${qty} × ${title} added to cart`);
-      } catch (e) {
-        console.error("Add to cart failed", e);
-        toast.error("Failed to add to cart");
-      } finally {
-        setTimeout(() => setAdding(false), 250);
-      }
-    };
-
+      // Reset quantity after successful add (TrendingGrid-এর মতো)
+      setQuantity(1);
+    } catch (e) {
+      console.error("Add to cart failed", e);
+      toast.error("Failed to add to cart");
+    } finally {
+      setTimeout(() => setAdding(false), 250);
+    }
+  };
 
   const handleBuyNow = async () => {
     if (isOut) {
       toast.error("Out of stock");
       return;
     }
+
     try {
-      await handleAdd(1);
+      setBuying(true);
+      await handleAdd();
       router.push("/checkout");
     } catch (e) {
       console.error(e);
+    } finally {
+      setBuying(false);
     }
   };
+
+  const totalPrice = price * quantity;
 
   return (
     <motion.article
       whileHover={{ y: -6 }}
       transition={{ duration: 0.25 }}
       className={`group bg-white rounded-2xl shadow-sm transition-shadow overflow-hidden border border-gray-100 flex flex-col ${
-        compact ? "p-3" : ""
+        compact ? "p-3" : "p-4"
       }`}
     >
       <Link
         href={`/products/${slug}`}
-        className="relative w-full h-44 sm:h-52 md:h-64 bg-white flex items-center justify-center overflow-hidden"
+        className={`relative w-full bg-white flex items-center justify-center overflow-hidden ${
+          compact ? "h-36 sm:h-40" : "h-44 sm:h-52 md:h-64"
+        }`}
         aria-label={`View ${title}`}
       >
         <Image
@@ -198,22 +229,30 @@ export default function ProductCard({
         </div>
       </Link>
 
-      <div className="p-3 flex flex-col flex-1">
+      <div className={`flex flex-col flex-1 ${compact ? "pt-2" : "pt-4"}`}>
         <Link href={`/products/${slug}`} className="mb-2">
-          <h3 className="text-sm sm:text-base font-semibold text-gray-800 line-clamp-2 min-h-[2.5rem]">
+          <h3
+            className={`font-semibold text-gray-800 line-clamp-2 ${
+              compact ? "text-sm min-h-[2rem]" : "text-base min-h-[2.5rem]"
+            }`}
+          >
             {title}
           </h3>
         </Link>
 
         <div className="flex items-baseline justify-between mb-3">
-          <div>
-            <div className="text-lg sm:text-xl font-bold text-gray-900">
-              {formatPrice(price)}
-            </div>
+          <div className="flex items-baseline gap-2">
+            <span
+              className={`font-bold text-gray-900 ${
+                compact ? "text-lg" : "text-xl"
+              }`}
+            >
+              {formatPrice(totalPrice)}
+            </span>
             {compare > price && (
-              <div className="text-sm text-gray-400 line-through">
-                {formatPrice(compare)}
-              </div>
+              <span className="text-gray-500 line-through text-sm">
+                {formatPrice(price * quantity)}
+              </span>
             )}
           </div>
 
@@ -230,29 +269,92 @@ export default function ProductCard({
           </div>
         </div>
 
-        <div className="mt-auto flex flex-col sm:flex-row gap-2">
-          {/* Add button */}
-          <button
-            onClick={() => handleAdd(1)}
-            disabled={isOut || adding}
-            aria-disabled={isOut || adding}
-            className="flex-1 px-3 py-2 rounded-lg bg-[#167389] text-white text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
+        {/* Quantity Selector - ALWAYS SHOW (compact mode-এও দেখাবে) */}
+        <div className="flex items-center justify-between mb-3">
+          <span
+            className={`text-gray-600 font-medium ${
+              compact ? "text-xs" : "text-sm"
+            }`}
           >
-            {adding ? "Adding..." : "Add"}
-          </button>
-
-          {/* Buy Now: on small screens this will be below (flex-col), on larger side-by-side */}
-          <button
-            onClick={handleBuyNow}
-            disabled={isOut || adding}
-            aria-disabled={isOut || adding}
-            className="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-pink-600 to-rose-600 text-white text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            <span className="inline-flex items-center gap-2">
-              <Eye className="w-4 h-4" />
-              <span>Buy</span>
+            Qty:
+          </span>
+          <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={decrementQuantity}
+              disabled={quantity <= 1 || adding || buying || isOut}
+              className={`flex items-center justify-center rounded-md bg-white border border-gray-300 transition-all hover:bg-gray-50 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${
+                compact ? "w-6 h-6" : "w-7 h-7"
+              }`}
+              aria-label="Decrease quantity"
+            >
+              <Minus className={compact ? "w-3 h-3" : "w-4 h-4"} />
+            </button>
+            <span
+              className={`font-bold text-gray-800 mx-1 ${
+                compact ? "w-6 text-xs" : "w-7 text-sm"
+              } text-center`}
+            >
+              {quantity}
             </span>
-          </button>
+            <button
+              onClick={incrementQuantity}
+              disabled={adding || buying || isOut || quantity >= available}
+              className={`flex items-center justify-center rounded-md bg-white border border-gray-300 transition-all hover:bg-gray-50 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${
+                compact ? "w-6 h-6" : "w-7 h-7"
+              }`}
+              aria-label="Increase quantity"
+            >
+              <Plus className={compact ? "w-3 h-3" : "w-4 h-4"} />
+            </button>
+          </div>
+        </div>
+
+        {/* Action Buttons - TrendingGrid-এর মতোই Responsive */}
+        <div
+          className={`mt-auto space-y-2 ${compact ? "space-y-1" : "space-y-2"}`}
+        >
+          <div
+            className={`flex gap-2 ${
+              compact ? "flex-col" : "flex-col sm:flex-row"
+            }`}
+          >
+            {/* Add to Cart Button */}
+            <button
+              onClick={handleAdd}
+              disabled={isOut || adding || buying}
+              className={`
+                flex items-center justify-center gap-2 font-semibold rounded-lg transition-all 
+                disabled:opacity-60 disabled:cursor-not-allowed active:scale-95
+                ${
+                  compact
+                    ? "px-2 py-1.5 text-xs bg-[#167389] text-white"
+                    : "flex-1 px-3 py-2 text-sm bg-[#167389] text-white hover:bg-[#135a6b]"
+                }
+              `}
+            >
+              {adding
+                ? "Adding..."
+                : `Add ${quantity > 1 ? `(${quantity})` : ""}`}
+            </button>
+
+            {/* Buy Now Button */}
+            <button
+              onClick={handleBuyNow}
+              disabled={isOut || adding || buying}
+              className={`
+                flex items-center justify-center gap-2 font-semibold rounded-lg transition-all 
+                disabled:opacity-60 disabled:cursor-not-allowed active:scale-95
+                ${
+                  compact
+                    ? "px-2 py-1.5 text-xs bg-gradient-to-r from-pink-600 to-rose-600 text-white"
+                    : "flex-1 px-3 py-2 text-sm bg-gradient-to-r from-pink-600 to-rose-600 text-white hover:from-pink-700 hover:to-rose-700"
+                }
+              `}
+            >
+              <Eye className={compact ? "w-3 h-3" : "w-4 h-4"} />
+              <span>{buying ? "Buying..." : "Buy Now"}</span>
+            </button>
+          </div>
         </div>
       </div>
     </motion.article>

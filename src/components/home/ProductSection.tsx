@@ -65,20 +65,18 @@ export default function ProductSection({
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
           <div className="flex-1">
-            <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+            <h2 className="text-2xl lg:text-3xl font-bold text-[#167389] mb-2">
               {title}
             </h2>
             {subtitle && (
-              <p className="text-lg text-gray-600 max-w-2xl">
-                {subtitle}
-              </p>
+              <p className="text-lg text-gray-600 max-w-2xl">{subtitle}</p>
             )}
           </div>
-          
+
           {showViewAll && (
             <Link
               href={href}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-900 to-gray-700 text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:gap-3 group"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r bg-[#167389] text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:gap-3 group"
             >
               View All
               <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
@@ -90,9 +88,9 @@ export default function ProductSection({
         <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 sm:gap-6">
           {products.map((product, index) => (
             <ProductCard
-              key={product._id || `product-${index}`} 
+              key={product._id || `product-${index}`}
               product={product}
-              variant={variant} 
+              variant={variant}
               compact={variant === "compact"}
               showDiscount={true}
             />

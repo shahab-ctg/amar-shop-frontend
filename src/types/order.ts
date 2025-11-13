@@ -1,7 +1,57 @@
-// ---------------------------------------------------
-//  Order Types (Frontend + Backend Aligned)
-// ---------------------------------------------------
+// types/order.ts - COMPLETE VERSION
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
+export interface CreateOrderDTO {
+  items: Array<{
+    _id: string;
+    quantity: number;
+  }>;
+  customer: {
+    name: string;
+    phone: string;
+    houseOrVillage?: string;
+    roadOrPostOffice?: string;
+    blockOrThana?: string;
+    district?: string;
+  };
+  totals?: {
+    subTotal: number;
+    shipping: number;
+    grandTotal: number;
+  };
+  payment?: any;
+  notes?: string;
+}
+
+export interface OrderCreateResult {
+  ok: boolean;
+  orderId?: string;
+  message?: string;
+  updatedProducts?: Array<{ _id: string; stock: number }>;
+  timestamp?: string;
+}
+
+export interface ApiOk<T = unknown> {
+  ok: true;
+  data?: T;
+  message?: string;
+}
+
+// Error types
+export interface ApiErrItem {
+  path?: string;
+  message?: string;
+  code?: string;
+}
+
+export interface ApiErr {
+  ok: false;
+  code?: string;
+  message?: string;
+  errors?: ApiErrItem[];
+}
+
+// ✅ ADD: Order and OrderStatus types
 export type OrderStatus =
   | "PENDING"
   | "IN_PROGRESS"
@@ -9,69 +59,63 @@ export type OrderStatus =
   | "DELIVERED"
   | "CANCELLED";
 
-//  Customer info structure (matches backend Zod schema)
-export type OrderCustomer = {
-  name: string;
- 
-  phone: string;
-  houseOrVillage: string;
-  roadOrPostOffice: string;
-  blockOrThana: string;
-  district: string;
-};
-
-//  Individual line item in an order
-export type OrderLine = {
+export interface OrderLine {
   productId: string;
-  title: string;
-  image?: string;
-  price: number;
-  qty: number;
-};
+  quantity: number;
+  price?: number;
+  name?: string;
+}
 
-//  Core order model (shared by backend + frontend)
-export type Order = {
+export interface OrderTotals {
+  subTotal: number;
+  shipping: number;
+  grandTotal: number;
+}
+
+export interface OrderCustomer {
+  name: string;
+  phone: string;
+  email?: string;
+  houseOrVillage?: string;
+  roadOrPostOffice?: string;
+  blockOrThana?: string;
+  district?: string;
+}
+
+export interface Order {
   _id: string;
   customer: OrderCustomer;
   lines: OrderLine[];
-  totals: {
-    subTotal: number;
-    shipping: number;
-    grandTotal: number;
-  };
+  totals: OrderTotals;
   status: OrderStatus;
-  createdAt?: string;
-  updatedAt?: string; 
-};
+  payment?: any;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+  orderNumber?: string;
+}
 
-// ---------------------------------------------------
-// 📨 API DTOs (Data Transfer Objects)
-// ---------------------------------------------------
-
-//  Client → Backend
-export type CreateOrderDTO = {
-  customer: OrderCustomer;
-  lines: { productId: string; qty: number }[];
-};
-
-//  Backend → Client (after create)
-export type OrderCreateResult = {
-  id: string;
-  totals: {
-    subTotal: number;
-    shipping: number;
-    grandTotal: number;
+// ✅ ADD: For order listing responses
+export interface OrdersResponse {
+  ok: boolean;
+  data?: {
+    items: Order[];
+    total: number;
+    page: number;
+    limit: number;
+    pages: number;
   };
-  status: OrderStatus;
-};
+  message?: string;
+}
 
-//  Common API wrappers
-export type ApiOk<T> = { ok: true; data: T };
-
-export type Paginated<T> = {
-  items: T[];
-  page: number;
-  limit: number;
-  total: number;
-  hasNext?: boolean;
-};
+// ✅ ADD: Invoice types
+export interface Invoice {
+  _id: string;
+  invoiceNumber: string;
+  orderId: string;
+  pdfUrl?: string;
+  guestToken?: string;
+  status: "GENERATED" | "PENDING" | "FAILED";
+  createdAt: string;
+  updatedAt: string;
+}

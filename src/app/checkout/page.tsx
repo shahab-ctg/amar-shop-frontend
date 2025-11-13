@@ -1,12 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-
 import toast from "react-hot-toast";
 import { useState } from "react";
-
-
 import { X } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 import { createOrder } from "@/services/orders";
@@ -33,48 +31,75 @@ export default function CheckoutPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showMobileSummary, setShowMobileSummary] = useState(false);
 
-  // 🧾 handle order submit
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleSubmit = async (data: any) => {
+  // 🧾 FIXED: handle order submit
+  const handleSubmit = async (customerData: any) => {
     if (!items.length) {
       toast.error("Your cart is empty. Please add products first.");
       return;
     }
-localStorage.setItem("customer_phone", data.phone);
 
+    // ✅ Save customer phone for order tracking
+    localStorage.setItem("customer_phone", customerData.phone);
+
+    // ✅ PREPARE PROPER PAYLOAD STRUCTURE
     const payload = {
-      customer: {
-        name: data.name,
-      
-        phone: data.phone,
-        houseOrVillage: data.houseOrVillage,
-        roadOrPostOffice: data.roadOrPostOffice,
-        blockOrThana: data.blockOrThana,
-        district: data.district,
-      },
-      lines: items.map((it) => ({
-        productId: String(it._id),
-        qty: Math.max(1, toNum(it.quantity, 1)),
+      items: items.map((it) => ({
+        _id: String(it._id), // ✅ Backend expects _id
+        quantity: Math.max(1, toNum(it.quantity, 1)),
       })),
+      customer: {
+        name: customerData.name,
+        phone: customerData.phone,
+        houseOrVillage: customerData.houseOrVillage,
+        roadOrPostOffice: customerData.roadOrPostOffice,
+        blockOrThana: customerData.blockOrThana,
+        district: customerData.district,
+      },
+      totals: {
+        subTotal: subtotal,
+        shipping: delivery,
+        grandTotal: total,
+      },
     };
-    // console.log(payload, "payload in checkout page")
+
+    console.log("✅ Final order payload:", payload);
 
     try {
       setIsSubmitting(true);
-      // const loadingToast = toast.loading("Placing your order...");
-      await createOrder(payload);
-      // toast.dismiss(loadingToast);
-      toast.success("Order placed successfully!");
-      clearCart();
-      setTimeout(() => router.push("/products"), 1500);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const loadingToast = toast.loading("Placing your order...");
+
+      // ✅ CALL FIXED createOrder FUNCTION
+      const result = await createOrder(payload);
+
+      toast.dismiss(loadingToast);
+
+      if (result.ok) {
+        toast.success("Order placed successfully!");
+
+        // ✅ CLEAR CART AFTER SUCCESSFUL ORDER
+        clearCart();
+
+        // ✅ REDIRECT AFTER DELAY
+        setTimeout(() => router.push("/orders"), 1500);
+      } else {
+        throw new Error(result.message || "Failed to place order");
+      }
     } catch (err: any) {
+      console.error("❌ Order submission error:", err);
       toast.dismiss();
-      toast.error(
+
+      // ✅ BETTER ERROR MESSAGES
+      const errorMessage =
         err?.data?.message ||
-          err?.message ||
-          "Failed to place order. Please try again."
-      );
+        err?.message ||
+        "Failed to place order. Please try again.";
+
+      toast.error(errorMessage);
+
+      // ✅ SPECIFIC ERROR HANDLING
+      if (err?.data?.code === "NO_ITEMS") {
+        console.error("Items payload issue:", payload.items);
+      }
     } finally {
       setIsSubmitting(false);
     }

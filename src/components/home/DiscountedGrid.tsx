@@ -24,7 +24,13 @@ export default async function DiscountedGrid({
     limit,
     sort: "createdAt:desc",
   });
-  const items = res.data.map((p) => ZProduct.parse(p)) as Product[];
+
+  // এখানে পরিবর্তন করুন
+  const items = Array.isArray(res)
+    ? (res.map((p) => ZProduct.parse(p)) as Product[])
+    : Array.isArray(res.data)
+      ? (res.data.map((p) => ZProduct.parse(p)) as Product[])
+      : [];
 
   return (
     <section className="py-8 md:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -65,18 +71,18 @@ export default async function DiscountedGrid({
             (Array.isArray(p.images) ? p.images[0] : undefined) ??
             FALLBACK_IMG;
 
-         const showCompare =
-           p.compareAtPrice != null &&
-           p.price != null &&
-           Number(p.compareAtPrice) > Number(p.price);
+          const showCompare =
+            p.compareAtPrice != null &&
+            p.price != null &&
+            Number(p.compareAtPrice) > Number(p.price);
 
-         const discount = showCompare
-           ? Math.round(
-               ((Number(p.compareAtPrice) - Number(p.price)) /
-                 Number(p.compareAtPrice)) *
-                 100
-             )
-           : 0;
+          const discount = showCompare
+            ? Math.round(
+                ((Number(p.compareAtPrice) - Number(p.price)) /
+                  Number(p.compareAtPrice)) *
+                  100
+              )
+            : 0;
 
           return (
             <Link

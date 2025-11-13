@@ -381,6 +381,82 @@ export async function fetchProduct(slug: string) {
 }
 
 /* ------------------------------ Banners ---------------------------------- */
+// export async function fetchBanners(params?: {
+//   position?: "hero" | "side";
+//   status?: "ACTIVE" | "HIDDEN";
+//   limit?: number;
+//   skip?: number;
+//   category?: string;
+// }) {
+//   try {
+//     const q: Query = {
+//       position: params?.position,
+//       status: params?.status ?? "ACTIVE",
+//       limit: params?.limit,
+//       skip: params?.skip,
+//       category: params?.category,
+//     };
+
+//     const raw = await getJSON<unknown>("/banners", q);
+
+//     let dataUnknown: unknown[] = [];
+//     if (
+//       raw &&
+//       typeof raw === "object" &&
+//       "data" in (raw as Record<string, unknown>)
+//     ) {
+//       const obj = raw as { data?: unknown };
+//       dataUnknown = Array.isArray(obj.data) ? obj.data : [];
+//     } else if (Array.isArray(raw)) {
+//       dataUnknown = raw as unknown[];
+//     } else {
+//       const arrLike =
+//         raw && typeof raw === "object"
+//           ? Object.values(raw as Record<string, unknown>).find((v) =>
+//               Array.isArray(v)
+//             )
+//           : undefined;
+//       dataUnknown = Array.isArray(arrLike) ? (arrLike as unknown[]) : [];
+//     }
+
+//     const banners = dataUnknown.filter((b) => {
+//       const st = (b as { status?: string })?.status;
+//       return !st || st.toUpperCase() === "ACTIVE";
+//     }) as Banner[];
+
+//     const filtered = params?.position
+//       ? banners.filter((b) => b.position === params.position)
+//       : banners;
+
+//     const categoryFiltered = params?.category
+//       ? filtered.filter((b) => {
+//           const cat = (b as { category?: any })?.category;
+//           if (!cat) return false;
+//           if (typeof cat === "string") return cat === params.category;
+//           if (typeof cat === "object" && cat !== null) {
+//             return (
+//               (cat as { _id?: string; slug?: string }).slug ===
+//                 params.category ||
+//               (cat as { _id?: string; slug?: string })._id === params.category
+//             );
+//           }
+//           return false;
+//         })
+//       : filtered;
+
+//     const final =
+//       params?.limit && params.limit > 0
+//         ? categoryFiltered.slice(0, params.limit)
+//         : categoryFiltered;
+
+//     return { ok: true as const, data: final };
+//   } catch (error) {
+//     console.error("Failed to fetch banners:", error);
+//     return { ok: true as const, data: [] as Banner[] };
+//   }
+// }
+
+/* ------------------------------ Banners (with Fallback) ---------------------------------- */
 export async function fetchBanners(params?: {
   position?: "hero" | "side";
   status?: "ACTIVE" | "HIDDEN";
@@ -397,14 +473,11 @@ export async function fetchBanners(params?: {
       category: params?.category,
     };
 
+    // 1️⃣ Try fetching actual banners first
     const raw = await getJSON<unknown>("/banners", q);
 
     let dataUnknown: unknown[] = [];
-    if (
-      raw &&
-      typeof raw === "object" &&
-      "data" in (raw as Record<string, unknown>)
-    ) {
+    if (raw && typeof raw === "object" && "data" in (raw as Record<string, unknown>)) {
       const obj = raw as { data?: unknown };
       dataUnknown = Array.isArray(obj.data) ? obj.data : [];
     } else if (Array.isArray(raw)) {
@@ -419,15 +492,18 @@ export async function fetchBanners(params?: {
       dataUnknown = Array.isArray(arrLike) ? (arrLike as unknown[]) : [];
     }
 
-    const banners = dataUnknown.filter((b) => {
+    // 2️⃣ Filter active banners
+    const banners = (dataUnknown.filter((b) => {
       const st = (b as { status?: string })?.status;
       return !st || st.toUpperCase() === "ACTIVE";
-    }) as Banner[];
+    }) || []) as Banner[];
 
+    // 3️⃣ Optional position filter
     const filtered = params?.position
       ? banners.filter((b) => b.position === params.position)
       : banners;
 
+    // 4️⃣ Optional category filter
     const categoryFiltered = params?.category
       ? filtered.filter((b) => {
           const cat = (b as { category?: any })?.category;
@@ -435,8 +511,7 @@ export async function fetchBanners(params?: {
           if (typeof cat === "string") return cat === params.category;
           if (typeof cat === "object" && cat !== null) {
             return (
-              (cat as { _id?: string; slug?: string }).slug ===
-                params.category ||
+              (cat as { _id?: string; slug?: string }).slug === params.category ||
               (cat as { _id?: string; slug?: string })._id === params.category
             );
           }
@@ -444,14 +519,71 @@ export async function fetchBanners(params?: {
         })
       : filtered;
 
+    // 5️⃣ Apply limit if needed
     const final =
       params?.limit && params.limit > 0
         ? categoryFiltered.slice(0, params.limit)
         : categoryFiltered;
 
-    return { ok: true as const, data: final };
+    // ✅ If we found banners, return them immediately
+    if (final.length > 0) {
+      return { ok: true as const, data: final };
+    }
+
+    /* ------------------------------------------------------------------
+       🚨 No banner found: Fetch fallback banner from DB (industry standard)
+       ------------------------------------------------------------------ */
+    console.warn("⚠️ No banners found. Loading fallback banner from DB...");
+
+    const fallback = await getJSON<unknown>("/banners?status=ACTIVE&limit=1");
+
+    let fallbackArr: Banner[] = [];
+    if (fallback && typeof fallback === "object" && "data" in (fallback as Record<string, unknown>)) {
+      const obj = fallback as { data?: Banner[] };
+      fallbackArr = Array.isArray(obj.data) ? obj.data : [];
+    } else if (Array.isArray(fallback)) {
+      fallbackArr = fallback as Banner[];
+    }
+
+    // 6️⃣ Select only the latest fallback banner (or dummy if none)
+    const fallbackBanner =
+      fallbackArr.length > 0
+        ? fallbackArr[0]
+        : ({
+            _id: "fallback",
+            title: "Welcome to Amar Shop",
+            subtitle: "Best deals & offers, everyday!",
+            image:
+              "https://res.cloudinary.com/dtges64tg/image/upload/v1762065479/Amarshop_default_fallback.webp",
+            discount: "0%",
+            position: "hero",
+            status: "ACTIVE",
+            sort: 999,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          } as Banner);
+
+    console.log("✅ Fallback banner loaded:", fallbackBanner.title);
+
+    return { ok: true as const, data: [fallbackBanner] };
   } catch (error) {
     console.error("Failed to fetch banners:", error);
-    return { ok: true as const, data: [] as Banner[] };
+
+    // 🔁 Final fallback (static backup)
+    const staticFallback: Banner = {
+      _id: "fallback-static",
+      title: "Shop Smarter with Amar Shop",
+      subtitle: "Exclusive discounts all year round",
+      discount: "10%",
+      image:
+        "https://res.cloudinary.com/dtges64tg/image/upload/v1762064800/Amarshop_static_fallback.webp",
+      position: "hero",
+      status: "ACTIVE",
+      sort: 999,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    return { ok: true as const, data: [staticFallback] };
   }
 }

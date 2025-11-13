@@ -216,7 +216,7 @@ export default function HomePage() {
                 </p>
                 <Link
                   href="/search"
-                  className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold text-lg hover:shadow-xl transition-all duration-300 hover:gap-4"
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r bg-[#167389] text-white rounded-xl font-semibold text-lg hover:shadow-xl transition-all duration-300 hover:gap-4"
                 >
                   Browse All Products
                   <ChevronRight className="w-5 h-5" />

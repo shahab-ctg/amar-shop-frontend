@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* components/TrendingGrid.tsx */
+
 "use client";
 
 import Image from "next/image";
