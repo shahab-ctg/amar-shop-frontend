@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// hooks/useCustomerOrders.ts - SIMPLIFIED
-import { useState, useEffect, useCallback } from "react";
+// src/hooks/useCustomerOrders.ts
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { Order } from "@/types/order";
 
 const API =
@@ -16,82 +16,78 @@ interface UseCustomerOrdersResult {
 
 export function useCustomerOrders(): UseCustomerOrdersResult {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPhone, setCurrentPhone] = useState<string | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    try {
+      if (typeof window !== "undefined") {
+        const phone = localStorage.getItem("customer_phone");
+        setCurrentPhone(phone);
+      }
+    } catch (e) {
+      // ignore localStorage read err
+      setCurrentPhone(null);
+    }
+  }, []);
 
   const fetchOrders = useCallback(async () => {
-    try {
-      const phone =
-        typeof window !== "undefined"
-          ? localStorage.getItem("customer_phone")
-          : null;
+    // cancel previous
+    abortRef.current?.abort();
+    const ac = new AbortController();
+    abortRef.current = ac;
 
-      console.log("📞 Current phone from localStorage:", phone);
-      setCurrentPhone(phone);
-
-      if (!phone) {
-        console.log("ℹ️ No phone found in localStorage");
-        setOrders([]);
-        setError("Please place an order first to view your order history");
-        setIsLoading(false);
-        return;
-      }
-
-      setIsLoading(true);
+    if (!currentPhone) {
+      setOrders([]);
       setError(null);
+      setIsLoading(false);
+      return;
+    }
 
-      const url = `${API}/customer/orders?phone=${encodeURIComponent(phone)}&limit=50`;
-      console.log("🔍 Fetching orders from:", url);
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const url = `${API}/customer/orders?phone=${encodeURIComponent(currentPhone)}&limit=50`;
 
       const res = await fetch(url, {
         credentials: "include",
         cache: "no-store",
         headers: { "Content-Type": "application/json" },
+        signal: ac.signal,
       });
 
-      console.log("📨 Response status:", res.status);
+      if (ac.signal.aborted) return;
 
-      const data = await res.json().catch(() => ({}));
-
-      console.log("📦 API response received");
-
-      if (!res.ok || data?.ok === false) {
-        throw new Error(
-          data?.message || `Failed to fetch orders: ${res.status}`
-        );
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error(`Failed to load orders (${res.status}) ${txt}`);
       }
 
-      // ✅ SIMPLIFIED: Backend should handle filtering
-      const ordersList: Order[] = Array.isArray(data?.data?.items)
-        ? data.data.items
+      const json = await res.json().catch(() => ({}));
+      if (!json || json.ok === false) {
+        throw new Error(json?.message || "Failed to load orders");
+      }
+
+      const ordersList: Order[] = Array.isArray(json?.data?.items)
+        ? json.data.items
         : [];
-
-      console.log("✅ Orders received from backend:", ordersList.length);
-
-      // ✅ REMOVED CLIENT-SIDE FILTERING - Backend should handle this
       setOrders(ordersList);
     } catch (e: any) {
-      console.error("❌ Error fetching orders:", e);
-      const errorMessage = e?.message || "Failed to load your orders";
-      setError(errorMessage);
+      if (e?.name === "AbortError") return;
+      console.error("useCustomerOrders error:", e);
+      setError(e?.message || "Failed to load your orders");
       setOrders([]);
     } finally {
       setIsLoading(false);
     }
-  }, []);
-
-  useEffect(() => {
-    console.log("🔄 Orders state updated:", {
-      userPhone: currentPhone,
-      ordersCount: orders.length,
-      isLoading,
-      error,
-    });
-  }, [orders, isLoading, error, currentPhone]);
+  }, [currentPhone]);
 
   useEffect(() => {
     fetchOrders();
+    return () => abortRef.current?.abort();
   }, [fetchOrders]);
 
   return {

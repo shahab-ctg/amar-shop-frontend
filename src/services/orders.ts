@@ -1,5 +1,5 @@
+/* src/services/orders.ts */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// services/orders.ts - COMPLETE FIXED VERSION
 import type {
   ApiOk,
   CreateOrderDTO,
@@ -12,58 +12,111 @@ if (!API) throw new Error("NEXT_PUBLIC_API_BASE_URL is missing");
 
 type ApiResp<T> = ApiOk<T> | ApiErr;
 
-// Helper: build human-friendly message from backend validation errors
-function buildErrorMessage(e: ApiErr) {
+function buildErrorMessage(e: ApiErr | any) {
+  if (!e) return "Unknown error";
   if (e?.errors?.length) {
-    const lines = e.errors.map((x) =>
+    const lines = e.errors.map((x: any) =>
       [x.path, x.message].filter(Boolean).join(": ")
     );
     return (e.message ? e.message + " — " : "") + lines.join(" | ");
   }
-  return e?.message || e?.code || "Validation failed";
+  if (e?.message) return e.message;
+  if (typeof e === "string") return e;
+  return JSON.stringify(e).slice(0, 200);
 }
 
-// services/orders.ts - CHECK PAYLOAD STRUCTURE
-export async function createOrder(
-  payload: CreateOrderDTO
-): Promise<ApiOk<OrderCreateResult>> {
-  
-  // ✅ ENSURE PHONE IS SAVED PROPERLY
-  if (payload.customer?.phone && typeof window !== 'undefined') {
-    localStorage.setItem("customer_phone", payload.customer.phone);
-    console.log('💾 Saved customer phone for order tracking:', payload.customer.phone);
+function parseErrorResponse(obj: any) {
+  if (!obj) return null;
+  if (obj?.ok === false) {
+    return obj;
   }
+  if (obj?.data && obj?.data?.ok === false) {
+    return obj.data;
+  }
+  return null;
+}
 
-  console.log('📦 Order payload being sent:', JSON.stringify(payload, null, 2));
+/**
+ * createOrder
+ * - embeds idempotencyKey into body (safer across CORS preflights)
+ * - logs raw response text for easier debugging
+ */
+export async function createOrder(
+  payload: CreateOrderDTO,
+  options?: { signal?: AbortSignal; idempotencyKey?: string }
+): Promise<ApiOk<OrderCreateResult>> {
+  const idempotencyKey =
+    options?.idempotencyKey ?? (payload as any).idempotencyKey;
+
+  // embed idempotency inside body (so we don't rely on custom headers)
+  if (idempotencyKey) (payload as any).idempotencyKey = idempotencyKey;
 
   try {
+    const headers: Record<string, string> = {
+      "content-type": "application/json",
+      accept: "application/json",
+    };
+
     const res = await fetch(`${API}/orders`, {
       method: "POST",
-      headers: { 
-        "content-type": "application/json",
-        "accept": "application/json"
-      },
+      headers,
       credentials: "include",
       body: JSON.stringify(payload),
       cache: "no-store",
+      signal: options?.signal,
     });
 
-    const json = (await res.json().catch(() => ({}))) as ApiResp<OrderCreateResult>;
-      
-    console.log("✅ createOrder response status:", res.status, "body:", json);
+    // DEBUG: capture raw response for troubleshooting
+    const rawText = await res.text().catch(() => "");
+    // print compact debug line
+    console.error(
+      "createOrder → status:",
+      res.status,
+      "idempotency:",
+      idempotencyKey,
+      "raw:",
+      rawText
+    );
 
-    if (!res.ok || (json as ApiErr)?.ok === false) {
-      const err = json as ApiErr;
-      throw Object.assign(new Error(buildErrorMessage(err)), err);
+    let json: any = {};
+    try {
+      json = rawText ? JSON.parse(rawText) : {};
+    } catch (e) {
+      json = {
+        ok: false,
+        message: `Non-JSON response (${res.status})`,
+        raw: rawText,
+      };
+    }
+
+    if (!res.ok || (json && json.ok === false)) {
+      const parsedErr = parseErrorResponse(json) || {
+        message: json?.message || `HTTP ${res.status}`,
+      };
+      const err = new Error(buildErrorMessage(parsedErr));
+      (err as any).status = res.status;
+      (err as any).data = parsedErr;
+      (err as any).raw = rawText;
+      throw err;
+    }
+
+    // on success persist phone locally (best-effort)
+    try {
+      if (payload.customer?.phone && typeof window !== "undefined") {
+        localStorage.setItem("customer_phone", payload.customer.phone);
+      }
+    } catch (e) {
+      console.warn("Failed to persist customer_phone locally", e);
     }
 
     return json as ApiOk<OrderCreateResult>;
   } catch (error: any) {
-    console.error('❌ Order creation failed:', error);
+    console.error("createOrder caught:", error);
     throw error;
   }
 }
-// ✅ ADDITIONAL HELPER: Create proper payload from cart items
+
+// helper to create payload from cart (unchanged)
 export function createOrderPayloadFromCart(
   cartItems: Array<{
     _id: string;

@@ -1,4 +1,4 @@
-// frontend/src/store/productStockSlice.ts
+// src/store/productStockSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 type StockState = {
@@ -29,9 +29,12 @@ const slice = createSlice({
     clearLocalDelta(state, action: PayloadAction<{ id: string }>) {
       delete state.deltas[action.payload.id];
     },
+    clearAll(state) {
+      state.deltas = {};
+    },
   },
 });
 
-export const { applyLocalDelta, setLocalDelta, clearLocalDelta } =
+export const { applyLocalDelta, setLocalDelta, clearLocalDelta, clearAll } =
   slice.actions;
 export default slice.reducer;

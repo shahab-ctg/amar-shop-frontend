@@ -92,7 +92,7 @@ export default function ProductCard({
   const isOut = available <= 0;
   const isLow = !isOut && available <= 5;
 
-  // Quantity handlers - TrendingGrid-এর মতোই
+  // Quantity handlers - same behavior as TrendingGrid
   const updateQuantity = useCallback(
     (newQty: number) => {
       const safeQty = Math.max(
@@ -140,7 +140,7 @@ export default function ProductCard({
 
       toast.success(`${quantity} × ${title} added to cart`);
 
-      // Reset quantity after successful add (TrendingGrid-এর মতো)
+      // Reset quantity after successful add
       setQuantity(1);
     } catch (e) {
       console.error("Add to cart failed", e);
@@ -169,7 +169,11 @@ export default function ProductCard({
 
   const totalPrice = price * quantity;
 
-  return (
+  /* -----------------------
+     Desktop / original card
+     (kept unchanged aside from wrapping)
+     ----------------------- */
+  const DesktopCard = (
     <motion.article
       whileHover={{ y: -6 }}
       transition={{ duration: 0.25 }}
@@ -269,7 +273,7 @@ export default function ProductCard({
           </div>
         </div>
 
-        {/* Quantity Selector - ALWAYS SHOW (compact mode-এও দেখাবে) */}
+        {/* Quantity Selector */}
         <div className="flex items-center justify-between mb-3">
           <span
             className={`text-gray-600 font-medium ${
@@ -309,47 +313,35 @@ export default function ProductCard({
           </div>
         </div>
 
-        {/* Action Buttons - TrendingGrid-এর মতোই Responsive */}
+        {/* Action Buttons */}
         <div
           className={`mt-auto space-y-2 ${compact ? "space-y-1" : "space-y-2"}`}
         >
           <div
-            className={`flex gap-2 ${
-              compact ? "flex-col" : "flex-col sm:flex-row"
-            }`}
+            className={`flex gap-2 ${compact ? "flex-col" : "flex-col sm:flex-row"}`}
           >
-            {/* Add to Cart Button */}
             <button
               onClick={handleAdd}
               disabled={isOut || adding || buying}
-              className={`
-                flex items-center justify-center gap-2 font-semibold rounded-lg transition-all 
-                disabled:opacity-60 disabled:cursor-not-allowed active:scale-95
-                ${
-                  compact
-                    ? "px-2 py-1.5 text-xs bg-[#167389] text-white"
-                    : "flex-1 px-3 py-2 text-sm bg-[#167389] text-white hover:bg-[#135a6b]"
-                }
-              `}
+              className={`flex items-center justify-center gap-2 font-semibold rounded-lg transition-all disabled:opacity-60 disabled:cursor-not-allowed active:scale-95 ${
+                compact
+                  ? "px-2 py-1.5 text-xs bg-[#167389] text-white"
+                  : "flex-1 px-3 py-2 text-sm bg-[#167389] text-white hover:bg-[#135a6b]"
+              }`}
             >
               {adding
                 ? "Adding..."
                 : `Add ${quantity > 1 ? `(${quantity})` : ""}`}
             </button>
 
-            {/* Buy Now Button */}
             <button
               onClick={handleBuyNow}
               disabled={isOut || adding || buying}
-              className={`
-                flex items-center justify-center gap-2 font-semibold rounded-lg transition-all 
-                disabled:opacity-60 disabled:cursor-not-allowed active:scale-95
-                ${
-                  compact
-                    ? "px-2 py-1.5 text-xs bg-gradient-to-r from-pink-600 to-rose-600 text-white"
-                    : "flex-1 px-3 py-2 text-sm bg-gradient-to-r from-pink-600 to-rose-600 text-white hover:from-pink-700 hover:to-rose-700"
-                }
-              `}
+              className={`flex items-center justify-center gap-2 font-semibold rounded-lg transition-all disabled:opacity-60 disabled:cursor-not-allowed active:scale-95 ${
+                compact
+                  ? "px-2 py-1.5 text-xs bg-gradient-to-r from-pink-600 to-rose-600 text-white"
+                  : "flex-1 px-3 py-2 text-sm bg-gradient-to-r from-pink-600 to-rose-600 text-white hover:from-pink-700 hover:to-rose-700"
+              }`}
             >
               <Eye className={compact ? "w-3 h-3" : "w-4 h-4"} />
               <span>{buying ? "Buying..." : "Buy Now"}</span>
@@ -358,5 +350,131 @@ export default function ProductCard({
         </div>
       </div>
     </motion.article>
+  );
+
+  /* -----------------------
+     Mobile card (matches TrendingGrid mobile layout)
+     ----------------------- */
+  const MobileCard = (
+    <article className="lg:hidden bg-white rounded-md overflow-hidden border border-gray-200 shadow-sm p-2 flex gap-2">
+      {/* LEFT: image area 2/3 */}
+      <div className="w-2/3">
+        {/* discount badge ABOVE image (not overlay) */}
+        <div className="mb-1">
+          {showDiscount && discount > 0 && (
+            <span className="bg-pink-600 text-white px-2 py-1 rounded-full text-xs inline-block">
+              {discount}% OFF
+            </span>
+          )}
+        </div>
+
+        {/* image container */}
+        <div className="relative h-20 rounded-md overflow-hidden border flex items-center justify-center bg-white">
+          <Link href={`/products/${slug}`} aria-label={`View ${title}`}>
+            <Image
+              src={image}
+              alt={title}
+              fill
+              sizes="(max-width:640px) 50vw"
+              className="object-contain"
+              onError={(e) => {
+                // fallback handled by next/image if available; leaving for safety
+              }}
+            />
+          </Link>
+        </div>
+
+        {/* title and stock BELOW image (not overlay) */}
+        <div className="mt-2 flex items-center justify-between">
+          <div className="max-w-[55%]">
+            <h3 className="text-xs font-semibold line-clamp-2 text-black">
+              {title}
+            </h3>
+          </div>
+
+          <div>
+            <div
+              className={`text-xs px-2 py-1 rounded-md font-medium ${
+                isOut ? "bg-red-100 text-red-800" : "bg-black/70 text-white"
+              }`}
+            >
+              {isOut ? "Out of Stock" : `Stock: ${available}`}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* RIGHT: actions 1/3 vertical */}
+      <div className="w-1/3 flex flex-col justify-between">
+        <div>
+          <div className="text-xs text-gray-700 font-medium mb-1">Qty</div>
+
+          <div className="flex items-center gap-1 bg-gray-200 rounded-md p-1">
+            <button
+              onClick={decrementQuantity}
+              disabled={quantity <= 1 || adding || buying || isOut}
+              className="w-6 h-6 rounded-md bg-white text-black border flex items-center justify-center disabled:opacity-50"
+              aria-label="Decrease quantity"
+            >
+              −
+            </button>
+
+            <div className="flex-1 text-center font-bold text-gray-800">
+              {quantity}
+            </div>
+
+            <button
+              onClick={incrementQuantity}
+              disabled={adding || buying || isOut || quantity >= available}
+              className="w-6 h-6 rounded-md bg-white text-black border flex items-center justify-center disabled:opacity-50"
+              aria-label="Increase quantity"
+            >
+              +
+            </button>
+          </div>
+
+          <div className="mt-1">
+            <div className="text-sm text-black font-semibold">
+              {formatPrice(totalPrice)}
+            </div>
+            {compare > price && (
+              <div className="text-xs text-gray-500 line-through">
+                {formatPrice(price * quantity)}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* buttons */}
+        <div className="flex flex-col gap-1 my-1">
+          <button
+            onClick={handleAdd}
+            disabled={isOut || adding || buying}
+            className="w-full px-1 py-1 bg-[#167389] text-white rounded-md text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {adding ? "Adding..." : "Add to Bag"}
+          </button>
+
+          <button
+            onClick={handleBuyNow}
+            disabled={isOut || adding || buying}
+            className="w-full px-2 py-1 bg-gradient-to-r from-pink-600 to-rose-600 text-white rounded-md text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {buying ? "Processing..." : "Buy Now"}
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+
+  // Render: show MobileCard only on small screens and DesktopCard hidden on small screens.
+  return (
+    <>
+      {/* Mobile card (visible only below lg) */}
+      {MobileCard}
+
+      {/* Desktop / larger screens */}
+      <div className="hidden lg:block">{DesktopCard}</div>
+    </>
   );
 }

@@ -5,6 +5,8 @@ export type AppProduct = {
   slug: string;
   price: number;
   status?: "ACTIVE" | "DRAFT" | "HIDDEN";
+  brand?: string;
+  manufacturer?: string;
   description?: string;
   image?: string; // primary image url
   images?: string[]; // gallery

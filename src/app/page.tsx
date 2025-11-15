@@ -13,7 +13,7 @@ import { useState, useEffect, useMemo } from "react";
 import HeroBannerClient from "@/components/home/HeroBannerClient";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import TrendingGrid from "@/components/home/TrendingGrid";
-import ManufacturerBannerSlider from "@/components/ManufacturerBannerSlider";
+
 
 import type { Product, Category } from "@/lib/schemas";
 import { ChevronRight } from "lucide-react";
@@ -173,10 +173,7 @@ export default function HomePage() {
             />
           </ErrorBoundary>
 
-          {/* ===== Manufacturer Banner ===== */}
-          <ErrorBoundary>
-            <ManufacturerBannerSlider />
-          </ErrorBoundary>
+      
 
           {/* ===== New Arrivals Section ===== */}
           <ErrorBoundary>

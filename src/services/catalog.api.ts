@@ -247,13 +247,27 @@ export const catalogApi = createApi({
     /* ---------- confirmOrder mutation (example) ---------- */
     confirmOrder: builder.mutation<
       { ok: boolean; updatedProducts?: Array<{ _id: string; stock: number }> },
-      { items: Array<{ _id: string; quantity: number }>; payment?: any }
+      {
+        items: Array<{ _id: string; quantity: number }>;
+        payment?: any;
+        customer?: any;
+        totals?: any;
+        idempotencyKey?: string;
+      }
     >({
-      query: (body) => ({
-        url: "/orders",
-        method: "POST",
-        body,
-      }),
+      query: (body) => {
+        const headers: Record<string, string> = {
+          "content-type": "application/json",
+        };
+        if (body?.idempotencyKey)
+          headers["X-Idempotency-Key"] = body.idempotencyKey;
+        return {
+          url: "/orders",
+          method: "POST",
+          body,
+          headers,
+        };
+      },
       invalidatesTags: [{ type: "Product", id: "LIST" }],
     }),
   }),

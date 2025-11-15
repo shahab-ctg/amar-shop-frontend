@@ -102,7 +102,7 @@ export default function ProductSection({
           <div className="flex justify-center mt-8 lg:hidden">
             <Link
               href={href}
-              className="w-full max-w-sm px-6 py-3 bg-gray-900 text-white rounded-xl font-semibold text-center hover:bg-gray-800 transition-colors"
+              className="w-full max-w-sm px-6 py-3 bg-cyan-700 text-white rounded-xl font-semibold text-center hover:bg-gray-800 transition-colors"
             >
               View All Products
             </Link>
