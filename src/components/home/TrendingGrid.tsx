@@ -390,7 +390,7 @@ export default function TrendingGrid({
           </div>
           <Link
             href="/search?tag=trending"
-            className="text-sm text-pink-600 font-medium hover:text-pink-700"
+            className="text-sm text-white bg-cyan-600 font-medium hover:text-pink-700"
           >
             See all →
           </Link>

@@ -28,6 +28,8 @@ export const ZProduct = z.object({
   slug: z.string(),
   image: z.string().optional(),
   images: z.array(z.string()).optional(),
+  brand: z.string().optional(),
+  manufacturer: z.string().optional(),
   price: z.coerce.number().min(0),
   compareAtPrice: z.coerce.number().min(0).optional(),
   isDiscounted: z.boolean().optional(),
