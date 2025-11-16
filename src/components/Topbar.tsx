@@ -133,8 +133,9 @@ export default function Topbar() {
                   priority
                 />
               </div>
-              <div className="hidden sm:block text-lg font-bold text-white tracking-wide">
-                {brand}
+              <div className="hidden lg:flex lg:flex-col sm:block text-lg font-bold text-white tracking-wide">
+                <h1>{brand}</h1>
+                <p>আমার শপ</p>
               </div>
             </Link>
 
@@ -261,7 +262,7 @@ export default function Topbar() {
               aria-label="Cart"
             >
               <ShoppingCart className="w-8 h-8" />
-              <span className="font-semibold">Cart</span>
+              <span className="font-semibold">Bag</span>
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] font-bold rounded-full px-1">
                   {cartCount > 9 ? "9+" : cartCount}
@@ -319,7 +320,7 @@ export default function Topbar() {
               aria-label="Call hotline"
             >
               {/* <Phone className="w-8 h-8" /> */}
-             <MessageCircleCodeIcon></MessageCircleCodeIcon>
+              <MessageCircleCodeIcon></MessageCircleCodeIcon>
               <span className="font-semibold">Chat</span>
             </a>
           </div>
