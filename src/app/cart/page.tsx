@@ -14,7 +14,14 @@ import {
   ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
+
+/**
+ * CartPage - Redesigned mobile-first cart UI to match provided screenshot.
+ * - Keeps all existing store API calls untouched (updateQuantity, removeItem, clearCart, getTotalPrice).
+ * - Adds top date-tabs (static placeholder) and a sticky bottom checkout bar with total.
+ * - Mobile cards: left image, center title+meta, right qty controls + actions.
+ */
 
 // helpers
 const toNum = (v: unknown, f = 0) =>
@@ -29,16 +36,48 @@ const getStock = (it: any): number => {
 };
 
 export default function CartPage() {
+  // store selectors (keep unchanged)
   const items = useCartStore((s) => s.items);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const removeItem = useCartStore((s) => s.removeItem);
   const clearCart = useCartStore((s) => s.clearCart);
   const getTotalPrice = useCartStore((s) => s.getTotalPrice);
 
-  const total = useMemo(() => money(getTotalPrice?.() ?? 0), [getTotalPrice]);
+  // UI local state
+  const [activeDateIndex, setActiveDateIndex] = useState(0); // for top tabs (static)
+  const [loadingId, setLoadingId] = useState<string | null>(null);
 
-  // empty cart
-  if (items.length === 0) {
+  // memoized total (so it doesn't recompute every render unless store getter changes)
+  const totalNumber = useMemo(() => {
+    try {
+      const val = getTotalPrice?.();
+      return Number.isFinite(Number(val)) ? Number(val) : 0;
+    } catch {
+      return 0;
+    }
+  }, [getTotalPrice]);
+
+  const total = useMemo(() => money(totalNumber), [totalNumber]);
+
+  // small helper to safely update qty with UI feedback
+  const safeUpdateQuantity = useCallback(
+    async (id: string, next: number) => {
+      // guard
+      setLoadingId(id);
+      try {
+        updateQuantity(id, next);
+      } catch (e) {
+        console.error("updateQuantity failed", e);
+      } finally {
+        // small delay to keep UX smooth
+        setTimeout(() => setLoadingId((cur) => (cur === id ? null : cur)), 150);
+      }
+    },
+    [updateQuantity]
+  );
+
+  // empty cart view
+  if (!items || items.length === 0) {
     return (
       <div className="min-h-[70vh] flex flex-col justify-center items-center bg-white text-center px-4 sm:px-6 py-12">
         <div className="inline-flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 bg-cyan-50 rounded-full mb-6">
@@ -48,8 +87,7 @@ export default function CartPage() {
           Your cart is empty
         </h2>
         <p className="text-gray-600 mb-6 max-w-xs sm:max-w-md mx-auto text-sm sm:text-base">
-          Add Original products to your bag and start a healthy lifestyle
-          today!
+          Add original products to your bag and start a healthy lifestyle today!
         </p>
         <Link
           href="/products"
@@ -62,24 +100,34 @@ export default function CartPage() {
     );
   }
 
-  // ✅ summary panel
-  const SummaryPanel = () => (
-    <div className="bg-white rounded-2xl border border-cyan-100 p-5 sm:p-6 shadow-md sm:shadow-lg text-sm sm:text-base">
-      <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-5 flex items-center gap-2">
-        <ShoppingBag className="w-5 h-5 text-cyan-600" />
-        Order Summary
-      </h2>
+  // Summary panel component (desktop & mobile variant)
+  const SummaryPanel = useCallback(
+    ({ compact = false }: { compact?: boolean }) => (
+      <div
+        className={`bg-white rounded-2xl border border-cyan-100 ${
+          compact ? "p-3" : "p-5 sm:p-6"
+        } shadow-md sm:shadow-lg text-sm sm:text-base`}
+      >
+        <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <ShoppingBag className="w-5 h-5 text-cyan-600" />
+          Order Summary
+        </h2>
 
-      <div className="space-y-4 mb-6">
-        <div className="flex justify-between text-gray-700">
-          <span>Items ({items.length})</span>
-          <span className="font-semibold">{total}</span>
+        <div className="space-y-3 mb-4">
+          <div className="flex justify-between text-gray-700">
+            <span>Items ({items.length})</span>
+            <span className="font-semibold">{total}</span>
+          </div>
+
+          <div className="flex justify-between text-gray-700">
+            <span>Delivery</span>
+            <span className="font-semibold text-cyan-600">FREE</span>
+          </div>
+
+          {/* potential place for coupon/discount row */}
         </div>
-        <div className="flex justify-between text-gray-700">
-          <span>Delivery</span>
-          <span className="font-semibold text-cyan-600">FREE</span>
-        </div>
-        <div className="border-t border-gray-100 pt-4">
+
+        <div className="border-t border-gray-100 pt-3">
           <div className="flex justify-between items-center">
             <span className="text-base sm:text-lg font-semibold text-gray-800">
               Grand Total
@@ -89,48 +137,90 @@ export default function CartPage() {
             </span>
           </div>
         </div>
-      </div>
 
-      <Link href="/checkout" className="block">
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="w-full bg-gradient-to-r from-[#167389] to-[#167389]  hover:from-cyan-200 hover:to-cyan-600 text-white py-3 sm:py-4 rounded-xl font-semibold text-sm sm:text-base hover:bg-cyan-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+        <Link href="/checkout" className="block mt-4">
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full bg-gradient-to-r from-[#167389] to-[#167389] text-white py-3 sm:py-4 rounded-xl font-semibold text-sm sm:text-base hover:bg-cyan-700 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+            aria-label="Proceed to checkout"
+          >
+            Proceed to Checkout
+            <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+          </motion.button>
+        </Link>
+
+        <button
+          onClick={clearCart}
+          className="hidden lg:flex w-full items-center justify-center gap-2 mt-4 px-6 py-3 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition font-medium text-sm sm:text-base"
+          aria-label="Clear all items"
         >
-          Proceed to Checkout
-          <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
-        </motion.button>
-      </Link>
-
-      <button
-        onClick={clearCart}
-        className="hidden lg:flex w-full items-center justify-center gap-2 mt-4 px-6 py-3 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition font-medium text-sm sm:text-base"
-      >
-        <Trash2 className="w-4 h-4" />
-        Clear All
-      </button>
-    </div>
+          <Trash2 className="w-4 h-4" />
+          Clear All
+        </button>
+      </div>
+    ),
+    [items.length, total, clearCart]
   );
 
   return (
-    <main className="min-h-screen bg-white pb-24 lg:pb-8">
-      <div className="mx-auto max-w-6xl px-3 xs:px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
-        {/* Header */}
-        <div className="mb-6 sm:mb-8">
-          <div className="flex items-center gap-2 sm:gap-3 mb-2">
+    <main className="min-h-screen bg-white pb-32 lg:pb-8">
+      <div className="mx-auto max-w-6xl px-3 xs:px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        {/* Header + top tabs (date selector like image) */}
+        <div className="mb-4 sm:mb-6">
+          <div className="flex items-center gap-3 mb-3">
             <div className="p-2 bg-cyan-100 rounded-lg">
               <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 text-[#167389]" />
             </div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">
-              Your Shopping Bag
+              Bag
             </h1>
+            <button
+              onClick={clearCart}
+              className="ml-auto text-sm text-red-500 hover:underline"
+            >
+              Clear bag
+            </button>
+          </div>
+
+          {/* date tabs row (static for now) */}
+          <div className="flex items-center gap-4 overflow-auto pb-2">
+            {[
+              { label: "Fri, 14 Nov, 2025", amt: money(totalNumber) },
+              { label: "Sat, 15 Nov, 2025", amt: "৳237.00" },
+            ].map((d, i) => {
+              const active = i === activeDateIndex;
+              return (
+                <button
+                  key={i}
+                  onClick={() => setActiveDateIndex(i)}
+                  className={`min-w-[160px] flex-shrink-0 rounded-lg px-4 py-3 border ${
+                    active
+                      ? "bg-white border-cyan-300 shadow-sm"
+                      : "bg-gray-50 border-gray-100"
+                  }`}
+                  aria-pressed={active}
+                >
+                  <div
+                    className={`text-xs ${active ? "text-gray-800" : "text-gray-500"}`}
+                  >
+                    {d.label}
+                  </div>
+                  <div
+                    className={`font-semibold ${active ? "text-[#167389]" : "text-gray-700"}`}
+                  >
+                    {d.amt}
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* Items + Summary grid */}
+        {/* Items + summary grid */}
         <div className="grid lg:grid-cols-3 gap-6 sm:gap-8">
-          {/* Items list */}
-          <div className="lg:col-span-2 space-y-4">
+          {/* Items list (left/main) */}
+          <div className="lg:col-span-2 space-y-2">
             <AnimatePresence initial={false} mode="popLayout">
               {items.map((item) => {
                 const price = toNum(item.price);
@@ -139,6 +229,7 @@ export default function CartPage() {
                 const stock = getStock(item);
                 const outOfStock = stock === 0;
                 const atMax = qty >= stock;
+                const loading = loadingId === item._id;
 
                 return (
                   <motion.div
@@ -148,21 +239,17 @@ export default function CartPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 8 }}
                     transition={{ duration: 0.18 }}
-                    className="bg-white rounded-2xl border border-cyan-100 p-3 sm:p-4 md:p-5 shadow-sm 
-             flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-5"
+                    className="bg-white rounded-md border border-cyan-200 p-2 sm:p-4 md:p-5 shadow-sm flex items-center gap-3 h-30"
                   >
-                    {/* 🖼 Product Image */}
+                    {/* Left: image */}
                     <div className="relative flex-shrink-0">
-                      <div
-                        className="w-20 h-20 xs:w-24 xs:h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-xl overflow-hidden 
-                    bg-gray-50 ring-1 ring-cyan-100 flex items-center justify-center"
-                      >
+                      <div className="w-30 h-25 xs:w-24 xs:h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-md p-1 overflow-hidden bg-gray-50 ring-1 ring-cyan-100 flex items-center justify-center">
                         <Image
                           src={item.image || "https://via.placeholder.com/112"}
                           alt={item.title}
                           width={128}
                           height={128}
-                          className="object-cover w-full h-full transition-transform duration-300 hover:scale-105"
+                          className="object-cover w-full h-full transition-transform duration-300"
                         />
                       </div>
                       {outOfStock && (
@@ -172,66 +259,78 @@ export default function CartPage() {
                       )}
                     </div>
 
-                    {/* 📄 Item Details */}
-                    <div className="flex-1 w-full min-w-0 flex flex-col justify-between">
-                      <div className="flex justify-between items-start w-full mb-2">
-                        <div className="min-w-0 flex-1">
+                    {/* Middle: details */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-between">
+                      <div className="flex justify-between items-start">
+                        <div className="min-w-0 flex-1 pr-3">
                           <h3 className="font-semibold text-gray-800 text-sm sm:text-base md:text-lg mb-1 line-clamp-2">
                             {item.title}
                           </h3>
-                          <div className="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm text-gray-700">
+                          <div className="text-xs sm:text-sm text-gray-600">
+                            {item.brand || item.manufacturer || ""}
+                          </div>
+
+                          <div className="mt-2 flex items-center gap-2 text-xs sm:text-sm text-gray-700">
                             <span className="font-semibold text-cyan-700">
                               {money(price)}
                             </span>
-                            <span className="text-gray-400">×</span>
-                            <span className="font-medium">{qty}</span>
+                            <span>
+                              ({money(price)} × {qty})
+                            </span>
                             {Number.isFinite(stock) && stock !== Infinity && (
                               <span className="ml-1 text-[11px] sm:text-xs text-gray-500">
-                                (Stock: {stock})
+                                Stock: {stock}
                               </span>
                             )}
                           </div>
                         </div>
 
+                        {/* remove button */}
                         <button
                           onClick={() => removeItem(item._id)}
                           className="p-1 text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+                          aria-label={`Remove ${item.title}`}
                         >
                           <X className="w-4 h-4 sm:w-5 sm:h-5" />
                         </button>
                       </div>
 
-                      {/* ➕ Quantity & total */}
-                      <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 mt-1">
-                        {/* Quantity Controls */}
+                      {/* Quantity & line total row */}
+                      <div className="mt-3 flex items-center justify-between gap-3">
+                        {/* qty controls */}
                         <div className="flex items-center gap-1 bg-cyan-50 rounded-xl px-1 py-1">
                           <button
                             onClick={() =>
-                              updateQuantity(item._id, Math.max(1, qty - 1))
+                              safeUpdateQuantity(item._id, Math.max(1, qty - 1))
                             }
                             disabled={qty <= 1 || outOfStock}
-                            className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-md bg-white 
-                     border border-cyan-200 text-cyan-700 hover:bg-cyan-100 
-                     transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-md bg-white border border-cyan-200 text-cyan-700 hover:bg-cyan-100 transition disabled:opacity-50"
+                            aria-label={`Decrease quantity for ${item.title}`}
                           >
-                            <Minus className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                            <Minus className="w-3.5 h-3.5" />
                           </button>
-                          <div className="min-w-[2rem] text-center font-semibold text-gray-800 text-sm sm:text-base">
-                            {qty}
+
+                          <div className="min-w-[2.2rem] text-center font-semibold text-gray-800 text-sm">
+                            {loading ? "..." : qty}
                           </div>
+
                           <button
-                            onClick={() => updateQuantity(item._id, qty + 1)}
+                            onClick={() =>
+                              safeUpdateQuantity(
+                                item._id,
+                                Math.min(stock || qty + 1, qty + 1)
+                              )
+                            }
                             disabled={outOfStock || atMax}
-                            className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-md bg-white 
-                     border border-cyan-200 text-cyan-700 hover:bg-cyan-100 
-                     transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-md bg-white border border-cyan-200 text-cyan-700 hover:bg-cyan-100 transition disabled:opacity-50"
+                            aria-label={`Increase quantity for ${item.title}`}
                           >
-                            <Plus className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                            <Plus className="w-3.5 h-3.5" />
                           </button>
                         </div>
 
-                        {/* Line total */}
-                        <div className="text-right flex-1">
+                        {/* line total */}
+                        <div className="text-right">
                           <div className="text-[10px] sm:text-xs text-gray-500 leading-none">
                             Total
                           </div>
@@ -246,7 +345,7 @@ export default function CartPage() {
               })}
             </AnimatePresence>
 
-            {/* ✅ Clear cart - mobile */}
+            {/* Clear cart button mobile */}
             <button
               onClick={clearCart}
               className="w-full lg:hidden flex items-center justify-center gap-2 px-5 py-3 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition text-sm sm:text-base font-medium"
@@ -255,18 +354,36 @@ export default function CartPage() {
               Clear All
             </button>
 
-            {/* ✅ Order summary below items (mobile) */}
+            {/* mobile summary (below list) */}
             <div className="block lg:hidden mt-4 sm:mt-6">
-              <SummaryPanel />
+              <SummaryPanel compact />
             </div>
           </div>
 
-          {/* ✅ Desktop Summary Panel */}
+          {/* Desktop summary */}
           <div className="lg:col-span-1 hidden lg:block">
             <div className="sticky top-4">
               <SummaryPanel />
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Sticky bottom checkout bar (mobile) */}
+      <div className="fixed left-0 right-0 bottom-0 z-40 bg-white/90 backdrop-blur-sm border-t border-gray-100 p-3 lg:hidden">
+        <div className="max-w-6xl mx-auto px-3 sm:px-6 flex items-center justify-between gap-3">
+          <div>
+            <div className="text-xs text-gray-500">Place Order</div>
+            <div className="text-lg font-bold text-[#167389]">{total}</div>
+          </div>
+          <Link href="/checkout" className="flex-1">
+            <button
+              className="w-full bg-[#47c7ac] text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-md hover:opacity-95 transition"
+              aria-label="Place order and go to checkout"
+            >
+              Place Order: {total}
+            </button>
+          </Link>
         </div>
       </div>
     </main>

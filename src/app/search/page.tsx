@@ -15,6 +15,7 @@ import type { ProductsQuery } from "@/services/catalog";
 import { useCartStore } from "@/store/cartStore";
 import { toast } from "react-hot-toast";
 
+
 const FALLBACK_IMG =
   "data:image/svg+xml;utf8," +
   encodeURIComponent(
@@ -138,14 +139,30 @@ export default function SearchPageRTK() {
     {}
   );
 
+  // 안전한 초기화: কেবল তখনি setState কল করা হবে যখন নতুন product id পাওয়া যাবে
   useEffect(() => {
-    // initialize quantities for visible products
-    const init: Record<string, number> = {};
-    parsedProducts.forEach((p) => {
-      if (!(p._id in init)) init[p._id] = 1;
+    if (!parsedProducts || parsedProducts.length === 0) return;
+
+    setQuantities((prev) => {
+      // কপি না করে শুধু যাচাই করে দেখব কোনো নতুন id আছে কিনা
+      let changed = false;
+      const next = { ...prev }; // copy previous only once if we will modify
+
+      for (const p of parsedProducts) {
+        const id = String(p._id ?? "");
+        if (!id) continue;
+        if (!(id in next)) {
+          next[id] = 1;
+          changed = true;
+        }
+      }
+
+      // যদি কোনো নতুন id না পাওয়া যায় — আগের অবস্থা ফেরত দাও (no state change)
+      return changed ? next : prev;
     });
-    setQuantities((prev) => ({ ...init, ...prev }));
-  }, [parsedProducts]);
+    // ডিপেন্ড করে রাখছি items length-এ বা parsedProducts.map(p=>p._id).join(',')
+    // কিন্তু সবচেয়ে সিম্পল ও নিরাপদ: depend on parsedProducts.length OR items
+  }, [parsedProducts.length]);
 
   const setLoadingOn = useCallback((id: string) => {
     setLoadingStates((s) => ({ ...s, [id]: true }));
@@ -352,7 +369,7 @@ export default function SearchPageRTK() {
                   )
                 : 0;
 
-              const qty = quantities[p._1d ?? p._id] ?? quantities[p._id] ?? 1;
+              const qty = quantities[p._id ?? p._id] ?? quantities[p._id] ?? 1;
               const loading = !!loadingStates[p._id];
               const stock = Math.max(0, Number(p.stock ?? 0));
 
