@@ -1,12 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-/**
- * Central order types.
- * This file is intentionally permissive / backward compatible:
- * - OrderLine accepts both `quantity` and `qty` (some APIs use one or the other)
- * - Accepts `title` or `name` for product title, `image` for thumbnail
- * This prevents TypeScript build errors across different payload shapes.
- */
 
 export interface CreateOrderDTO {
   items: Array<{

@@ -42,7 +42,7 @@ export default async function LatestGrid({
 
         <Link
           href="/search?sort=createdAt%3Adesc"
-          className="text-sm sm:text-base font-medium text-pink-600 hover:text-pink-700 transition-colors flex items-center gap-1 group"
+          className="text-sm sm:text-base font-medium text-pink-600 hover:text-pink-700 transition-colors flex items-center gap-1 group "
         >
           View all
           <svg

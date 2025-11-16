@@ -41,9 +41,6 @@ export const ZProduct = z.object({
   status: z.enum(["ACTIVE", "DRAFT", "HIDDEN"]),
   createdAt: z.string().optional(),
   description: z.string().optional().default(""),
-  // Add missing fields
-  brand: z.string().optional(),
-  manufacturer: z.string().optional(),
   sku: z.string().optional(),
   vendor: z.string().optional(),
 });

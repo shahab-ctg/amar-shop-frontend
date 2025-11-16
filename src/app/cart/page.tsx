@@ -16,13 +16,6 @@ import {
 import Link from "next/link";
 import { useState, useMemo, useCallback } from "react";
 
-/**
- * CartPage - Redesigned mobile-first cart UI to match provided screenshot.
- * - Keeps all existing store API calls untouched (updateQuantity, removeItem, clearCart, getTotalPrice).
- * - Adds top date-tabs (static placeholder) and a sticky bottom checkout bar with total.
- * - Mobile cards: left image, center title+meta, right qty controls + actions.
- */
-
 // helpers
 const toNum = (v: unknown, f = 0) =>
   Number.isFinite(Number(v)) ? Number(v) : f;
@@ -76,31 +69,7 @@ export default function CartPage() {
     [updateQuantity]
   );
 
-  // empty cart view
-  if (!items || items.length === 0) {
-    return (
-      <div className="min-h-[70vh] flex flex-col justify-center items-center bg-white text-center px-4 sm:px-6 py-12">
-        <div className="inline-flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 bg-cyan-50 rounded-full mb-6">
-          <ShoppingCart className="w-10 h-10 sm:w-12 sm:h-12 text-[#167389]" />
-        </div>
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
-          Your cart is empty
-        </h2>
-        <p className="text-gray-600 mb-6 max-w-xs sm:max-w-md mx-auto text-sm sm:text-base">
-          Add original products to your bag and start a healthy lifestyle today!
-        </p>
-        <Link
-          href="/products"
-          className="inline-flex items-center gap-2 bg-[#167389] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full hover:bg-cyan-700 transition-all shadow-lg hover:shadow-xl text-sm sm:text-base font-medium"
-        >
-          <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
-          Shop Products
-        </Link>
-      </div>
-    );
-  }
-
-  // Summary panel component (desktop & mobile variant)
+  // Summary panel component - FIXED: moved to top level before any conditional returns
   const SummaryPanel = useCallback(
     ({ compact = false }: { compact?: boolean }) => (
       <div
@@ -162,6 +131,30 @@ export default function CartPage() {
     ),
     [items.length, total, clearCart]
   );
+
+  // empty cart view - NOW this comes after all hooks
+  if (!items || items.length === 0) {
+    return (
+      <div className="min-h-[70vh] flex flex-col justify-center items-center bg-white text-center px-4 sm:px-6 py-12">
+        <div className="inline-flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 bg-cyan-50 rounded-full mb-6">
+          <ShoppingCart className="w-10 h-10 sm:w-12 sm:h-12 text-[#167389]" />
+        </div>
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
+          Your cart is empty
+        </h2>
+        <p className="text-gray-600 mb-6 max-w-xs sm:max-w-md mx-auto text-sm sm:text-base">
+          Add original products to your bag and start a healthy lifestyle today!
+        </p>
+        <Link
+          href="/products"
+          className="inline-flex items-center gap-2 bg-[#167389] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full hover:bg-cyan-700 transition-all shadow-lg hover:shadow-xl text-sm sm:text-base font-medium"
+        >
+          <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
+          Shop Products
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-white pb-32 lg:pb-8">

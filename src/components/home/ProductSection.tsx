@@ -63,20 +63,20 @@ export default function ProductSection({
     <section className="py-8 lg:py-12 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+        <div className="flex sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
           <div className="flex-1">
             <h2 className="text-2xl lg:text-3xl font-bold text-[#167389] mb-2">
               {title}
             </h2>
             {subtitle && (
-              <p className="text-lg text-gray-600 max-w-2xl">{subtitle}</p>
+              <p className="text-lg text-gray-600 max-w-2xl line-clamp-2 font-extralight">{subtitle}</p>
             )}
           </div>
 
           {showViewAll && (
             <Link
               href={href}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r bg-[#167389] text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:gap-3 group"
+              className="inline-flex w-30 h-10 items-center gap-2 px-3 py-2 bg-gradient-to-r bg-[#167389] text-white rounded-md font-semibold hover:shadow-lg transition-all duration-300 hover:gap-3 group"
             >
               View All
               <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />

@@ -390,7 +390,7 @@ export default function TrendingGrid({
           </div>
           <Link
             href="/search?tag=trending"
-            className="text-sm text-white bg-cyan-600 font-medium hover:text-pink-700"
+            className="text-sm text-white bg-cyan-600 font-medium hover:text-pink-700 rounded-xl px-3 py-2"
           >
             See all →
           </Link>
@@ -443,15 +443,15 @@ export default function TrendingGrid({
                   <div className="text-xs text-gray-700 font-medium mb-1">
                     Qty
                   </div>
-                  <div className="flex items-center gap-1 bg-gray-200 rounded-md p-1">
+                  <div className="flex items-center gap-1 bg-gray-200 rounded-md p-2">
                     <button
                       onClick={() => decrementQuantity(prod.p._id)}
                       disabled={!!loadingStates[prod.p._id] || prod.qty <= 1}
-                      className="w-4 h-4 rounded-md bg-white text-black border"
+                      className="w-6 h-6 rounded-md bg-white text-black border"
                     >
                       −
                     </button>
-                    <div className="flex-1 text-center font-bold">
+                    <div className="flex-1 text-center font-bold text-black">
                       {prod.qty}
                     </div>
                     <button
@@ -460,7 +460,7 @@ export default function TrendingGrid({
                         !!loadingStates[prod.p._id] ||
                         prod.qty >= Math.max(1, prod.stock)
                       }
-                      className="w-4 h-4 rounded-md bg-white text-black border"
+                      className="w-6 h-6 rounded-md bg-white text-black border"
                     >
                       +
                     </button>

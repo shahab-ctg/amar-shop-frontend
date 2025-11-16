@@ -104,7 +104,7 @@ export default async function ProductsPage({
               {q ? (
                 <>
                   No results for{" "}
-                  <strong className="text-gray-800">"{q}"</strong>. Try
+                  <strong className="text-gray-800">{q}</strong>. Try
                   different keywords or browse categories.
                 </>
               ) : (

@@ -392,9 +392,9 @@ export default function ProductsGridClient({
 
               {/* CENTER: price, compare, delivery info (kept compact) */}
               <div className="flex-1 min-w-0">
-                <div className="text-xs text-gray-500 mb-1 line-clamp-1">
+                {/* <div className="text-xs text-gray-500 mb-1 line-clamp-1">
                   {p.brand ?? p.manufacturer ?? ""}
-                </div>
+                </div> */}
 
                 <Link
                   href={`/products/${encodeURIComponent(p.slug ?? p._id)}`}

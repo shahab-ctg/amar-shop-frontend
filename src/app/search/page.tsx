@@ -139,14 +139,14 @@ export default function SearchPageRTK() {
     {}
   );
 
-  // 안전한 초기화: কেবল তখনি setState কল করা হবে যখন নতুন product id পাওয়া যাবে
+  
   useEffect(() => {
     if (!parsedProducts || parsedProducts.length === 0) return;
 
     setQuantities((prev) => {
-      // কপি না করে শুধু যাচাই করে দেখব কোনো নতুন id আছে কিনা
+     
       let changed = false;
-      const next = { ...prev }; // copy previous only once if we will modify
+      const next = { ...prev }; 
 
       for (const p of parsedProducts) {
         const id = String(p._id ?? "");
@@ -157,11 +157,10 @@ export default function SearchPageRTK() {
         }
       }
 
-      // যদি কোনো নতুন id না পাওয়া যায় — আগের অবস্থা ফেরত দাও (no state change)
+      
       return changed ? next : prev;
     });
-    // ডিপেন্ড করে রাখছি items length-এ বা parsedProducts.map(p=>p._id).join(',')
-    // কিন্তু সবচেয়ে সিম্পল ও নিরাপদ: depend on parsedProducts.length OR items
+    
   }, [parsedProducts.length]);
 
   const setLoadingOn = useCallback((id: string) => {
@@ -376,7 +375,7 @@ export default function SearchPageRTK() {
               return (
                 <div
                   key={p._id}
-                  className="bg-white rounded-md overflow-hidden border border-gray-200 shadow-sm p-3 flex items-center gap-3"
+                  className="bg-white rounded-md overflow-hidden border border-gray-200 shadow-sm p-2 flex items-center gap-2"
                 >
                   {/* LEFT: small image + discount badge above image */}
                   <div className="w-24 flex-shrink-0">
@@ -387,7 +386,7 @@ export default function SearchPageRTK() {
                         </span>
                       )}
                     </div>
-                    <div className="relative h-20 w-20 rounded-md overflow-hidden bg-white border flex items-center justify-center">
+                    <div className="relative h-30 w-24 rounded-md overflow-hidden bg-white border flex items-center justify-center">
                       <Link
                         href={`/products/${encodeURIComponent(p.slug)}`}
                         aria-label={`View ${p.title}`}
@@ -397,7 +396,7 @@ export default function SearchPageRTK() {
                           alt={p.title}
                           fill
                           sizes="80px"
-                          className="object-contain"
+                          className="object-cover"
                         />
                       </Link>
                     </div>
@@ -456,7 +455,7 @@ export default function SearchPageRTK() {
                           −
                         </button>
 
-                        <div className="flex-1 text-center font-bold">
+                        <div className="flex-1 text-black text-center font-bold">
                           {quantities[p._id] ?? 1}
                         </div>
 

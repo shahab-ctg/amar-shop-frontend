@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/components/home/DiscountedGrid.tsx
 import Link from "next/link";
 import Image from "next/image";
@@ -25,12 +26,7 @@ export default async function DiscountedGrid({
     sort: "createdAt:desc",
   });
 
-  // এখানে পরিবর্তন করুন
-  const items = Array.isArray(res)
-    ? (res.map((p) => ZProduct.parse(p)) as Product[])
-    : Array.isArray(res.data)
-      ? (res.data.map((p) => ZProduct.parse(p)) as Product[])
-      : [];
+  const items = res.data.items.map((p: any) => ZProduct.parse(p)) as Product[];
 
   return (
     <section className="py-8 md:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
