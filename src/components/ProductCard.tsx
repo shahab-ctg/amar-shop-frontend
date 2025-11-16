@@ -356,7 +356,7 @@ export default function ProductCard({
      Mobile card (matches TrendingGrid mobile layout)
      ----------------------- */
   const MobileCard = (
-    <article className="lg:hidden bg-white rounded-md overflow-hidden border border-gray-200 shadow-sm p-2 flex gap-2">
+    <article className="lg:hidden bg-white rounded-md overflow-hidden border border-cyan-300 shadow-sm p-2 flex gap-2">
       {/* LEFT: image area 2/3 */}
       <div className="w-2/3">
         {/* discount badge ABOVE image (not overlay) */}
@@ -369,14 +369,14 @@ export default function ProductCard({
         </div>
 
         {/* image container */}
-        <div className="relative h-20 rounded-md overflow-hidden border flex items-center justify-center bg-white">
+        <div className="relative h-25 rounded-md overflow-hidden border flex items-center justify-center bg-white">
           <Link href={`/products/${slug}`} aria-label={`View ${title}`}>
             <Image
               src={image}
               alt={title}
               fill
               sizes="(max-width:640px) 50vw"
-              className="object-contain"
+              className="object-cover"
               onError={(e) => {
                 // fallback handled by next/image if available; leaving for safety
               }}
